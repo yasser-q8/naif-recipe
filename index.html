@@ -4,11 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>شركة نايف للأغذية - نظام إدارة الوجبات والريسبي</title>
-    
-    <!-- الأيقونة -->
+
     <link rel="icon" href="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" type="image/jpeg">
-    
-    <!-- المكتبات الخارجية -->
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -43,7 +41,6 @@
         ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: #9d68a0; border-radius: 4px; }
 
-        /* توقيع المطور المطوّر */
         .signature-card {
             position: fixed;
             bottom: 15px;
@@ -53,7 +50,7 @@
             padding: 8px 14px;
             border-radius: 8px;
             box-shadow: 0 8px 20px rgba(109, 67, 112, 0.25);
-            font-size: 0.75rem;
+            font-size: 0.70rem;
             font-weight: 700;
             z-index: 1000;
             animation: floatSignature 5s ease-in-out infinite;
@@ -72,8 +69,8 @@
             100% { transform: translateY(0px); } 
         }
 
-        .signature-card .name { font-size: 0.85rem; font-weight: 800; color: #1e3a8a; }
-        .signature-card .title { font-size: 0.65rem; color: #2563eb; font-weight: 600; }
+        .signature-card .name { font-size: 0.8rem; font-weight: 800; color: #1e3a8a; }
+        .signature-card .title { font-size: 0.6rem; color: #2563eb; font-weight: 600; }
 
         @media print {
             .no-print { display: none !important; }
@@ -95,7 +92,7 @@
     <div id="loginScreen" class="fixed inset-0 bg-naifPurple-950/95 backdrop-blur-md z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 border border-naifPurple-900">
             <div class="text-center mb-6">
-                <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" alt="شركة نايف للأغذية" class="w-20 h-20 mx-auto rounded-full shadow-lg border-2 border-naifPurple-900 object-cover mb-3">
+                <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" onError="this.onerror=null;this.src='https://via.placeholder.com/80?text=NAIF';" alt="شركة نايف للأغذية" class="w-20 h-20 mx-auto rounded-full shadow-lg border-2 border-naifPurple-900 object-cover mb-3">
                 <h2 class="text-2xl font-black text-naifPurple-900">شركة نايف للأغذية</h2>
                 <p class="text-xs text-slate-500 font-bold mt-1">نظام إدارة الأصناف وتكاليف الريسبي</p>
             </div>
@@ -120,16 +117,19 @@
         </div>
     </div>
 
-    <!-- الهيدر الرئيسي (مطابق للصورة المرفقة Capture.JPG) -->
+    <!-- الهيدر الرئيسي -->
     <header class="bg-naifPurple-900 text-white shadow-xl sticky top-0 z-40 border-b-4 border-naifPink-500">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-20">
                 <div class="flex items-center gap-4">
+                    <button onclick="toggleMobileSidebar()" class="md:hidden text-white p-2 text-xl">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
                     <div class="text-right">
                         <h1 class="text-xl font-black tracking-wide">شركة نايف للأغذية</h1>
                         <p class="text-xs text-purple-200 mt-0.5">نظام إدارة الأصناف وتكاليف الريسبي</p>
                     </div>
-                    <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" alt="شركة نايف للأغذية" class="w-14 h-14 rounded-full border-2 border-white object-cover shadow-md">
+                    <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" onError="this.onerror=null;this.src='https://via.placeholder.com/50?text=NAIF';" alt="شركة نايف للأغذية" class="w-14 h-14 rounded-full border-2 border-white object-cover shadow-md">
                 </div>
 
                 <div class="flex items-center gap-3">
@@ -138,11 +138,11 @@
                         <span>المستخدم: <strong id="currentUserDisplay" class="text-white">--</strong></span>
                     </div>
 
-                    <label id="btnImportExcel" title="سحب من ملف الإكسل" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-md">
+                    <button type="button" onclick="document.getElementById('excelFileInput').click()" title="سحب من ملف الإكسل" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md">
                         <i class="fa-solid fa-file-excel"></i>
                         <span class="hidden sm:inline">سحب من ملف الإكسل</span>
-                        <input type="file" id="excelFileInput" accept=".xlsx, .xlsm, .xls" onchange="importExcelFile(event)" class="hidden">
-                    </label>
+                    </button>
+                    <input type="file" id="excelFileInput" accept=".xlsx,.xlsm,.xls" onchange="importExcelFile(event)" class="hidden">
 
                     <button onclick="downloadBackup()" title="تنزيل نسخة احتياطية" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1">
                         <i class="fa-solid fa-download"></i>
@@ -165,7 +165,7 @@
     <div class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col md:flex-row gap-6">
 
         <!-- القائمة الجانبية -->
-        <aside class="w-full md:w-64 bg-white rounded-2xl shadow-md border border-purple-100 p-3 shrink-0 self-start sticky top-24">
+        <aside id="mainSidebar" class="w-full md:w-64 bg-white rounded-2xl shadow-md border border-purple-100 p-3 shrink-0 self-start sticky top-24 hidden md:block z-20">
             <div class="text-[11px] font-black text-naifPurple-900 uppercase px-3 py-2">القائمة الرئيسية</div>
             <nav class="space-y-1">
                 <button onclick="switchTab('recipes')" id="nav-recipes" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-xs text-slate-700 hover:bg-purple-50 transition">
@@ -190,10 +190,8 @@
         <!-- الشاشات الرئيسية -->
         <main class="flex-1 min-w-0">
 
-            <!-- الشاشة 1: كروت الوصفات (BOM Recipes) -->
+            <!-- الشاشة 1: الوصفات -->
             <section id="view-recipes" class="tab-view space-y-4">
-                
-                <!-- بار البحث المثبت علوياً (مطابق للصورة 333.JPG) -->
                 <div class="sticky-search-holder p-3.5 rounded-2xl border border-naifPurple-900/30 shadow-md">
                     <div class="flex items-center gap-3">
                         <i class="fa-solid fa-magnifying-glass text-naifPurple-900 text-base"></i>
@@ -203,12 +201,10 @@
                         </span>
                     </div>
                 </div>
-
-                <!-- حاوية كروت الوجبات -->
                 <div id="recipesContainer" class="space-y-6"></div>
             </section>
 
-            <!-- الشاشة 2: دليل الأسعار (Pricelist) -->
+            <!-- الشاشة 2: دليل الأسعار -->
             <section id="view-pricelist" class="tab-view hidden space-y-4">
                 <div class="bg-white p-4 rounded-2xl border border-purple-100 shadow-sm flex items-center justify-between">
                     <div>
@@ -247,7 +243,7 @@
                 </div>
             </section>
 
-            <!-- الشاشة 3: التقارير التحليلية والشاملة -->
+            <!-- الشاشة 3: التقارير -->
             <section id="view-reports" class="tab-view hidden space-y-4">
                 <div class="bg-white p-5 rounded-2xl border border-purple-100 shadow-sm flex flex-wrap items-center justify-between gap-3">
                     <div>
@@ -287,7 +283,7 @@
                 </div>
             </section>
 
-            <!-- الشاشة 4: سجل الحركات (Audit Log) -->
+            <!-- الشاشة 4: سجل الحركات -->
             <section id="view-auditlog" class="tab-view hidden space-y-4">
                 <div class="bg-white p-4 rounded-2xl border border-purple-100 shadow-sm flex items-center justify-between">
                     <div>
@@ -320,7 +316,7 @@
         </main>
     </div>
 
-    <!-- مودال تعديل مكونات الوجبة كاملة -->
+    <!-- مودال تعديل الوجبة -->
     <div id="recipeEditModal" class="fixed inset-0 bg-naifPurple-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[90vh]">
             <div class="bg-naifPurple-900 text-white p-4 flex items-center justify-between shrink-0">
@@ -392,15 +388,14 @@
         </div>
     </div>
 
-    <!-- التوقيع العائم المطوّر -->
+    <!-- التوقيع العائم -->
     <a href="https://yasser-q8.github.io/myprofile/#" class="signature-card" target="_blank" rel="noopener noreferrer">
         <div class="name">Yasser Elkhateeb</div>
-        <div class="title">مطور البرنامج 67011143</div>
+        <div class="title">67011143</div>
     </a>
 
-    <!-- البرمجة التشغيلية الكاملة -->
     <script>
-        const STORAGE_KEY = 'NAIF_FOODS_RECIPES_DB_V2026_FINAL';
+        const STORAGE_KEY = 'NAIF_FOODS_RECIPES_DB_V2026_ULTIMATE';
         let currentUser = null;
 
         let db = {
@@ -414,10 +409,25 @@
             switchTab('recipes');
         });
 
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('mainSidebar');
+            sidebar.classList.toggle('hidden');
+        }
+
         function loadDatabase() {
             const data = localStorage.getItem(STORAGE_KEY);
             if (data) {
-                try { db = JSON.parse(data); } catch (e) { initDefaultData(); }
+                try {
+                    const parsed = JSON.parse(data);
+                    db = {
+                        pricelist: Array.isArray(parsed.pricelist) ? parsed.pricelist : [],
+                        meals: Array.isArray(parsed.meals) ? parsed.meals : [],
+                        auditLogs: Array.isArray(parsed.auditLogs) ? parsed.auditLogs : []
+                    };
+                } catch (e) {
+                    console.warn('Corrupted DB, reinitializing', e);
+                    initDefaultData();
+                }
             } else { initDefaultData(); }
         }
 
@@ -503,6 +513,7 @@
         }
 
         function addAuditLog(actionType, details) {
+            if (!Array.isArray(db.auditLogs)) db.auditLogs = [];
             const now = new Date();
             const dateStr = now.toLocaleDateString('en-GB') + ' ' + now.toLocaleTimeString('en-GB');
             db.auditLogs.unshift({
@@ -533,6 +544,9 @@
             if (activeNav) activeNav.classList.add('bg-purple-100', 'text-naifPurple-900');
 
             if (tabId === 'reports') renderReportsTable();
+            if (window.innerWidth < 768) {
+                document.getElementById('mainSidebar').classList.add('hidden');
+            }
         }
 
         function formatQty(val) {
@@ -543,7 +557,7 @@
         }
 
         function formatPrice(val, decimals = 3) {
-            if (val === null || val === undefined || isNaN(val)) return '0.000';
+            if (val === null || val === undefined || isNaN(val) || val === 0) return '-';
             return parseFloat(val).toFixed(decimals);
         }
 
@@ -579,9 +593,9 @@
                 const totalInCost = mainCost + inExtra;
                 const sp = meal.sellingPrice || 0;
 
-                const mainProfit = sp - mainCost;
-                const outProfit = sp - totalOutCost;
-                const inProfit = sp - totalInCost;
+                const mainProfit = sp > 0 ? sp - mainCost : 0;
+                const outProfit = sp > 0 ? sp - totalOutCost : 0;
+                const inProfit = sp > 0 ? sp - totalInCost : 0;
 
                 const mainProfitPct = sp > 0 ? (mainProfit / sp * 100) : 0;
                 const outProfitPct = sp > 0 ? (outProfit / sp * 100) : 0;
@@ -594,7 +608,6 @@
                 const hidePrices = currentUser === 'مستخدم';
                 const canEditAll = currentUser === 'Yasser' || currentUser === 'ادمن';
 
-                // تقريب المسافة بين الأعمدة في الجداول
                 const rowsHtml = meal.ingredients.map((ing) => `
                     <tr class="hover:bg-purple-50/50 border-b border-slate-100 text-xs">
                         <td class="py-2 px-1 font-bold text-slate-800 text-right text-[13.5px]">${ing.item}</td>
@@ -609,10 +622,9 @@
                 return `
                 <div class="bg-white rounded-2xl border-2 border-purple-200 shadow-md overflow-hidden flex flex-col recipe-card-box">
                     
-                    <!-- الهيدر الخاص بالوجبة -->
                     <div class="bg-naifPurple-900 text-white p-4 flex flex-wrap items-center justify-between gap-3">
                         <div class="flex items-center gap-3">
-                            <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" class="w-10 h-10 rounded-full border border-white object-cover">
+                            <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" onError="this.onerror=null;this.src='https://via.placeholder.com/40?text=NAIF';" class="w-10 h-10 rounded-full border border-white object-cover">
                             <div>
                                 <h3 class="font-extrabold text-lg text-white flex items-center gap-2">
                                     <span>${meal.name}</span>
@@ -629,7 +641,6 @@
                         </div>
                     </div>
 
-                    <!-- جدول المكونات -->
                     <div class="p-4 bg-purple-50/20 overflow-x-auto">
                         <table class="w-full text-right border-collapse">
                             <thead>
@@ -648,12 +659,10 @@
                         </table>
                     </div>
 
-                    <!-- الجزء السفلي -->
                     ${hidePrices ? '' : `
                     <div class="p-4 bg-naifPurple-900 text-white space-y-3 border-t-2 border-purple-300">
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                             
-                            <!-- الوجبة الأصلية -->
                             <div class="bg-naifPurple-950/80 p-3 rounded-xl border border-purple-700 space-y-1.5">
                                 <h4 class="text-xs font-black text-purple-200 border-b border-purple-800 pb-1">الوجبة الأصلية</h4>
                                 <div class="flex justify-between items-center text-xs font-bold">
@@ -666,19 +675,18 @@
                                 </div>
                                 <div class="flex justify-between items-center text-xs font-bold">
                                     <span>الربح المالي:</span>
-                                    <span class="font-mono text-amber-300 text-sm font-black">${formatPrice(mainProfit, 3)}</span>
+                                    <span class="font-mono text-amber-300 text-sm font-black">${sp > 0 ? formatPrice(mainProfit, 3) : '-'}</span>
                                 </div>
                                 <div class="flex justify-between items-center text-xs font-bold pt-1 border-t border-purple-800/50">
                                     <span>نسبة الربح %:</span>
-                                    <span class="font-mono text-emerald-400 text-sm font-black">${mainProfitPct.toFixed(2)}%</span>
+                                    <span class="font-mono text-emerald-400 text-sm font-black">${sp > 0 ? mainProfitPct.toFixed(2) + '%' : '-'}</span>
                                 </div>
                                 <div class="flex justify-between items-center text-xs font-bold">
                                     <span>نسبة التكلفة %:</span>
-                                    <span class="font-mono text-rose-300 text-sm font-black">${mainCostPct.toFixed(2)}%</span>
+                                    <span class="font-mono text-rose-300 text-sm font-black">${sp > 0 ? mainCostPct.toFixed(2) + '%' : '-'}</span>
                                 </div>
                             </div>
 
-                            <!-- توصيل خارجي -->
                             <div class="bg-naifPurple-950/80 p-3 rounded-xl border border-purple-700 space-y-1.5">
                                 <h4 class="text-xs font-black text-purple-200 border-b border-purple-800 pb-1">توصيل خارجي</h4>
                                 <div class="flex justify-between items-center text-xs font-bold">
@@ -691,19 +699,18 @@
                                 </div>
                                 <div class="flex justify-between items-center text-xs font-bold">
                                     <span>الربح المالي:</span>
-                                    <span class="font-mono text-amber-300 text-sm font-black">${formatPrice(outProfit, 3)}</span>
+                                    <span class="font-mono text-amber-300 text-sm font-black">${sp > 0 ? formatPrice(outProfit, 3) : '-'}</span>
                                 </div>
                                 <div class="flex justify-between items-center text-xs font-bold pt-1 border-t border-purple-800/50">
                                     <span>نسبة الربح %:</span>
-                                    <span class="font-mono text-emerald-400 text-sm font-black">${outProfitPct.toFixed(2)}%</span>
+                                    <span class="font-mono text-emerald-400 text-sm font-black">${sp > 0 ? outProfitPct.toFixed(2) + '%' : '-'}</span>
                                 </div>
                                 <div class="flex justify-between items-center text-xs font-bold">
                                     <span>نسبة التكلفة %:</span>
-                                    <span class="font-mono text-rose-300 text-sm font-black">${outCostPct.toFixed(2)}%</span>
+                                    <span class="font-mono text-rose-300 text-sm font-black">${sp > 0 ? outCostPct.toFixed(2) + '%' : '-'}</span>
                                 </div>
                             </div>
 
-                            <!-- داخل المطعم -->
                             <div class="bg-naifPurple-950/80 p-3 rounded-xl border border-purple-700 space-y-1.5">
                                 <h4 class="text-xs font-black text-purple-200 border-b border-purple-800 pb-1">داخل المطعم (داين إن)</h4>
                                 <div class="flex justify-between items-center text-xs font-bold">
@@ -716,15 +723,15 @@
                                 </div>
                                 <div class="flex justify-between items-center text-xs font-bold">
                                     <span>الربح المالي:</span>
-                                    <span class="font-mono text-amber-300 text-sm font-black">${formatPrice(inProfit, 3)}</span>
+                                    <span class="font-mono text-amber-300 text-sm font-black">${sp > 0 ? formatPrice(inProfit, 3) : '-'}</span>
                                 </div>
                                 <div class="flex justify-between items-center text-xs font-bold pt-1 border-t border-purple-800/50">
                                     <span>نسبة الربح %:</span>
-                                    <span class="font-mono text-emerald-400 text-sm font-black">${inProfitPct.toFixed(2)}%</span>
+                                    <span class="font-mono text-emerald-400 text-sm font-black">${sp > 0 ? inProfitPct.toFixed(2) + '%' : '-'}</span>
                                 </div>
                                 <div class="flex justify-between items-center text-xs font-bold">
                                     <span>نسبة التكلفة %:</span>
-                                    <span class="font-mono text-rose-300 text-sm font-black">${inCostPct.toFixed(2)}%</span>
+                                    <span class="font-mono text-rose-300 text-sm font-black">${sp > 0 ? inCostPct.toFixed(2) + '%' : '-'}</span>
                                 </div>
                             </div>
 
@@ -732,7 +739,6 @@
                     </div>
                     `}
 
-                    <!-- أزرار التحكم والتحرير -->
                     <div class="p-3 bg-purple-50 border-t border-purple-200 flex items-center justify-between no-print">
                         ${canEditAll ? `
                             <button onclick="openRecipeEditModal(${index})" class="bg-naifPurple-900 hover:bg-naifPurple-800 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition flex items-center gap-1 shadow">
@@ -927,7 +933,7 @@
                     }
                 });
                 const sp = meal.sellingPrice || 0;
-                const profit = sp - mainCost;
+                const profit = sp > 0 ? sp - mainCost : 0;
                 const profitPct = sp > 0 ? (profit / sp * 100) : 0;
                 const costPct = sp > 0 ? (mainCost / sp * 100) : 0;
 
@@ -936,63 +942,96 @@
                         <td class="p-3 font-bold text-slate-800">${meal.name}</td>
                         <td class="p-3 text-center font-mono font-bold text-emerald-700">${formatPrice(sp, 3)}</td>
                         <td class="p-3 text-center font-mono font-bold text-rose-700">${formatPrice(mainCost, 3)}</td>
-                        <td class="p-3 text-center font-mono font-bold text-amber-600">${formatPrice(profit, 3)}</td>
-                        <td class="p-3 text-center font-mono font-bold text-emerald-600">${profitPct.toFixed(2)}%</td>
-                        <td class="p-3 text-center font-mono font-bold text-rose-600">${costPct.toFixed(2)}%</td>
+                        <td class="p-3 text-center font-mono font-bold text-amber-600">${sp > 0 ? formatPrice(profit, 3) : '-'}</td>
+                        <td class="p-3 text-center font-mono font-bold text-emerald-600">${sp > 0 ? profitPct.toFixed(2) + '%' : '-'}</td>
+                        <td class="p-3 text-center font-mono font-bold text-rose-600">${sp > 0 ? costPct.toFixed(2) + '%' : '-'}</td>
                     </tr>
                 `;
             }).join('');
         }
 
         function exportReportPDF() {
-            const element = document.getElementById('reportPrintArea');
-            const clone = element.cloneNode(true);
-            clone.querySelectorAll('.no-print').forEach(el => el.remove());
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'pt', 'a4');
+            const rowsPerPage = 18;
+            const totalPages = Math.ceil(db.meals.length / rowsPerPage) || 1;
 
-            const printWrapper = document.createElement('div');
-            printWrapper.style.position = 'fixed';
-            printWrapper.style.top = '0';
-            printWrapper.style.left = '-9999px';
-            printWrapper.style.width = '794px';
-            printWrapper.style.background = '#ffffff';
-            printWrapper.style.direction = 'rtl';
-            printWrapper.style.padding = '24px';
+            for (let page = 0; page < totalPages; page++) {
+                if (page > 0) pdf.addPage();
 
-            const headerHtml = `
-                <div style="text-align:center; border-bottom:3px solid #6d4370; padding-bottom:12px; margin-bottom:16px;">
-                    <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid #6d4370;display:inline-block;">
-                    <h2 style="color:#6d4370; font-weight:900; margin:6px 0 2px 0; font-size:18px;">شركة نايف للأغذية</h2>
-                    <p style="font-size:12px; color:#555; margin:0;">تقرير ربحية وتكاليف الوجبات الشامل</p>
-                </div>
-            `;
-            const headerDiv = document.createElement('div');
-            headerDiv.innerHTML = headerHtml;
-            printWrapper.appendChild(headerDiv);
-            printWrapper.appendChild(clone);
+                const printWrapper = document.createElement('div');
+                printWrapper.style.position = 'fixed';
+                printWrapper.style.top = '0';
+                printWrapper.style.left = '-9999px';
+                printWrapper.style.width = '794px';
+                printWrapper.style.background = '#ffffff';
+                printWrapper.style.direction = 'rtl';
+                printWrapper.style.padding = '20px';
 
-            const exportTime = new Date().toLocaleDateString('en-GB') + ' ' + new Date().toLocaleTimeString('en-GB');
-            const footerHtml = `
-                <div style="margin-top:20px; padding-top:10px; border-top:2px solid #6d4370; display:flex; justify-content:space-between; align-items:center; font-size:10px; color:#6d4370; font-weight:bold;">
-                    <div>تاريخ التصدير: ${exportTime}</div>
-                    <div>تطوير البرنامج: Yasser Elkhateeb (67011143)</div>
-                </div>
-            `;
-            const footerDiv = document.createElement('div');
-            footerDiv.innerHTML = footerHtml;
-            printWrapper.appendChild(footerDiv);
+                const slicedMeals = db.meals.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
 
-            document.body.appendChild(printWrapper);
+                let rowsHtml = slicedMeals.map(meal => {
+                    let mainCost = 0;
+                    meal.ingredients.forEach(ing => {
+                        if (ing.location === 'ALL' || !ing.location) mainCost += (ing.qty || 0) * (ing.price || 0);
+                    });
+                    const sp = meal.sellingPrice || 0;
+                    const profit = sp > 0 ? sp - mainCost : 0;
+                    const profitStr = sp > 0 ? formatPrice(profit, 3) : '-';
+                    const profitPct = sp > 0 ? (profit / sp * 100).toFixed(2) + '%' : '-';
+                    const costPct = sp > 0 ? (mainCost / sp * 100).toFixed(2) + '%' : '-';
 
-            html2canvas(printWrapper, { scale: 2, useCORS: true }).then(canvas => {
-                const { jsPDF } = window.jspdf;
-                const imgData = canvas.toDataURL('image/jpeg', 1.0);
-                const pdf = new jsPDF('p', 'pt', 'a4');
-                const imgWidth = pdf.internal.pageSize.getWidth();
-                const imgHeight = (canvas.height * imgWidth) / canvas.width;
-                pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
-                pdf.save('تقرير_ربحية_الوجبات.pdf');
-                document.body.removeChild(printWrapper);
-            });
+                    return `
+                        <tr style="border-bottom:1px solid #ddd; font-size:11px;">
+                            <td style="padding:8px; font-weight:bold;">${meal.name}</td>
+                            <td style="padding:8px; text-align:center;">${formatPrice(sp, 3)}</td>
+                            <td style="padding:8px; text-align:center;">${formatPrice(mainCost, 3)}</td>
+                            <td style="padding:8px; text-align:center;">${profitStr}</td>
+                            <td style="padding:8px; text-align:center;">${profitPct}</td>
+                            <td style="padding:8px; text-align:center;">${costPct}</td>
+                        </tr>
+                    `;
+                }).join('');
+
+                printWrapper.innerHTML = `
+                    <div style="text-align:center; border-bottom:3px solid #6d4370; padding-bottom:10px; margin-bottom:14px;">
+                        <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" style="width:50px;height:50px;border-radius:50%;object-fit:cover;border:2px solid #6d4370;display:inline-block;">
+                        <h2 style="color:#6d4370; font-weight:900; margin:4px 0 2px 0; font-size:16px;">شركة نايف للأغذية</h2>
+                        <p style="font-size:11px; color:#555; margin:0;">تقرير ربحية وتكاليف الوجبات الشامل - صفحة ${page + 1} من ${totalPages}</p>
+                    </div>
+                    <table style="width:100%; border-collapse:collapse; text-align:right;">
+                        <thead>
+                            <tr style="background:#6d4370; color:#fff; font-size:11px;">
+                                <th style="padding:8px;">اسم الوجبة</th>
+                                <th style="padding:8px; text-align:center;">سعر البيع</th>
+                                <th style="padding:8px; text-align:center;">التكلفة الرئيسية</th>
+                                <th style="padding:8px; text-align:center;">الربح المالي</th>
+                                <th style="padding:8px; text-align:center;">نسبة الربح %</th>
+                                <th style="padding:8px; text-align:center;">نسبة التكلفة %</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rowsHtml}</tbody>
+                    </table>
+                    <div style="margin-top:20px; padding-top:8px; border-top:2px solid #6d4370; display:flex; justify-content:space-between; font-size:9px; color:#6d4370; font-weight:bold;">
+                        <div>تاريخ التصدير: ${new Date().toLocaleDateString('en-GB')}</div>
+                        <div>Yasser Elkhateeb - 67011143</div>
+                    </div>
+                `;
+
+                document.body.appendChild(printWrapper);
+
+                html2canvas(printWrapper, { scale: 2, useCORS: true }).then(canvas => {
+                    const imgData = canvas.toDataURL('image/jpeg', 1.0);
+                    const imgWidth = pdf.internal.pageSize.getWidth();
+                    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                    pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
+
+                    document.body.removeChild(printWrapper);
+                    if (page === totalPages - 1) {
+                        pdf.save('تقرير_ربحية_الوجبات_الشامل.pdf');
+                    }
+                });
+            }
         }
 
         function exportReportExcel() {
@@ -1000,13 +1039,13 @@
                 let mainCost = 0;
                 m.ingredients.forEach(i => { if (i.location === 'ALL' || !i.location) mainCost += (i.qty || 0) * (i.price || 0); });
                 const sp = m.sellingPrice || 0;
-                const profit = sp - mainCost;
+                const profit = sp > 0 ? sp - mainCost : 0;
                 return {
                     "اسم الوجبة": m.name,
-                    "سعر البيع": sp,
+                    "سعر البيع": sp > 0 ? sp : "-",
                     "التكلفة الرئيسية": parseFloat(mainCost.toFixed(3)),
-                    "الربح المالي": parseFloat(profit.toFixed(3)),
-                    "نسبة الربح %": sp > 0 ? parseFloat((profit / sp * 100).toFixed(2)) : 0
+                    "الربح المالي": sp > 0 ? parseFloat(profit.toFixed(3)) : "-",
+                    "نسبة الربح %": sp > 0 ? parseFloat((profit / sp * 100).toFixed(2)) + '%' : "-"
                 };
             });
 
@@ -1016,31 +1055,118 @@
             XLSX.writeFile(workbook, "Naif_Foods_Reports.xlsx");
         }
 
+        /* ═══════════════════════════════════════════════════════════════
+           📥 دالة استيراد الإكسل المطوَّرة — مع كاشف أخطاء تفصيلي (4 مراحل)
+           ═══════════════════════════════════════════════════════════════ */
         function importExcelFile(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+            const inputEl = event.target;
+            const file = inputEl.files && inputEl.files[0];
+            if (!file) { return; }
+
+            if (typeof XLSX === 'undefined') {
+                alert('❌ مكتبة XLSX لم تُحمَّل. تحقق من الإنترنت وأعد تحميل الصفحة.');
+                inputEl.value = '';
+                return;
+            }
+
+            const nameLower = file.name.toLowerCase();
+            const allowedExts = ['.xlsx', '.xlsm', '.xls', '.xlsb'];
+            if (!allowedExts.some(ext => nameLower.endsWith(ext))) {
+                alert('❌ امتداد الملف غير مدعوم.\nالمسموح: ' + allowedExts.join(', '));
+                inputEl.value = '';
+                return;
+            }
+
+            if (file.size === 0) {
+                alert('❌ الملف فارغ (0 بايت).');
+                inputEl.value = '';
+                return;
+            }
+
+            console.log('[Import] بدء الاستيراد:', file.name, file.size + ' bytes', file.type);
 
             const reader = new FileReader();
+
+            reader.onerror = function() {
+                const msg = (reader.error && reader.error.message) ? reader.error.message : 'خطأ غير معروف';
+                alert('❌ فشل قراءة الملف من القرص:\n' + msg);
+                console.error('[Import] FileReader.onerror:', reader.error);
+                inputEl.value = '';
+            };
+
             reader.onload = function(e) {
+
+                let binaryData;
                 try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
+                    binaryData = new Uint8Array(e.target.result);
+                    console.log('[Import] تم تحميل ' + binaryData.length + ' بايت في الذاكرة');
+                } catch (stepErr) {
+                    alert('❌ خطوة 1 — فشل تحويل الملف إلى بيانات:\n' + stepErr.message);
+                    console.error('[Import] step1:', stepErr);
+                    inputEl.value = '';
+                    return;
+                }
 
-                    let importedPricelist = [];
-                    let importedMeals = [];
+                let workbook;
+                try {
+                    workbook = XLSX.read(binaryData, {
+                        type: 'array',
+                        cellDates: false,
+                        cellNF: false,
+                        cellText: false,
+                        cellHTML: false
+                    });
+                    console.log('[Import] ✅ المصنف مفتوح. عدد الشيتات:', workbook.SheetNames.length);
+                } catch (e1) {
+                    console.warn('[Import] المحاولة الأولى فشلت، تجربة بديلة...', e1);
+                    try {
+                        workbook = XLSX.read(binaryData, { type: 'array', dense: true });
+                        console.log('[Import] ✅ نجح بالوضع dense');
+                    } catch (e2) {
+                        console.warn('[Import] المحاولة الثانية فشلت، تجربة xls...', e2);
+                        try {
+                            workbook = XLSX.read(binaryData, { type: 'array', bookType: 'xls' });
+                            console.log('[Import] ✅ نجح كـ xls');
+                        } catch (e3) {
+                            console.error('[Import] كل المحاولات فشلت:', { e1, e2, e3 });
+                            alert('❌ خطوة 2 — تعذر فتح الملف كإكسل:\n' + (e1.message || String(e1)) +
+                                  '\n\nالأسباب المحتملة:\n' +
+                                  '• الملف محمي بكلمة مرور\n' +
+                                  '• الملف تالف أو ناقص\n' +
+                                  '• الملف ليس فعلياً إكسل (تم تغيير الامتداد فقط)\n' +
+                                  '• الملف محفوظ بصيغة غير مدعومة (مثل ODS أو CSV بامتداد xlsx)');
+                            inputEl.value = '';
+                            return;
+                        }
+                    }
+                }
 
-                    const unitsList = ['حبة', 'جرام', 'علبة', 'شريحة', 'جالون', 'ماعون', 'باكت', 'بطل', 'قطعة', 'اونس', 'مل لتر', 'الشد'];
+                if (!workbook || !Array.isArray(workbook.SheetNames) || workbook.SheetNames.length === 0) {
+                    alert('❌ خطوة 2 — الملف لا يحتوي على أي شيتات.');
+                    inputEl.value = '';
+                    return;
+                }
 
-                    const priceSheet = workbook.Sheets['pricelist'] || workbook.Sheets['PriceList'] || workbook.Sheets['price'];
-                    if (priceSheet) {
-                        const priceJson = XLSX.utils.sheet_to_json(priceSheet, { header: 1 });
+                let importedPricelist = [];
+                let importedMeals = [];
+                const sheetErrors = [];
+                const unitsList = ['حبة', 'جرام', 'علبة', 'شريحة', 'جالون', 'ماعون', 'باكت', 'بطل', 'قطعة', 'اونس', 'مل لتر', 'الشد'];
+
+                // 3a) pricelist
+                try {
+                    const priceSheetName = workbook.SheetNames.find(s => {
+                        const sl = String(s).toLowerCase().trim();
+                        return sl === 'pricelist' || sl === 'price';
+                    });
+                    if (priceSheetName) {
+                        const priceSheet = workbook.Sheets[priceSheetName];
+                        const priceJson = XLSX.utils.sheet_to_json(priceSheet, { header: 1, raw: true, defval: null });
                         for (let i = 3; i < priceJson.length; i++) {
                             const row = priceJson[i];
-                            if (row && row[0]) {
+                            if (row && row[0] != null && String(row[0]).trim() !== '') {
                                 const itemName = String(row[0]).trim();
                                 let defaultPrice = 0;
-                                let unitPrices = {};
-
+                                const unitPrices = {};
                                 for (let col = 1; col < row.length; col++) {
                                     const val = parseFloat(row[col]);
                                     if (!isNaN(val) && val > 0) {
@@ -1049,76 +1175,91 @@
                                         if (defaultPrice === 0) defaultPrice = val;
                                     }
                                 }
-
-                                if (itemName) {
-                                    importedPricelist.push({
-                                        item: itemName,
-                                        unit: 'حبة',
-                                        price: defaultPrice,
-                                        unitPrices: unitPrices
-                                    });
-                                }
+                                importedPricelist.push({ item: itemName, unit: 'حبة', price: defaultPrice, unitPrices });
                             }
                         }
+                        console.log('[Import] pricelist: ' + importedPricelist.length + ' صنف');
                     }
+                } catch (priceErr) {
+                    console.warn('[Import] pricelist error:', priceErr);
+                    sheetErrors.push('pricelist: ' + (priceErr.message || priceErr));
+                }
 
-                    workbook.SheetNames.forEach(sheetName => {
-                        if (sheetName.toLowerCase() !== 'pricelist' && sheetName.toLowerCase() !== 'price') {
-                            const sheet = workbook.Sheets[sheetName];
-                            
-                            const b2Cell = sheet['B2'] || sheet['b2'];
-                            const mealName = b2Cell ? String(b2Cell.v).trim() : sheetName;
+                // 3b) شيتات الوجبات
+                workbook.SheetNames.forEach(sheetName => {
+                    try {
+                        const sNameClean = String(sheetName).toLowerCase().trim();
+                        if (sNameClean === 'pricelist' || sNameClean === 'price') return;
 
-                            const c41Cell = sheet['C41'] || sheet['c41'];
-                            const sellingPrice = c41Cell ? (parseFloat(c41Cell.v) || 0) : 0;
+                        const sheet = workbook.Sheets[sheetName];
+                        if (!sheet) { return; }
 
-                            const sheetJson = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-                            const ingredients = [];
+                        const b2Cell = sheet['B2'] || sheet['b2'];
+                        const mealName = (b2Cell && b2Cell.v != null && String(b2Cell.v).trim() !== '')
+                            ? String(b2Cell.v).trim()
+                            : sheetName;
 
-                            for (let r = 4; r <= 34; r++) {
-                                const row = sheetJson[r];
-                                if (row && row[0] && String(row[0]).trim() !== '') {
-                                    const itemName = String(row[0]).trim();
-                                    const location = row[1] ? String(row[1]).trim() : 'ALL';
-                                    const unit = row[2] ? String(row[2]).trim() : 'حبة';
-                                    const qty = row[3] ? (parseFloat(row[3]) || 0) : 0;
-                                    const price = row[4] ? (parseFloat(row[4]) || 0) : 0;
-                                    const total = row[5] ? (parseFloat(row[5]) || 0) : (qty * price);
-
-                                    ingredients.push({
-                                        item: itemName,
-                                        location: location,
-                                        unit: unit,
-                                        qty: qty,
-                                        price: price,
-                                        total: total
-                                    });
-                                }
-                            }
-
-                            if (ingredients.length > 0) {
-                                importedMeals.push({
-                                    name: mealName,
-                                    sellingPrice: sellingPrice,
-                                    ingredients: ingredients
-                                });
-                            }
+                        const c41Cell = sheet['C41'] || sheet['c41'];
+                        let sellingPrice = 0;
+                        if (c41Cell && c41Cell.v != null) {
+                            const parsed = parseFloat(c41Cell.v);
+                            if (!isNaN(parsed)) sellingPrice = parsed;
                         }
-                    });
 
+                        const sheetJson = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: true, defval: null });
+                        const ingredients = [];
+                        const maxRow = Math.min(34, sheetJson.length - 1);
+                        for (let r = 4; r <= maxRow; r++) {
+                            const row = sheetJson[r];
+                            if (!row || row[0] == null || String(row[0]).trim() === '') continue;
+                            const itemName = String(row[0]).trim();
+                            const location = (row[1] != null && String(row[1]).trim() !== '') ? String(row[1]).trim() : 'ALL';
+                            const unit = (row[2] != null && String(row[2]).trim() !== '') ? String(row[2]).trim() : 'حبة';
+                            const qty = (row[3] != null) ? (parseFloat(row[3]) || 0) : 0;
+                            const price = (row[4] != null) ? (parseFloat(row[4]) || 0) : 0;
+                            const total = (row[5] != null) ? (parseFloat(row[5]) || (qty * price)) : (qty * price);
+                            ingredients.push({ item: itemName, location, unit, qty, price, total });
+                        }
+
+                        if (ingredients.length > 0) {
+                            importedMeals.push({ name: mealName, sellingPrice, ingredients });
+                        }
+                    } catch (singleSheetErr) {
+                        console.warn('[Import] تخطي شيت "' + sheetName + '":', singleSheetErr);
+                        sheetErrors.push(sheetName + ': ' + (singleSheetErr.message || singleSheetErr));
+                    }
+                });
+
+                console.log('[Import] meals: ' + importedMeals.length + ' وجبة');
+                if (sheetErrors.length > 0) console.warn('[Import] أخطاء في بعض الشيتات:', sheetErrors);
+
+                // 4) الحفظ والعرض
+                try {
                     if (importedPricelist.length > 0) db.pricelist = importedPricelist;
                     if (importedMeals.length > 0) db.meals = importedMeals;
 
                     saveDatabase();
-                    addAuditLog('سحب إكسل', `تم سحب ملف إكسل بنجاح (${importedMeals.length} وجبة)`);
-                    alert(`تم سحب الملف بنجاح! تم استيراد ${importedMeals.length} وجبة.`);
+                    addAuditLog('سحب إكسل', 'تم سحب ' + importedMeals.length + ' وجبة من ' + workbook.SheetNames.length + ' شيت');
                     renderRecipeCards();
                     renderPricelistTable();
                     renderReportsTable();
 
-                } catch (err) {
-                    console.error(err);
-                    alert('حدث خطأ أثناء قراءة ملف الإكسل.');
+                    let msg = '✅ تم الاستيراد بنجاح!\n';
+                    msg += '• عدد الوجبات: ' + importedMeals.length + '\n';
+                    msg += '• عدد أصناف pricelist: ' + importedPricelist.length + '\n';
+                    msg += '• عدد الشيتات الكلي: ' + workbook.SheetNames.length;
+                    if (sheetErrors.length > 0) {
+                        msg += '\n\n⚠️ تم تخطي ' + sheetErrors.length + ' شيت بسبب أخطاء\n(راجع Console بالضغط F12 لمزيد من التفاصيل)';
+                    }
+                    alert(msg);
+                } catch (saveErr) {
+                    console.error('[Import] save/render error:', saveErr);
+                    alert('❌ خطوة 4 — تم قراءة الملف لكن فشل الحفظ أو العرض:\n' +
+                          (saveErr.message || String(saveErr)) +
+                          '\n\nالسبب المحتمل: مساحة التخزين localStorage ممتلئة.\n' +
+                          'الحل: امسح بيانات الموقع من إعدادات المتصفح وأعد المحاولة.');
+                } finally {
+                    inputEl.value = '';
                 }
             };
             reader.readAsArrayBuffer(file);
@@ -1189,18 +1330,28 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
-                    const imported = JSON.parse(e.target.result);
-                    if (imported && imported.meals) {
-                        db = imported;
+                    const text = e.target.result;
+                    const imported = JSON.parse(text);
+                    if (imported) {
+                        if (Array.isArray(imported)) {
+                            db.meals = imported;
+                        } else {
+                            db.meals = imported.meals || db.meals;
+                            db.pricelist = imported.pricelist || db.pricelist;
+                            db.auditLogs = imported.auditLogs || db.auditLogs;
+                        }
                         saveDatabase();
                         addAuditLog('استعادة نسخة احتياطية', 'تمت استعادة البيانات بنجاح من الملف');
                         alert('تمت استعادة البيانات بنجاح!');
                         location.reload();
                     } else {
-                        alert('ملف النسخة الاحتياطية غير صالح!');
+                        alert('ملف النسخة الاحتياطية فارغ أو غير صالح!');
                     }
                 } catch (err) {
-                    alert('خطأ في قراءة ملف النسخة الاحتياطية');
+                    console.error("Restore error:", err);
+                    alert('خطأ في قراءة ملف النسخة الاحتياطية: تأكد من أن الملف بصيغة JSON سليمة.');
+                } finally {
+                    event.target.value = '';
                 }
             };
             reader.readAsText(file);
@@ -1225,7 +1376,6 @@
             printWrapper.style.background = '#ffffff';
             printWrapper.style.direction = 'rtl';
             printWrapper.style.padding = '20px';
-            printWrapper.style.boxSizing = 'border-box';
 
             const headerHtml = `
                 <div style="text-align:center; border-bottom:3px solid #6d4370; padding-bottom:10px; margin-bottom:14px;">
@@ -1242,9 +1392,9 @@
 
             const exportTime = new Date().toLocaleDateString('en-GB') + ' ' + new Date().toLocaleTimeString('en-GB');
             const footerHtml = `
-                <div style="margin-top:15px; padding-top:8px; border-top:2px solid #6d4370; display:flex; justify-content:space-between; align-items:center; font-size:10px; color:#6d4370; font-weight:bold;">
+                <div style="margin-top:15px; padding-top:8px; border-top:2px solid #6d4370; display:flex; justify-content:space-between; align-items:center; font-size:9px; color:#6d4370; font-weight:bold;">
                     <div>تاريخ ووقت التصدير: ${exportTime}</div>
-                    <div>تطوير البرنامج: Yasser Elkhateeb (67011143)</div>
+                    <div>Yasser Elkhateeb - 67011143</div>
                 </div>
             `;
             const footerDiv = document.createElement('div');
