@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>شركة نايف للأغذية - نظام إدارة الوجبات والريسبي</title>
     
-    <!-- النافذة والأيقونة -->
+    <!-- الأيقونة -->
     <link rel="icon" href="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" type="image/jpeg">
     
     <!-- المكتبات الخارجية -->
@@ -20,16 +20,13 @@
             theme: {
                 extend: {
                     colors: {
-                        purpleBrand: {
-                            50: '#f5f3ff',
-                            100: '#ede9fe',
-                            200: '#ddd6fe',
-                            500: '#8b5cf6',
-                            600: '#7c3aed',
-                            700: '#6d28d9',
-                            800: '#5b21b6',
-                            900: '#4c1d95',
-                            950: '#2e1065'
+                        naifPurple: {
+                            800: '#58325a',
+                            900: '#6d4370',
+                            950: '#3d203f'
+                        },
+                        naifPink: {
+                            500: '#c95574'
                         }
                     },
                     fontFamily: { sans: ['Segoe UI', 'Tahoma', 'Cairo', 'sans-serif'] }
@@ -40,11 +37,11 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
-        body { font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif; background-color: #f3f0f7; }
+        body { font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif; background-color: #f7f3f8; }
 
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #a78bfa; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #9d68a0; border-radius: 4px; }
 
         /* توقيع المطور المطوّر */
         .signature-card {
@@ -55,7 +52,7 @@
             color: #1e3a8a;
             padding: 8px 14px;
             border-radius: 8px;
-            box-shadow: 0 8px 20px rgba(76, 29, 149, 0.25);
+            box-shadow: 0 8px 20px rgba(109, 67, 112, 0.25);
             font-size: 0.75rem;
             font-weight: 700;
             z-index: 1000;
@@ -87,78 +84,76 @@
             position: sticky;
             top: 0;
             z-index: 30;
-            background-color: rgba(245, 243, 255, 0.95);
+            background-color: rgba(247, 243, 248, 0.95);
             backdrop-filter: blur(8px);
         }
     </style>
 </head>
-<body class="bg-purpleBrand-50 text-slate-800 antialiased min-h-screen flex flex-col">
+<body class="bg-purple-50 text-slate-800 antialiased min-h-screen flex flex-col">
 
     <!-- شاشة تسجيل الدخول -->
-    <div id="loginScreen" class="fixed inset-0 bg-purpleBrand-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 border border-purpleBrand-200">
+    <div id="loginScreen" class="fixed inset-0 bg-naifPurple-950/95 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 border border-naifPurple-900">
             <div class="text-center mb-6">
-                <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" alt="شركة نايف للأغذية" class="w-20 h-20 mx-auto rounded-full shadow-lg border-2 border-purpleBrand-500 object-cover mb-3">
-                <h2 class="text-2xl font-black text-purpleBrand-900">شركة نايف للأغذية</h2>
-                <p class="text-xs text-purpleBrand-600 font-bold mt-1">نظام إدارة تكاليف الوجبات والريسبي</p>
+                <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" alt="شركة نايف للأغذية" class="w-20 h-20 mx-auto rounded-full shadow-lg border-2 border-naifPurple-900 object-cover mb-3">
+                <h2 class="text-2xl font-black text-naifPurple-900">شركة نايف للأغذية</h2>
+                <p class="text-xs text-slate-500 font-bold mt-1">نظام إدارة الأصناف وتكاليف الريسبي</p>
             </div>
             
             <form onsubmit="handleLogin(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">اسم المستخدم</label>
-                    <select id="loginUserSelect" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm font-bold text-slate-800 focus:ring-2 focus:ring-purpleBrand-600 outline-none">
-                        <option value="Yasser">المستخدم: Yasser (كامل الصلاحيات)</option>
-                        <option value="ادمن">المستخدم: ادمن (عرض وتعديل الريسبي والأسعار)</option>
-                        <option value="مستخدم">المستخدم: مستخدم (كميات وتعديل المسمى فقط)</option>
+                    <select id="loginUserSelect" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm font-bold text-slate-800 focus:ring-2 focus:ring-naifPurple-900 outline-none">
+                        <option value="Yasser">Yasser</option>
+                        <option value="ادمن">ادمن</option>
+                        <option value="مستخدم">مستخدم</option>
                     </select>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">كلمة المرور</label>
-                    <input type="password" id="loginPassword" required placeholder="أدخل كلمة المرور" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm font-bold focus:ring-2 focus:ring-purpleBrand-600 outline-none">
+                    <input type="password" id="loginPassword" required placeholder="أدخل كلمة المرور" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm font-bold focus:ring-2 focus:ring-naifPurple-900 outline-none">
                 </div>
-                <button type="submit" class="w-full bg-purpleBrand-700 hover:bg-purpleBrand-800 text-white font-black py-3 rounded-xl shadow-lg transition flex items-center justify-center gap-2">
+                <button type="submit" class="w-full bg-naifPurple-900 hover:bg-naifPurple-800 text-white font-black py-3 rounded-xl shadow-lg transition flex items-center justify-center gap-2">
                     <i class="fa-solid fa-right-to-bracket"></i> تسجيل الدخول
                 </button>
             </form>
         </div>
     </div>
 
-    <!-- الهيدر الرئيسي -->
-    <header class="bg-purpleBrand-900 text-white shadow-xl sticky top-0 z-40">
+    <!-- الهيدر الرئيسي (مطابق للصورة المرفقة Capture.JPG) -->
+    <header class="bg-naifPurple-900 text-white shadow-xl sticky top-0 z-40 border-b-4 border-naifPink-500">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <div class="flex items-center gap-3">
-                    <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" alt="شركة نايف للأغذية" class="w-10 h-10 rounded-full border-2 border-purpleBrand-200 object-cover shadow-md">
-                    <div>
-                        <h1 class="text-base font-black leading-tight">شركة نايف للأغذية</h1>
-                        <p class="text-[11px] text-purpleBrand-200">إدارة الوجبات والأسعار والريسبي</p>
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center gap-4">
+                    <div class="text-right">
+                        <h1 class="text-xl font-black tracking-wide">شركة نايف للأغذية</h1>
+                        <p class="text-xs text-purple-200 mt-0.5">نظام إدارة الأصناف وتكاليف الريسبي</p>
                     </div>
+                    <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" alt="شركة نايف للأغذية" class="w-14 h-14 rounded-full border-2 border-white object-cover shadow-md">
                 </div>
 
                 <div class="flex items-center gap-3">
-                    <!-- معلومات المستخدم الحالية -->
-                    <div class="bg-purpleBrand-950/60 px-3 py-1.5 rounded-xl border border-purpleBrand-700/50 flex items-center gap-2 text-xs">
-                        <i class="fa-solid fa-user-gear text-purpleBrand-300"></i>
-                        <span>المستخدم: <strong id="currentUserDisplay" class="text-purpleBrand-200">--</strong></span>
+                    <div class="bg-naifPurple-950/60 px-3 py-1.5 rounded-xl border border-purple-700/50 flex items-center gap-2 text-xs">
+                        <i class="fa-solid fa-user-gear text-purple-300"></i>
+                        <span>المستخدم: <strong id="currentUserDisplay" class="text-white">--</strong></span>
                     </div>
 
-                    <!-- أزرار الإكسل والنسخة الاحتياطية -->
-                    <label id="btnImportExcel" title="سحب من ملف الإكسل" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-md">
+                    <label id="btnImportExcel" title="سحب من ملف الإكسل" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-md">
                         <i class="fa-solid fa-file-excel"></i>
                         <span class="hidden sm:inline">سحب من ملف الإكسل</span>
                         <input type="file" id="excelFileInput" accept=".xlsx, .xlsm, .xls" onchange="importExcelFile(event)" class="hidden">
                     </label>
 
-                    <button onclick="downloadBackup()" title="تنزيل نسخة احتياطية" class="bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1">
+                    <button onclick="downloadBackup()" title="تنزيل نسخة احتياطية" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1">
                         <i class="fa-solid fa-download"></i>
                     </button>
 
-                    <label id="btnRestoreBackup" title="استعادة نسخة احتياطية (Yasser فقط)" class="bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 cursor-pointer">
+                    <label id="btnRestoreBackup" title="استعادة نسخة احتياطية" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1 cursor-pointer">
                         <i class="fa-solid fa-upload"></i>
                         <input type="file" id="restoreFileInput" accept=".json" onchange="restoreBackup(event)" class="hidden">
                     </label>
 
-                    <button onclick="logout()" title="تسجيل الخروج" class="bg-rose-600 hover:bg-rose-700 text-white px-2.5 py-1.5 rounded-xl text-xs font-bold transition">
+                    <button onclick="logout()" title="تسجيل الخروج" class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition">
                         <i class="fa-solid fa-power-off"></i>
                     </button>
                 </div>
@@ -170,19 +165,23 @@
     <div class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col md:flex-row gap-6">
 
         <!-- القائمة الجانبية -->
-        <aside class="w-full md:w-64 bg-white rounded-2xl shadow-md border border-purpleBrand-100 p-3 shrink-0 self-start sticky top-20">
-            <div class="text-[11px] font-black text-purpleBrand-500 uppercase px-3 py-2">القائمة الرئيسية</div>
+        <aside class="w-full md:w-64 bg-white rounded-2xl shadow-md border border-purple-100 p-3 shrink-0 self-start sticky top-24">
+            <div class="text-[11px] font-black text-naifPurple-900 uppercase px-3 py-2">القائمة الرئيسية</div>
             <nav class="space-y-1">
-                <button onclick="switchTab('recipes')" id="nav-recipes" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-xs text-slate-700 hover:bg-purpleBrand-50 transition">
-                    <i class="fa-solid fa-utensils text-purpleBrand-600 text-base w-5"></i>
+                <button onclick="switchTab('recipes')" id="nav-recipes" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-xs text-slate-700 hover:bg-purple-50 transition">
+                    <i class="fa-solid fa-utensils text-naifPurple-900 text-base w-5"></i>
                     <span>وصفات الوجبات (BOM)</span>
                 </button>
-                <button onclick="switchTab('pricelist')" id="nav-pricelist" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-xs text-slate-700 hover:bg-purpleBrand-50 transition">
-                    <i class="fa-solid fa-tags text-purpleBrand-600 text-base w-5"></i>
+                <button onclick="switchTab('pricelist')" id="nav-pricelist" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-xs text-slate-700 hover:bg-purple-50 transition">
+                    <i class="fa-solid fa-tags text-naifPurple-900 text-base w-5"></i>
                     <span>دليل الأسعار والأصناف</span>
                 </button>
-                <button onclick="switchTab('auditlog')" id="nav-auditlog" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-xs text-slate-700 hover:bg-purpleBrand-50 transition">
-                    <i class="fa-solid fa-clock-rotate-left text-purpleBrand-600 text-base w-5"></i>
+                <button onclick="switchTab('reports')" id="nav-reports" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-xs text-slate-700 hover:bg-purple-50 transition">
+                    <i class="fa-solid fa-chart-line text-naifPurple-900 text-base w-5"></i>
+                    <span>التقارير التحليلية</span>
+                </button>
+                <button onclick="switchTab('auditlog')" id="nav-auditlog" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-xs text-slate-700 hover:bg-purple-50 transition">
+                    <i class="fa-solid fa-clock-rotate-left text-naifPurple-900 text-base w-5"></i>
                     <span>سجل الحركات الكامل</span>
                 </button>
             </nav>
@@ -194,13 +193,13 @@
             <!-- الشاشة 1: كروت الوصفات (BOM Recipes) -->
             <section id="view-recipes" class="tab-view space-y-4">
                 
-                <!-- بار البحث المثبت علوياً -->
-                <div class="sticky-search-holder p-3.5 rounded-2xl border border-purpleBrand-200 shadow-md">
+                <!-- بار البحث المثبت علوياً (مطابق للصورة 333.JPG) -->
+                <div class="sticky-search-holder p-3.5 rounded-2xl border border-naifPurple-900/30 shadow-md">
                     <div class="flex items-center gap-3">
-                        <i class="fa-solid fa-magnifying-glass text-purpleBrand-600 text-base"></i>
-                        <input type="text" id="recipeSearchInput" onkeyup="renderRecipeCards()" placeholder="ابحث باسم الوجبة بالحرف أو الكلمة..." class="w-full bg-white border border-purpleBrand-200 rounded-xl px-4 py-2.5 text-xs font-bold focus:ring-2 focus:ring-purpleBrand-600 outline-none shadow-inner">
-                        <span class="text-xs font-black text-purpleBrand-900 shrink-0 bg-purpleBrand-100 px-3 py-2 rounded-xl">
-                            العدد: <span id="recipesCountBadge" class="text-purpleBrand-700 font-mono">0</span>
+                        <i class="fa-solid fa-magnifying-glass text-naifPurple-900 text-base"></i>
+                        <input type="text" id="recipeSearchInput" onkeyup="renderRecipeCards()" placeholder="ابحث باسم الوجبة بالحرف أو الكلمة..." class="w-full bg-white border border-naifPurple-900/40 rounded-xl px-4 py-2.5 text-xs font-bold focus:ring-2 focus:ring-naifPurple-900 outline-none shadow-inner">
+                        <span class="text-xs font-black text-naifPurple-900 shrink-0 bg-purple-100 px-4 py-2 rounded-xl border border-naifPurple-900/20">
+                            العدد: <span id="recipesCountBadge" class="text-naifPurple-900 font-mono">0</span>
                         </span>
                     </div>
                 </div>
@@ -211,20 +210,20 @@
 
             <!-- الشاشة 2: دليل الأسعار (Pricelist) -->
             <section id="view-pricelist" class="tab-view hidden space-y-4">
-                <div class="bg-white p-4 rounded-2xl border border-purpleBrand-100 shadow-sm flex items-center justify-between">
+                <div class="bg-white p-4 rounded-2xl border border-purple-100 shadow-sm flex items-center justify-between">
                     <div>
-                        <h2 class="text-base font-extrabold text-purpleBrand-900">دليل الأصناف والأسعار (pricelist)</h2>
+                        <h2 class="text-base font-extrabold text-naifPurple-900">دليل الأصناف والأسعار (pricelist)</h2>
                         <p class="text-xs text-slate-500">قائمة تكاليف الأصناف بجميع الوحدات المعتمدة</p>
                     </div>
-                    <div class="flex items-center gap-2">
+                    <div>
                         <input type="text" id="priceSearchInput" onkeyup="renderPricelistTable()" placeholder="ابحث برمز أو اسم الصنف..." class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-bold outline-none">
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl border border-purpleBrand-100 shadow-sm overflow-hidden">
+                <div class="bg-white rounded-2xl border border-purple-100 shadow-sm overflow-hidden">
                     <div class="overflow-x-auto">
                         <table class="w-full text-right text-xs">
-                            <thead class="bg-purpleBrand-900 text-white font-bold">
+                            <thead class="bg-naifPurple-900 text-white font-bold">
                                 <tr>
                                     <th class="p-3">اسم الصنف</th>
                                     <th class="p-3 text-center">حبة</th>
@@ -248,22 +247,62 @@
                 </div>
             </section>
 
-            <!-- الشاشة 3: سجل الحركات (Audit Log) -->
-            <section id="view-auditlog" class="tab-view hidden space-y-4">
-                <div class="bg-white p-4 rounded-2xl border border-purpleBrand-100 shadow-sm flex items-center justify-between">
+            <!-- الشاشة 3: التقارير التحليلية والشاملة -->
+            <section id="view-reports" class="tab-view hidden space-y-4">
+                <div class="bg-white p-5 rounded-2xl border border-purple-100 shadow-sm flex flex-wrap items-center justify-between gap-3">
                     <div>
-                        <h2 class="text-base font-extrabold text-purpleBrand-900">سجل أنشطة وحركات النظام (Audit Log)</h2>
-                        <p class="text-xs text-slate-500">يتم الاحتفاظ بآخر 1000 حركة تلقائياً</p>
+                        <h2 class="text-base font-extrabold text-naifPurple-900">التقارير التحليلية الشاملة لجميع الوجبات</h2>
+                        <p class="text-xs text-slate-500">استعراض أسعار البيع، التكاليف، الأرباح، ونسب الربحية الاحترافية</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="exportReportPDF()" class="bg-rose-600 hover:bg-rose-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow">
+                            <i class="fa-solid fa-file-pdf"></i> تصدير PDF
+                        </button>
+                        <button onclick="exportReportExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow">
+                            <i class="fa-solid fa-file-excel"></i> تصدير إكسل
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-purple-100 shadow-sm overflow-hidden" id="reportPrintArea">
+                    <div class="p-4 bg-naifPurple-900 text-white flex justify-between items-center">
+                        <h3 class="font-bold text-sm">تقرير ربحية وتكاليف الوجبات الرئيسي</h3>
+                        <span class="text-xs text-purple-200" id="reportDateBadge">--</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right text-xs">
+                            <thead class="bg-slate-100 text-slate-700 font-bold border-b">
+                                <tr>
+                                    <th class="p-3">اسم الوجبة</th>
+                                    <th class="p-3 text-center">سعر البيع</th>
+                                    <th class="p-3 text-center">التكلفة الرئيسية</th>
+                                    <th class="p-3 text-center">الربح المالي</th>
+                                    <th class="p-3 text-center">نسبة الربح %</th>
+                                    <th class="p-3 text-center">نسبة التكلفة %</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reportsTableBody" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- الشاشة 4: سجل الحركات (Audit Log) -->
+            <section id="view-auditlog" class="tab-view hidden space-y-4">
+                <div class="bg-white p-4 rounded-2xl border border-purple-100 shadow-sm flex items-center justify-between">
+                    <div>
+                        <h2 class="text-base font-extrabold text-naifPurple-900">سجل أنشطة وحركات النظام (Audit Log)</h2>
+                        <p class="text-xs text-slate-500">سجل التعديلات والعمليات في النظام</p>
                     </div>
                     <button id="btnDeleteLogSelection" onclick="deleteSelectedLogs()" class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 hidden">
                         <i class="fa-solid fa-trash-can"></i> مسح المكتمل
                     </button>
                 </div>
 
-                <div class="bg-white rounded-2xl border border-purpleBrand-100 shadow-sm overflow-hidden">
+                <div class="bg-white rounded-2xl border border-purple-100 shadow-sm overflow-hidden">
                     <div class="overflow-x-auto">
                         <table class="w-full text-right text-xs">
-                            <thead class="bg-purpleBrand-950 text-white font-bold">
+                            <thead class="bg-naifPurple-950 text-white font-bold">
                                 <tr>
                                     <th class="p-3 text-center" id="thLogSelect"><input type="checkbox" onchange="toggleSelectAllLogs(this)"></th>
                                     <th class="p-3">التاريخ والوقت</th>
@@ -282,11 +321,11 @@
     </div>
 
     <!-- مودال تعديل مكونات الوجبة كاملة -->
-    <div id="recipeEditModal" class="fixed inset-0 bg-purpleBrand-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div id="recipeEditModal" class="fixed inset-0 bg-naifPurple-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[90vh]">
-            <div class="bg-purpleBrand-900 text-white p-4 flex items-center justify-between shrink-0">
+            <div class="bg-naifPurple-900 text-white p-4 flex items-center justify-between shrink-0">
                 <h3 class="font-extrabold text-sm">تعديل مكونات الوجبة والتكاليف</h3>
-                <button onclick="closeModal('recipeEditModal')" class="text-purpleBrand-200 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="closeModal('recipeEditModal')" class="text-purple-200 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
             </div>
             
             <div class="p-6 overflow-y-auto space-y-4 flex-1">
@@ -302,10 +341,10 @@
                     </div>
                 </div>
 
-                <div class="border border-purpleBrand-100 rounded-xl overflow-hidden mt-4">
-                    <div class="bg-purpleBrand-50 p-3 flex items-center justify-between">
-                        <span class="text-xs font-extrabold text-purpleBrand-900">جدول المكونات والخامات</span>
-                        <button onclick="addIngredientRowToModal()" class="bg-purpleBrand-700 hover:bg-purpleBrand-800 text-white text-xs font-bold px-3 py-1 rounded-lg">
+                <div class="border border-purple-100 rounded-xl overflow-hidden mt-4">
+                    <div class="bg-purple-50 p-3 flex items-center justify-between">
+                        <span class="text-xs font-extrabold text-naifPurple-900">جدول المكونات والخامات</span>
+                        <button onclick="addIngredientRowToModal()" class="bg-naifPurple-900 hover:bg-naifPurple-800 text-white text-xs font-bold px-3 py-1 rounded-lg">
                             + إضافة خامة
                         </button>
                     </div>
@@ -329,15 +368,15 @@
 
             <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-2 shrink-0">
                 <button onclick="closeModal('recipeEditModal')" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-200 hover:bg-slate-300">إلغاء</button>
-                <button onclick="saveModalRecipeChanges()" class="px-5 py-2 rounded-xl text-xs font-bold bg-purpleBrand-700 hover:bg-purpleBrand-800 text-white shadow-md">حفظ والتحديث</button>
+                <button onclick="saveModalRecipeChanges()" class="px-5 py-2 rounded-xl text-xs font-bold bg-naifPurple-900 hover:bg-naifPurple-800 text-white shadow-md">حفظ والتحديث</button>
             </div>
         </div>
     </div>
 
     <!-- مودال تعديل سعر الصنف المباشر -->
-    <div id="priceEditModal" class="fixed inset-0 bg-purpleBrand-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div id="priceEditModal" class="fixed inset-0 bg-naifPurple-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden p-5 space-y-4">
-            <h3 class="font-extrabold text-sm text-purpleBrand-900 border-b pb-2">تعديل أسعار الصنف</h3>
+            <h3 class="font-extrabold text-sm text-naifPurple-900 border-b pb-2">تعديل أسعار الصنف</h3>
             <input type="hidden" id="editPriceItemName">
             <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1" id="lblEditItemName">الصنف</label>
@@ -348,7 +387,7 @@
             </div>
             <div class="flex justify-end gap-2 pt-2">
                 <button onclick="closeModal('priceEditModal')" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-200">إلغاء</button>
-                <button onclick="saveItemPriceChange()" class="px-4 py-1.5 rounded-xl text-xs font-bold bg-purpleBrand-700 text-white">حفظ</button>
+                <button onclick="saveItemPriceChange()" class="px-4 py-1.5 rounded-xl text-xs font-bold bg-naifPurple-900 text-white">حفظ</button>
             </div>
         </div>
     </div>
@@ -361,17 +400,15 @@
 
     <!-- البرمجة التشغيلية الكاملة -->
     <script>
-        const STORAGE_KEY = 'NAIF_FOODS_RECIPES_DB_V2026';
-        let currentUser = null; // Yasser, ادمن, مستخدم
+        const STORAGE_KEY = 'NAIF_FOODS_RECIPES_DB_V2026_FINAL';
+        let currentUser = null;
 
-        // قاعدة البيانات الأساسية
         let db = {
             pricelist: [],
             meals: [],
             auditLogs: []
         };
 
-        // تهيئة النظام عند التحميل
         window.addEventListener('DOMContentLoaded', () => {
             loadDatabase();
             switchTab('recipes');
@@ -380,14 +417,8 @@
         function loadDatabase() {
             const data = localStorage.getItem(STORAGE_KEY);
             if (data) {
-                try {
-                    db = JSON.parse(data);
-                } catch (e) {
-                    initDefaultData();
-                }
-            } else {
-                initDefaultData();
-            }
+                try { db = JSON.parse(data); } catch (e) { initDefaultData(); }
+            } else { initDefaultData(); }
         }
 
         function saveDatabase() {
@@ -397,21 +428,10 @@
         function initDefaultData() {
             db = {
                 pricelist: [
-                    { item: "برجر دجاج صغير", unit: "حبة", price: 0.13875 },
-                    { item: "برجر دجاج طازج", unit: "جرام", price: 0.00129 },
-                    { item: "برجر دجاج كبير", unit: "حبة", price: 0.27750 },
-                    { item: "خبز برجر 4 انش بالسمسم", unit: "حبة", price: 0.06500 },
-                    { item: "صوص مايونيز", unit: "جرام", price: 0.00148 },
-                    { item: "شريحة جبنة امريكي", unit: "حبة", price: 0.02000 },
-                    { item: "خس", unit: "جرام", price: 0.00035 },
-                    { item: "قطعة فيليه دجاج", unit: "حبة", price: 0.11720 },
-                    { item: "شورتنج", unit: "جرام", price: 0.00075 },
-                    { item: "بطاطس هاش براون مدور", unit: "حبة", price: 0.10417 },
-                    { item: "علبة فيليه", unit: "حبة", price: 0.02160 },
-                    { item: "ناپكن", unit: "حبة", price: 0.00100 },
-                    { item: "ورق ساندويتش سيلفر صغير", unit: "حبة", price: 0.00800 },
-                    { item: "شنطة ورق صغيرة", unit: "حبة", price: 0.02700 },
-                    { item: "بلاستيكات نايف", unit: "حبة", price: 0.00500 }
+                    { item: "برجر دجاج صغير", unit: "حبة", price: 0.13875, unitPrices: { حبة: 0.13875 } },
+                    { item: "قطعة فيليه دجاج", unit: "حبة", price: 0.11720, unitPrices: { حبة: 0.11720 } },
+                    { item: "خبز برجر 4 انش بالسمسم", unit: "حبة", price: 0.06500, unitPrices: { حبة: 0.06500 } },
+                    { item: "صوص مايونيز", unit: "جرام", price: 0.00148, unitPrices: { جرام: 0.00148 } }
                 ],
                 meals: [
                     {
@@ -420,16 +440,7 @@
                         ingredients: [
                             { item: "قطعة فيليه دجاج", location: "ALL", unit: "حبة", qty: 1, price: 0.11720, total: 0.117 },
                             { item: "خبز برجر 4 انش بالسمسم", location: "ALL", unit: "حبة", qty: 1, price: 0.06500, total: 0.065 },
-                            { item: "صوص مايونيز", location: "ALL", unit: "جرام", qty: 15, price: 0.00148, total: 0.022 },
-                            { item: "شريحة جبنة امريكي", location: "ALL", unit: "حبة", qty: 1, price: 0.02000, total: 0.020 },
-                            { item: "خس", location: "ALL", unit: "جرام", qty: 20, price: 0.00035, total: 0.007 },
-                            { item: "شورتنج", location: "ALL", unit: "جرام", qty: 10, price: 0.00075, total: 0.008 },
-                            { item: "بطاطس هاش براون مدور", location: "ALL", unit: "حبة", qty: 1, price: 0.10417, total: 0.104 },
-                            { item: "علبة فيليه", location: "ALL", unit: "حبة", qty: 1, price: 0.02160, total: 0.022 },
-                            { item: "ناپكن", location: "ALL", unit: "حبة", qty: 2, price: 0.00100, total: 0.002 },
-                            { item: "ورق ساندويتش سيلفر صغير", location: "ALL", unit: "حبة", qty: 1, price: 0.00800, total: 0.008 },
-                            { item: "شنطة ورق صغيرة", location: "OUT", unit: "حبة", qty: 1, price: 0.02700, total: 0.027 },
-                            { item: "بلاستيكات نايف", location: "IN", unit: "حبة", qty: 1, price: 0.00500, total: 0.005 }
+                            { item: "صوص مايونيز", location: "ALL", unit: "جرام", qty: 15, price: 0.00148, total: 0.022 }
                         ]
                     }
                 ],
@@ -438,7 +449,6 @@
             saveDatabase();
         }
 
-        // تسويغ تسجيل الدخول
         function handleLogin(e) {
             e.preventDefault();
             const user = document.getElementById('loginUserSelect').value;
@@ -458,11 +468,11 @@
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('currentUserDisplay').innerText = currentUser;
             
-            // ضبط واجهة المستخدم حسب الصلاحيات
             applyPermissions();
             addAuditLog('تسجيل دخول', `تم تسجيل الدخول بنجاح بواسطة ${currentUser}`);
             renderRecipeCards();
             renderPricelistTable();
+            renderReportsTable();
             renderAuditLogs();
         }
 
@@ -474,7 +484,6 @@
         }
 
         function applyPermissions() {
-            // أزرار النسخ والاستعادة
             const btnRestore = document.getElementById('btnRestoreBackup');
             if (currentUser === 'Yasser') {
                 btnRestore.classList.remove('hidden');
@@ -482,7 +491,6 @@
                 btnRestore.classList.add('hidden');
             }
 
-            // خيار مسح السجل
             const thLogSelect = document.getElementById('thLogSelect');
             const btnDeleteLog = document.getElementById('btnDeleteLogSelection');
             if (currentUser === 'Yasser') {
@@ -494,7 +502,6 @@
             }
         }
 
-        // إضافة حركة للسجل
         function addAuditLog(actionType, details) {
             const now = new Date();
             const dateStr = now.toLocaleDateString('en-GB') + ' ' + now.toLocaleTimeString('en-GB');
@@ -506,14 +513,12 @@
                 details: details
             });
 
-            // الاحتفاظ بآخر 1000 حركة
             if (db.auditLogs.length > 1000) {
                 db.auditLogs = db.auditLogs.slice(0, 1000);
             }
             saveDatabase();
         }
 
-        // التنقل بين الشاشات
         function switchTab(tabId) {
             if (currentUser === 'ادمن' && tabId === 'pricelist') {
                 alert('عذراً! لا تمتلك صلاحية الاطلاع على دليل الأسعار الأصلي');
@@ -521,20 +526,19 @@
             }
 
             document.querySelectorAll('.tab-view').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('bg-purpleBrand-100', 'text-purpleBrand-900'));
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('bg-purple-100', 'text-naifPurple-900'));
             
             document.getElementById(`view-${tabId}`).classList.remove('hidden');
             const activeNav = document.getElementById(`nav-${tabId}`);
-            if (activeNav) activeNav.classList.add('bg-purpleBrand-100', 'text-purpleBrand-900');
+            if (activeNav) activeNav.classList.add('bg-purple-100', 'text-naifPurple-900');
+
+            if (tabId === 'reports') renderReportsTable();
         }
 
-        // تنسيق الأرقام والكميات
         function formatQty(val) {
             if (val === null || val === undefined || isNaN(val)) return '0';
             const num = parseFloat(val);
-            if (Number.isInteger(num)) {
-                return num.toString();
-            }
+            if (Number.isInteger(num)) return num.toString();
             return num.toString();
         }
 
@@ -543,7 +547,6 @@
             return parseFloat(val).toFixed(decimals);
         }
 
-        // عرض كروت الوجبات (BOM)
         function renderRecipeCards() {
             const container = document.getElementById('recipesContainer');
             const q = (document.getElementById('recipeSearchInput').value || '').trim().toLowerCase();
@@ -556,15 +559,14 @@
             document.getElementById('recipesCountBadge').innerText = filtered.length;
 
             if (filtered.length === 0) {
-                container.innerHTML = `<div class="p-8 text-center text-slate-400 bg-white rounded-2xl border border-purpleBrand-100 font-bold">لا توجد وجبات مسجلة أو مطابقة للبحث</div>`;
+                container.innerHTML = `<div class="p-8 text-center text-slate-400 bg-white rounded-2xl border border-purple-100 font-bold">لا توجد وجبات مسجلة أو مطابقة للبحث</div>`;
                 return;
             }
 
             container.innerHTML = filtered.map((meal, index) => {
-                // احتساب تكاليف الوجبة
-                let mainCost = 0; // ALL
-                let outExtra = 0; // OUT
-                let inExtra = 0;  // IN
+                let mainCost = 0;
+                let outExtra = 0;
+                let inExtra = 0;
 
                 meal.ingredients.forEach(ing => {
                     const lineTotal = (ing.qty || 0) * (ing.price || 0);
@@ -577,7 +579,6 @@
                 const totalInCost = mainCost + inExtra;
                 const sp = meal.sellingPrice || 0;
 
-                // الربح ونسبة التكلفة والربح
                 const mainProfit = sp - mainCost;
                 const outProfit = sp - totalOutCost;
                 const inProfit = sp - totalInCost;
@@ -593,53 +594,52 @@
                 const hidePrices = currentUser === 'مستخدم';
                 const canEditAll = currentUser === 'Yasser' || currentUser === 'ادمن';
 
-                // صفوف المكونات
-                const rowsHtml = meal.ingredients.map((ing, rIdx) => `
-                    <tr class="hover:bg-purpleBrand-50/50 border-b border-slate-100 text-xs">
-                        <td class="p-2 font-bold text-slate-800 text-right text-[13.5px]">${ing.item}</td>
-                        <td class="p-2 text-center font-bold text-purpleBrand-800">${ing.location || 'ALL'}</td>
-                        <td class="p-2 text-center text-slate-600">${ing.unit}</td>
-                        <td class="p-2 text-center font-bold font-mono text-slate-900">${formatQty(ing.qty)}</td>
-                        <td class="p-2 text-center font-mono">${hidePrices ? '***' : formatPrice(ing.price, 5)}</td>
-                        <td class="p-2 text-center font-mono font-black text-purpleBrand-900 text-sm">${hidePrices ? '***' : formatPrice(ing.qty * ing.price, 3)}</td>
+                // تقريب المسافة بين الأعمدة في الجداول
+                const rowsHtml = meal.ingredients.map((ing) => `
+                    <tr class="hover:bg-purple-50/50 border-b border-slate-100 text-xs">
+                        <td class="py-2 px-1 font-bold text-slate-800 text-right text-[13.5px]">${ing.item}</td>
+                        <td class="py-2 px-1 text-center font-bold text-naifPurple-900">${ing.location || 'ALL'}</td>
+                        <td class="py-2 px-1 text-center text-slate-600">${ing.unit}</td>
+                        <td class="py-2 px-1 text-center font-bold font-mono text-slate-900">${formatQty(ing.qty)}</td>
+                        <td class="py-2 px-1 text-center font-mono">${hidePrices ? '***' : formatPrice(ing.price, 5)}</td>
+                        <td class="py-2 px-1 text-center font-mono font-black text-naifPurple-900 text-sm">${hidePrices ? '***' : formatPrice(ing.qty * ing.price, 3)}</td>
                     </tr>
                 `).join('');
 
                 return `
-                <div class="bg-white rounded-2xl border-2 border-purpleBrand-200 shadow-md overflow-hidden flex flex-col recipe-card-box">
+                <div class="bg-white rounded-2xl border-2 border-purple-200 shadow-md overflow-hidden flex flex-col recipe-card-box">
                     
                     <!-- الهيدر الخاص بالوجبة -->
-                    <div class="bg-purpleBrand-900 text-white p-4 flex flex-wrap items-center justify-between gap-3">
+                    <div class="bg-naifPurple-900 text-white p-4 flex flex-wrap items-center justify-between gap-3">
                         <div class="flex items-center gap-3">
-                            <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" class="w-10 h-10 rounded-full border border-purpleBrand-200 object-cover">
+                            <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" class="w-10 h-10 rounded-full border border-white object-cover">
                             <div>
-                                <h3 class="font-extrabold text-lg text-purpleBrand-100 flex items-center gap-2">
+                                <h3 class="font-extrabold text-lg text-white flex items-center gap-2">
                                     <span>${meal.name}</span>
-                                    <button onclick="editMealNameDirect('${meal.name}', ${index})" class="text-xs bg-purpleBrand-800 hover:bg-purpleBrand-700 px-2 py-0.5 rounded text-purpleBrand-200 no-print">
+                                    <button onclick="editMealNameDirect('${meal.name}', ${index})" class="text-xs bg-naifPurple-800 hover:bg-naifPurple-950 px-2 py-0.5 rounded text-purple-200 no-print">
                                         <i class="fa-solid fa-pen"></i> تعديل الاسم
                                     </button>
                                 </h3>
                             </div>
                         </div>
 
-                        <!-- سعر بيع الوجبة بارز بجوار الاسم -->
-                        <div class="bg-purpleBrand-950/80 px-4 py-2 rounded-xl border border-purpleBrand-600/50 text-left">
-                            <span class="text-[10px] text-purpleBrand-300 block font-bold">سعر البيع</span>
+                        <div class="bg-naifPurple-950/80 px-4 py-2 rounded-xl border border-purple-600/50 text-left">
+                            <span class="text-[10px] text-purple-200 block font-bold">سعر البيع</span>
                             <span class="text-xl font-black font-mono text-emerald-400">${hidePrices ? '***' : formatPrice(sp, 3)}</span>
                         </div>
                     </div>
 
-                    <!-- جدول المكونات (حتى الصف 35) -->
-                    <div class="p-4 bg-purpleBrand-50/30 overflow-x-auto">
+                    <!-- جدول المكونات -->
+                    <div class="p-4 bg-purple-50/20 overflow-x-auto">
                         <table class="w-full text-right border-collapse">
                             <thead>
-                                <tr class="bg-purpleBrand-800 text-white text-xs">
-                                    <th class="p-2">الصنف</th>
-                                    <th class="p-2 text-center">مكان الصنف</th>
-                                    <th class="p-2 text-center">الوحدة</th>
-                                    <th class="p-2 text-center">الكمية</th>
-                                    <th class="p-2 text-center">الأسعار</th>
-                                    <th class="p-2 text-center">القيمة</th>
+                                <tr class="bg-naifPurple-900 text-white text-xs">
+                                    <th class="py-2 px-1">الصنف</th>
+                                    <th class="py-2 px-1 text-center">مكان الصنف</th>
+                                    <th class="py-2 px-1 text-center">الوحدة</th>
+                                    <th class="py-2 px-1 text-center">الكمية</th>
+                                    <th class="py-2 px-1 text-center">الأسعار</th>
+                                    <th class="py-2 px-1 text-center">القيمة</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -648,82 +648,82 @@
                         </table>
                     </div>
 
-                    <!-- الجزء السفلي: التحليل المالي والربحية بالترتيب المطلق -->
+                    <!-- الجزء السفلي -->
                     ${hidePrices ? '' : `
-                    <div class="p-4 bg-purpleBrand-900 text-white space-y-3 border-t-2 border-purpleBrand-300">
+                    <div class="p-4 bg-naifPurple-900 text-white space-y-3 border-t-2 border-purple-300">
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                             
-                            <!-- الحالة 1: الوجبة الأصلية -->
-                            <div class="bg-purpleBrand-950/80 p-3 rounded-xl border border-purpleBrand-700 space-y-1.5">
-                                <h4 class="text-xs font-black text-purpleBrand-300 border-b border-purpleBrand-800 pb-1">الوجبة الأصلية</h4>
+                            <!-- الوجبة الأصلية -->
+                            <div class="bg-naifPurple-950/80 p-3 rounded-xl border border-purple-700 space-y-1.5">
+                                <h4 class="text-xs font-black text-purple-200 border-b border-purple-800 pb-1">الوجبة الأصلية</h4>
                                 <div class="flex justify-between items-center text-xs font-bold">
-                                    <span class="text-purpleBrand-200">سعر البيع:</span>
+                                    <span>سعر البيع:</span>
                                     <span class="font-mono text-emerald-400 text-sm font-black">${formatPrice(sp, 3)}</span>
                                 </div>
-                                <div class="flex justify-between items-center text-xs font-bold bg-purpleBrand-900/60 p-1 rounded">
-                                    <span class="text-purpleBrand-200">التكلفة:</span>
+                                <div class="flex justify-between items-center text-xs font-bold bg-purple-900/60 p-1 rounded">
+                                    <span>التكلفة:</span>
                                     <span class="font-mono text-rose-300 text-sm font-black">${formatPrice(mainCost, 3)}</span>
                                 </div>
                                 <div class="flex justify-between items-center text-xs font-bold">
-                                    <span class="text-purpleBrand-200">الربح المالي:</span>
+                                    <span>الربح المالي:</span>
                                     <span class="font-mono text-amber-300 text-sm font-black">${formatPrice(mainProfit, 3)}</span>
                                 </div>
-                                <div class="flex justify-between items-center text-xs font-bold pt-1 border-t border-purpleBrand-800/50">
-                                    <span class="text-purpleBrand-300">نسبة الربح %:</span>
+                                <div class="flex justify-between items-center text-xs font-bold pt-1 border-t border-purple-800/50">
+                                    <span>نسبة الربح %:</span>
                                     <span class="font-mono text-emerald-400 text-sm font-black">${mainProfitPct.toFixed(2)}%</span>
                                 </div>
                                 <div class="flex justify-between items-center text-xs font-bold">
-                                    <span class="text-purpleBrand-300">نسبة التكلفة %:</span>
+                                    <span>نسبة التكلفة %:</span>
                                     <span class="font-mono text-rose-300 text-sm font-black">${mainCostPct.toFixed(2)}%</span>
                                 </div>
                             </div>
 
-                            <!-- الحالة 2: توصيل خارجي -->
-                            <div class="bg-purpleBrand-950/80 p-3 rounded-xl border border-purpleBrand-700 space-y-1.5">
-                                <h4 class="text-xs font-black text-purpleBrand-300 border-b border-purpleBrand-800 pb-1">توصيل خارجي</h4>
+                            <!-- توصيل خارجي -->
+                            <div class="bg-naifPurple-950/80 p-3 rounded-xl border border-purple-700 space-y-1.5">
+                                <h4 class="text-xs font-black text-purple-200 border-b border-purple-800 pb-1">توصيل خارجي</h4>
                                 <div class="flex justify-between items-center text-xs font-bold">
-                                    <span class="text-purpleBrand-200">سعر البيع:</span>
+                                    <span>سعر البيع:</span>
                                     <span class="font-mono text-emerald-400 text-sm font-black">${formatPrice(sp, 3)}</span>
                                 </div>
-                                <div class="flex justify-between items-center text-xs font-bold bg-purpleBrand-900/60 p-1 rounded">
-                                    <span class="text-purpleBrand-200">التكلفة:</span>
+                                <div class="flex justify-between items-center text-xs font-bold bg-purple-900/60 p-1 rounded">
+                                    <span>التكلفة:</span>
                                     <span class="font-mono text-rose-300 text-sm font-black">${formatPrice(totalOutCost, 3)}</span>
                                 </div>
                                 <div class="flex justify-between items-center text-xs font-bold">
-                                    <span class="text-purpleBrand-200">الربح المالي:</span>
+                                    <span>الربح المالي:</span>
                                     <span class="font-mono text-amber-300 text-sm font-black">${formatPrice(outProfit, 3)}</span>
                                 </div>
-                                <div class="flex justify-between items-center text-xs font-bold pt-1 border-t border-purpleBrand-800/50">
-                                    <span class="text-purpleBrand-300">نسبة الربح %:</span>
+                                <div class="flex justify-between items-center text-xs font-bold pt-1 border-t border-purple-800/50">
+                                    <span>نسبة الربح %:</span>
                                     <span class="font-mono text-emerald-400 text-sm font-black">${outProfitPct.toFixed(2)}%</span>
                                 </div>
                                 <div class="flex justify-between items-center text-xs font-bold">
-                                    <span class="text-purpleBrand-300">نسبة التكلفة %:</span>
+                                    <span>نسبة التكلفة %:</span>
                                     <span class="font-mono text-rose-300 text-sm font-black">${outCostPct.toFixed(2)}%</span>
                                 </div>
                             </div>
 
-                            <!-- الحالة 3: داخل المطعم -->
-                            <div class="bg-purpleBrand-950/80 p-3 rounded-xl border border-purpleBrand-700 space-y-1.5">
-                                <h4 class="text-xs font-black text-purpleBrand-300 border-b border-purpleBrand-800 pb-1">داخل المطعم (داين إن)</h4>
+                            <!-- داخل المطعم -->
+                            <div class="bg-naifPurple-950/80 p-3 rounded-xl border border-purple-700 space-y-1.5">
+                                <h4 class="text-xs font-black text-purple-200 border-b border-purple-800 pb-1">داخل المطعم (داين إن)</h4>
                                 <div class="flex justify-between items-center text-xs font-bold">
-                                    <span class="text-purpleBrand-200">سعر البيع:</span>
+                                    <span>سعر البيع:</span>
                                     <span class="font-mono text-emerald-400 text-sm font-black">${formatPrice(sp, 3)}</span>
                                 </div>
-                                <div class="flex justify-between items-center text-xs font-bold bg-purpleBrand-900/60 p-1 rounded">
-                                    <span class="text-purpleBrand-200">التكلفة:</span>
+                                <div class="flex justify-between items-center text-xs font-bold bg-purple-900/60 p-1 rounded">
+                                    <span>التكلفة:</span>
                                     <span class="font-mono text-rose-300 text-sm font-black">${formatPrice(totalInCost, 3)}</span>
                                 </div>
                                 <div class="flex justify-between items-center text-xs font-bold">
-                                    <span class="text-purpleBrand-200">الربح المالي:</span>
+                                    <span>الربح المالي:</span>
                                     <span class="font-mono text-amber-300 text-sm font-black">${formatPrice(inProfit, 3)}</span>
                                 </div>
-                                <div class="flex justify-between items-center text-xs font-bold pt-1 border-t border-purpleBrand-800/50">
-                                    <span class="text-purpleBrand-300">نسبة الربح %:</span>
+                                <div class="flex justify-between items-center text-xs font-bold pt-1 border-t border-purple-800/50">
+                                    <span>نسبة الربح %:</span>
                                     <span class="font-mono text-emerald-400 text-sm font-black">${inProfitPct.toFixed(2)}%</span>
                                 </div>
                                 <div class="flex justify-between items-center text-xs font-bold">
-                                    <span class="text-purpleBrand-300">نسبة التكلفة %:</span>
+                                    <span>نسبة التكلفة %:</span>
                                     <span class="font-mono text-rose-300 text-sm font-black">${inCostPct.toFixed(2)}%</span>
                                 </div>
                             </div>
@@ -732,10 +732,10 @@
                     </div>
                     `}
 
-                    <!-- أزرار التحكم والتحرير المباشر -->
-                    <div class="p-3 bg-purpleBrand-50 border-t border-purpleBrand-200 flex items-center justify-between no-print">
+                    <!-- أزرار التحكم والتحرير -->
+                    <div class="p-3 bg-purple-50 border-t border-purple-200 flex items-center justify-between no-print">
                         ${canEditAll ? `
-                            <button onclick="openRecipeEditModal(${index})" class="bg-purpleBrand-700 hover:bg-purpleBrand-800 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition flex items-center gap-1 shadow">
+                            <button onclick="openRecipeEditModal(${index})" class="bg-naifPurple-900 hover:bg-naifPurple-800 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition flex items-center gap-1 shadow">
                                 <i class="fa-solid fa-pen-to-square"></i> تعديل مكونات الريسبي والتكاليف
                             </button>
                         ` : '<span class="text-xs text-slate-400 font-bold">عرض فقط</span>'}
@@ -750,7 +750,6 @@
             }).join('');
         }
 
-        // تعديل اسم الوجبة
         function editMealNameDirect(currentName, index) {
             const newName = prompt('أدخل اسم الوجبة الجديد:', currentName);
             if (!newName || !newName.trim()) return;
@@ -761,7 +760,6 @@
             renderRecipeCards();
         }
 
-        // مودال التعديل على المكونات كاملة
         function openRecipeEditModal(index) {
             const meal = db.meals[index];
             if (!meal) return;
@@ -773,7 +771,7 @@
             const tbody = document.getElementById('modalIngredientsTableBody');
             tbody.innerHTML = '';
 
-            meal.ingredients.forEach((ing, rIdx) => {
+            meal.ingredients.forEach((ing) => {
                 addIngredientRowToModal(ing.item, ing.location, ing.unit, ing.qty, ing.price);
             });
 
@@ -834,7 +832,6 @@
             renderRecipeCards();
         }
 
-        // عرض دليل الأسعار (Pricelist)
         function renderPricelistTable() {
             const tbody = document.getElementById('pricelistTableBody');
             const q = (document.getElementById('priceSearchInput').value || '').trim().toLowerCase();
@@ -849,26 +846,29 @@
                 return;
             }
 
-            tbody.innerHTML = filtered.map((p, idx) => `
-                <tr class="hover:bg-purpleBrand-50 border-b border-slate-100">
+            tbody.innerHTML = filtered.map((p) => {
+                const up = p.unitPrices || {};
+                return `
+                <tr class="hover:bg-purple-50 border-b border-slate-100">
                     <td class="p-3 font-bold text-slate-800">${p.item}</td>
-                    <td class="p-3 text-center font-mono font-bold">${p.unit === 'حبة' ? formatPrice(p.price, 5) : '--'}</td>
-                    <td class="p-3 text-center font-mono font-bold">${p.unit === 'جرام' ? formatPrice(p.price, 5) : '--'}</td>
-                    <td class="p-3 text-center font-mono font-bold">${p.unit === 'علبة' ? formatPrice(p.price, 5) : '--'}</td>
-                    <td class="p-3 text-center font-mono font-bold">${p.unit === 'شريحة' ? formatPrice(p.price, 5) : '--'}</td>
-                    <td class="p-3 text-center font-mono font-bold">${p.unit === 'جالون' ? formatPrice(p.price, 5) : '--'}</td>
-                    <td class="p-3 text-center font-mono font-bold">${p.unit === 'ماعون' ? formatPrice(p.price, 5) : '--'}</td>
-                    <td class="p-3 text-center font-mono font-bold">${p.unit === 'باكت' ? formatPrice(p.price, 5) : '--'}</td>
-                    <td class="p-3 text-center font-mono font-bold">${p.unit === 'بطل' ? formatPrice(p.price, 5) : '--'}</td>
-                    <td class="p-3 text-center font-mono font-bold">${p.unit === 'قطعة' ? formatPrice(p.price, 5) : '--'}</td>
-                    <td class="p-3 text-center font-mono font-bold">${p.unit === 'اونس' ? formatPrice(p.price, 5) : '--'}</td>
-                    <td class="p-3 text-center font-mono font-bold">${p.unit === 'مل لتر' ? formatPrice(p.price, 5) : '--'}</td>
-                    <td class="p-3 text-center font-mono font-bold">${p.unit === 'الشد' ? formatPrice(p.price, 5) : '--'}</td>
+                    <td class="p-3 text-center font-mono font-bold">${up['حبة'] !== undefined ? formatPrice(up['حبة'], 5) : '--'}</td>
+                    <td class="p-3 text-center font-mono font-bold">${up['جرام'] !== undefined ? formatPrice(up['جرام'], 5) : '--'}</td>
+                    <td class="p-3 text-center font-mono font-bold">${up['علبة'] !== undefined ? formatPrice(up['علبة'], 5) : '--'}</td>
+                    <td class="p-3 text-center font-mono font-bold">${up['شريحة'] !== undefined ? formatPrice(up['شريحة'], 5) : '--'}</td>
+                    <td class="p-3 text-center font-mono font-bold">${up['جالون'] !== undefined ? formatPrice(up['جالون'], 5) : '--'}</td>
+                    <td class="p-3 text-center font-mono font-bold">${up['ماعون'] !== undefined ? formatPrice(up['ماعون'], 5) : '--'}</td>
+                    <td class="p-3 text-center font-mono font-bold">${up['باكت'] !== undefined ? formatPrice(up['باكت'], 5) : '--'}</td>
+                    <td class="p-3 text-center font-mono font-bold">${up['بطل'] !== undefined ? formatPrice(up['بطل'], 5) : '--'}</td>
+                    <td class="p-3 text-center font-mono font-bold">${up['قطعة'] !== undefined ? formatPrice(up['قطعة'], 5) : '--'}</td>
+                    <td class="p-3 text-center font-mono font-bold">${up['اونس'] !== undefined ? formatPrice(up['اونس'], 5) : '--'}</td>
+                    <td class="p-3 text-center font-mono font-bold">${up['مل لتر'] !== undefined ? formatPrice(up['مل لتر'], 5) : '--'}</td>
+                    <td class="p-3 text-center font-mono font-bold">${up['الشد'] !== undefined ? formatPrice(up['الشد'], 5) : '--'}</td>
                     <td class="p-3 text-center no-print">
-                        <button onclick="openPriceEditModal('${p.item}', ${p.price})" class="text-purpleBrand-700 hover:text-purpleBrand-900 font-bold"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="openPriceEditModal('${p.item}', ${p.price})" class="text-naifPurple-900 hover:text-black font-bold"><i class="fa-solid fa-pen"></i></button>
                     </td>
                 </tr>
-            `).join('');
+            `;
+            }).join('');
         }
 
         function openPriceEditModal(itemName, currentPrice) {
@@ -889,8 +889,9 @@
             const item = db.pricelist.find(p => p.item === itemName);
             if (item) {
                 item.price = newPrice;
+                if (!item.unitPrices) item.unitPrices = {};
+                item.unitPrices[item.unit || 'حبة'] = newPrice;
                 
-                // تحديث جميع الوجبات التي تحتوي على هذا الصنف
                 db.meals.forEach(m => {
                     m.ingredients.forEach(ing => {
                         if (ing.item === itemName) {
@@ -901,14 +902,120 @@
                 });
 
                 saveDatabase();
-                addAuditLog('تعديل سعر صنف', `تم تعديل سعر [${itemName}] إلى [${newPrice}]`);
+                addAuditLog('تعديل سعر صنف', `تم تعديل سعر الصنف [${itemName}] إلى [${newPrice}]`);
                 closeModal('priceEditModal');
                 renderPricelistTable();
                 renderRecipeCards();
+                renderReportsTable();
             }
         }
 
-        // سحب ملف الإكسل
+        function renderReportsTable() {
+            const tbody = document.getElementById('reportsTableBody');
+            document.getElementById('reportDateBadge').innerText = 'تاريخ التقرير: ' + new Date().toLocaleDateString('en-GB');
+
+            if (db.meals.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400 font-bold">لا توجد بيانات للتقرير</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = db.meals.map(meal => {
+                let mainCost = 0;
+                meal.ingredients.forEach(ing => {
+                    if (ing.location === 'ALL' || !ing.location) {
+                        mainCost += (ing.qty || 0) * (ing.price || 0);
+                    }
+                });
+                const sp = meal.sellingPrice || 0;
+                const profit = sp - mainCost;
+                const profitPct = sp > 0 ? (profit / sp * 100) : 0;
+                const costPct = sp > 0 ? (mainCost / sp * 100) : 0;
+
+                return `
+                    <tr class="hover:bg-slate-50 border-b">
+                        <td class="p-3 font-bold text-slate-800">${meal.name}</td>
+                        <td class="p-3 text-center font-mono font-bold text-emerald-700">${formatPrice(sp, 3)}</td>
+                        <td class="p-3 text-center font-mono font-bold text-rose-700">${formatPrice(mainCost, 3)}</td>
+                        <td class="p-3 text-center font-mono font-bold text-amber-600">${formatPrice(profit, 3)}</td>
+                        <td class="p-3 text-center font-mono font-bold text-emerald-600">${profitPct.toFixed(2)}%</td>
+                        <td class="p-3 text-center font-mono font-bold text-rose-600">${costPct.toFixed(2)}%</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function exportReportPDF() {
+            const element = document.getElementById('reportPrintArea');
+            const clone = element.cloneNode(true);
+            clone.querySelectorAll('.no-print').forEach(el => el.remove());
+
+            const printWrapper = document.createElement('div');
+            printWrapper.style.position = 'fixed';
+            printWrapper.style.top = '0';
+            printWrapper.style.left = '-9999px';
+            printWrapper.style.width = '794px';
+            printWrapper.style.background = '#ffffff';
+            printWrapper.style.direction = 'rtl';
+            printWrapper.style.padding = '24px';
+
+            const headerHtml = `
+                <div style="text-align:center; border-bottom:3px solid #6d4370; padding-bottom:12px; margin-bottom:16px;">
+                    <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid #6d4370;display:inline-block;">
+                    <h2 style="color:#6d4370; font-weight:900; margin:6px 0 2px 0; font-size:18px;">شركة نايف للأغذية</h2>
+                    <p style="font-size:12px; color:#555; margin:0;">تقرير ربحية وتكاليف الوجبات الشامل</p>
+                </div>
+            `;
+            const headerDiv = document.createElement('div');
+            headerDiv.innerHTML = headerHtml;
+            printWrapper.appendChild(headerDiv);
+            printWrapper.appendChild(clone);
+
+            const exportTime = new Date().toLocaleDateString('en-GB') + ' ' + new Date().toLocaleTimeString('en-GB');
+            const footerHtml = `
+                <div style="margin-top:20px; padding-top:10px; border-top:2px solid #6d4370; display:flex; justify-content:space-between; align-items:center; font-size:10px; color:#6d4370; font-weight:bold;">
+                    <div>تاريخ التصدير: ${exportTime}</div>
+                    <div>تطوير البرنامج: Yasser Elkhateeb (67011143)</div>
+                </div>
+            `;
+            const footerDiv = document.createElement('div');
+            footerDiv.innerHTML = footerHtml;
+            printWrapper.appendChild(footerDiv);
+
+            document.body.appendChild(printWrapper);
+
+            html2canvas(printWrapper, { scale: 2, useCORS: true }).then(canvas => {
+                const { jsPDF } = window.jspdf;
+                const imgData = canvas.toDataURL('image/jpeg', 1.0);
+                const pdf = new jsPDF('p', 'pt', 'a4');
+                const imgWidth = pdf.internal.pageSize.getWidth();
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
+                pdf.save('تقرير_ربحية_الوجبات.pdf');
+                document.body.removeChild(printWrapper);
+            });
+        }
+
+        function exportReportExcel() {
+            let dataToExport = db.meals.map(m => {
+                let mainCost = 0;
+                m.ingredients.forEach(i => { if (i.location === 'ALL' || !i.location) mainCost += (i.qty || 0) * (i.price || 0); });
+                const sp = m.sellingPrice || 0;
+                const profit = sp - mainCost;
+                return {
+                    "اسم الوجبة": m.name,
+                    "سعر البيع": sp,
+                    "التكلفة الرئيسية": parseFloat(mainCost.toFixed(3)),
+                    "الربح المالي": parseFloat(profit.toFixed(3)),
+                    "نسبة الربح %": sp > 0 ? parseFloat((profit / sp * 100).toFixed(2)) : 0
+                };
+            });
+
+            const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "التقارير التحليلية");
+            XLSX.writeFile(workbook, "Naif_Foods_Reports.xlsx");
+        }
+
         function importExcelFile(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -922,50 +1029,52 @@
                     let importedPricelist = [];
                     let importedMeals = [];
 
-                    // 1. شيت pricelist
+                    const unitsList = ['حبة', 'جرام', 'علبة', 'شريحة', 'جالون', 'ماعون', 'باكت', 'بطل', 'قطعة', 'اونس', 'مل لتر', 'الشد'];
+
                     const priceSheet = workbook.Sheets['pricelist'] || workbook.Sheets['PriceList'] || workbook.Sheets['price'];
                     if (priceSheet) {
                         const priceJson = XLSX.utils.sheet_to_json(priceSheet, { header: 1 });
-                        // ابحث من الصف 3 أو الصفوف التالية
                         for (let i = 3; i < priceJson.length; i++) {
                             const row = priceJson[i];
                             if (row && row[0]) {
                                 const itemName = String(row[0]).trim();
-                                let unit = 'حبة';
-                                let priceVal = 0;
+                                let defaultPrice = 0;
+                                let unitPrices = {};
 
-                                // فحص الأعمدة للجلب
-                                for (let col = 1; col < 13; col++) {
-                                    if (row[col] !== undefined && row[col] !== null && row[col] !== '') {
-                                        priceVal = parseFloat(row[col]) || 0;
-                                        break;
+                                for (let col = 1; col < row.length; col++) {
+                                    const val = parseFloat(row[col]);
+                                    if (!isNaN(val) && val > 0) {
+                                        const unitName = unitsList[col - 1] || ('وحدة_' + col);
+                                        unitPrices[unitName] = val;
+                                        if (defaultPrice === 0) defaultPrice = val;
                                     }
                                 }
 
                                 if (itemName) {
-                                    importedPricelist.push({ item: itemName, unit: unit, price: priceVal });
+                                    importedPricelist.push({
+                                        item: itemName,
+                                        unit: 'حبة',
+                                        price: defaultPrice,
+                                        unitPrices: unitPrices
+                                    });
                                 }
                             }
                         }
                     }
 
-                    // 2. قراءة باقى شيتات الوجبات (بداية من الصف الخامس تخطي الصف الرابع كلياً)
                     workbook.SheetNames.forEach(sheetName => {
                         if (sheetName.toLowerCase() !== 'pricelist' && sheetName.toLowerCase() !== 'price') {
                             const sheet = workbook.Sheets[sheetName];
                             
-                            // اسم الوجبة من الخلية B2
                             const b2Cell = sheet['B2'] || sheet['b2'];
                             const mealName = b2Cell ? String(b2Cell.v).trim() : sheetName;
 
-                            // سعر البيع من الخلية C41
                             const c41Cell = sheet['C41'] || sheet['c41'];
                             const sellingPrice = c41Cell ? (parseFloat(c41Cell.v) || 0) : 0;
 
                             const sheetJson = XLSX.utils.sheet_to_json(sheet, { header: 1 });
                             const ingredients = [];
 
-                            // بداية المكونات من الصف الخامس (index 4 في المصفوفة) وحتى الصف 35 (index 34)
                             for (let r = 4; r <= 34; r++) {
                                 const row = sheetJson[r];
                                 if (row && row[0] && String(row[0]).trim() !== '') {
@@ -1005,16 +1114,16 @@
                     alert(`تم سحب الملف بنجاح! تم استيراد ${importedMeals.length} وجبة.`);
                     renderRecipeCards();
                     renderPricelistTable();
+                    renderReportsTable();
 
                 } catch (err) {
                     console.error(err);
-                    alert('حدث خطأ أثناء قراءة ملف الإكسل. يرجى التأكد من الصيغة.');
+                    alert('حدث خطأ أثناء قراءة ملف الإكسل.');
                 }
             };
             reader.readAsArrayBuffer(file);
         }
 
-        // عرض سجل الحركات
         function renderAuditLogs() {
             const tbody = document.getElementById('auditLogTableBody');
             if (db.auditLogs.length === 0) {
@@ -1028,7 +1137,7 @@
                 <tr class="hover:bg-slate-50 border-b border-slate-100">
                     <td class="p-3 text-center ${isYasser ? '' : 'hidden'}"><input type="checkbox" class="log-checkbox" data-id="${log.id}"></td>
                     <td class="p-3 font-mono text-slate-500 font-bold">${log.date}</td>
-                    <td class="p-3 font-bold text-purpleBrand-900">${log.user}</td>
+                    <td class="p-3 font-bold text-naifPurple-900">${log.user}</td>
                     <td class="p-3 font-bold text-slate-700">${log.type}</td>
                     <td class="p-3 text-slate-600">${log.details}</td>
                 </tr>
@@ -1057,7 +1166,6 @@
             renderAuditLogs();
         }
 
-        // النسخ الاحتياطي والاستعادة
         function downloadBackup() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db, null, 2));
             const a = document.createElement('a');
@@ -1098,7 +1206,6 @@
             reader.readAsText(file);
         }
 
-        // تصدير وجبة واحدة لـ PDF مع التاريخ والتوقيع
         async function exportSingleRecipePDF(mealIndex) {
             const meal = db.meals[mealIndex];
             if (!meal) return;
@@ -1110,7 +1217,6 @@
             const clone = targetEl.cloneNode(true);
             clone.querySelectorAll('.no-print').forEach(el => el.remove());
 
-            // إنشاء container مخفي للطباعة
             const printWrapper = document.createElement('div');
             printWrapper.style.position = 'fixed';
             printWrapper.style.top = '0';
@@ -1121,13 +1227,22 @@
             printWrapper.style.padding = '20px';
             printWrapper.style.boxSizing = 'border-box';
 
-            const exportTime = new Date().toLocaleDateString('en-GB') + ' ' + new Date().toLocaleTimeString('en-GB');
+            const headerHtml = `
+                <div style="text-align:center; border-bottom:3px solid #6d4370; padding-bottom:10px; margin-bottom:14px;">
+                    <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" style="width:50px;height:50px;border-radius:50%;object-fit:cover;border:2px solid #6d4370; display:inline-block;">
+                    <h2 style="color:#6d4370; font-weight:900; margin:4px 0 2px 0; font-size:16px;">شركة نايف للأغذية</h2>
+                    <p style="font-size:11px; color:#555; margin:0;">بطاقة ريسبي الوجبة: ${meal.name}</p>
+                </div>
+            `;
+            const headerDiv = document.createElement('div');
+            headerDiv.innerHTML = headerHtml;
+            printWrapper.appendChild(headerDiv);
 
             printWrapper.appendChild(clone);
 
-            // تذييل الصفحة بالمعلومات المطلوبة
+            const exportTime = new Date().toLocaleDateString('en-GB') + ' ' + new Date().toLocaleTimeString('en-GB');
             const footerHtml = `
-                <div style="margin-top:20px; padding-top:10px; border-top:2px solid #6d28d9; display:flex; justify-content:space-between; align-items:center; font-size:10px; color:#4c1d95; font-weight:bold;">
+                <div style="margin-top:15px; padding-top:8px; border-top:2px solid #6d4370; display:flex; justify-content:space-between; align-items:center; font-size:10px; color:#6d4370; font-weight:bold;">
                     <div>تاريخ ووقت التصدير: ${exportTime}</div>
                     <div>تطوير البرنامج: Yasser Elkhateeb (67011143)</div>
                 </div>
