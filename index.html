@@ -110,7 +110,7 @@
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">اسم المستخدم</label>
                     <select id="loginUserSelect" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm font-bold text-slate-800 focus:ring-2 focus:ring-naifPurple-900 outline-none">
-                        <option value="ادمن" selected>ادمن</option>
+                        <option value="الادارة" selected>الادارة</option>
                         <option value="مستخدم">مستخدم</option>
                         <option value="Yasser">Yasser</option>
                     </select>
@@ -448,6 +448,7 @@
     <!-- إدراج مكتبات Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -460,12 +461,23 @@
         };
 
         const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
         const dbFirestore = getFirestore(app);
 
-        // مستند ثابت ومباشر للحفظ والمزامنة اللحظية
-        const docRef = doc(dbFirestore, 'naif_food_app', 'main_database');
+        // المسار السحابي الآمن والمعتمد
+        const docRef = doc(dbFirestore, 'artifacts', 'n-rcp-39b7c', 'public', 'data', 'naif_main_db', 'main_doc');
 
         window.isFirebaseSaving = false;
+
+        // بدء تسجيل الدخول السحابي أولاً
+        async function initFirebaseConnection() {
+            try {
+                await signInAnonymously(auth);
+            } catch (authErr) {
+                console.log("Anonymous auth fallback mode");
+            }
+            setupFirestoreListener();
+        }
 
         // استماع تلقائي ومستمر للتغييرات السحابية
         function setupFirestoreListener() {
@@ -504,13 +516,13 @@
                 console.warn("Firestore Rules Notice:", error);
                 const statusEl = document.getElementById('cloudSyncStatus');
                 if (statusEl) {
-                    statusEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-amber-300"></i> <span>تنبيه: اضغط Publish على Rules في Firebase لتفعيل المزامنة</span>`;
+                    statusEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-amber-300"></i> <span>تنبيه: قم بلصق قواعد القراءة والكتابة في Rules بـ Firebase واضغط Publish</span>`;
                     statusEl.className = "bg-amber-900/90 text-white text-[11px] font-bold px-4 py-1.5 text-center flex items-center justify-center gap-2 border-b border-amber-700";
                 }
             });
         }
 
-        setupFirestoreListener();
+        initFirebaseConnection();
 
         window.syncToFirebase = async function() {
             try {
@@ -541,7 +553,7 @@
                 window.isFirebaseSaving = false;
                 const statusEl = document.getElementById('cloudSyncStatus');
                 if (statusEl) {
-                    statusEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-amber-300"></i> <span>لم يتم الحفظ بالسحابة: غيّر (false) إلى (true) في Rules بـ Firebase واضغط Publish</span>`;
+                    statusEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-amber-300"></i> <span>تنبيه: اضغط Publish على Rules بـ Firebase لتأكيد تفعيل الحفظ السحابي</span>`;
                     statusEl.className = "bg-amber-900/90 text-white text-[11px] font-bold px-4 py-1.5 text-center flex items-center justify-center gap-2 border-b border-amber-700";
                 }
             }
@@ -588,7 +600,7 @@
             }
         }
 
-        function handleLogin(e) {
+        async function handleLogin(e) {
             e.preventDefault();
             const userSelect = document.getElementById('loginUserSelect');
             const passInput = document.getElementById('loginPassword');
@@ -596,14 +608,16 @@
             if (!userSelect || !passInput) return;
 
             const user = userSelect.value;
-            const pass = passInput.value.trim();
+            const rawPass = passInput.value.trim();
 
-            if (user === 'Yasser' && pass === 'Y@sser321') {
-                currentUser = 'Yasser';
-            } else if (user === 'ادمن' && pass === '66661') {
-                currentUser = 'ادمن';
-            } else if (user === 'مستخدم' && pass === '885522') {
-                currentUser = 'مستخدم';
+            // التحقق المباشر من كلمات المرور المطلوبة لكل حساب
+            let isValid = false;
+            if (user === 'الادارة' && rawPass === '66661') isValid = true;
+            if (user === 'مستخدم' && rawPass === '885522') isValid = true;
+            if (user === 'Yasser' && rawPass === 'Y@sser321') isValid = true;
+
+            if (isValid) {
+                currentUser = user;
             } else {
                 alert('كلمة المرور غير صحيحة!');
                 return;
@@ -746,7 +760,7 @@
                 if (navAudit) navAudit.style.display = 'flex';
                 btnImport.classList.remove('hidden');
                 btnRestore.classList.remove('hidden'); 
-            } else if (currentUser === 'ادمن') {
+            } else if (currentUser === 'الادارة') {
                 if (navPricelist) navPricelist.style.display = 'none';
                 if (navReports) navReports.style.display = 'flex';
                 if (navAudit) navAudit.style.display = 'flex';
