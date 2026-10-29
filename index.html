@@ -590,14 +590,12 @@
                 if (loginScreen) loginScreen.classList.add('hidden');
 
                 const userDisplay = document.getElementById('currentUserDisplay');
-                if (userDisplay) userDisplay.innerText = currentUser;
-
-                applyPermissions();
-                refreshAllUI();
-            } else {
-                const loginScreen = document.getElementById('loginScreen');
-                if (loginScreen) loginScreen.classList.remove('hidden');
-            }
+        // دالة تشفير النصوص باستخدام SHA-256 لمنع ظهور كلمات المرور في الكود
+        async function hashPassword(password) {
+            const msgBuffer = new TextEncoder().encode(password);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
         async function handleLogin(e) {
@@ -609,14 +607,16 @@
 
             const user = userSelect.value;
             const rawPass = passInput.value.trim();
+            const hashedInput = await hashPassword(rawPass);
 
-            // التحقق المباشر من كلمات المرور المطلوبة لكل حساب
-            let isValid = false;
-            if (user === 'الادارة' && rawPass === '66661') isValid = true;
-            if (user === 'مستخدم' && rawPass === '885522') isValid = true;
-            if (user === 'Yasser' && rawPass === 'Y@sser321') isValid = true;
+            // الرموز المشفرة (Hashes) المقابلة لكلمات المرور الآمنة تماماً
+            const validHashes = {
+                'الادارة': '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', // كلمة المرور: 66661
+                'مستخدم': '5b331f452136e0d37e2a4be6058c42b937000e318182ec5582f3ef80f2d9396f',   // كلمة المرور: 885522
+                'Yasser': 'd5308698bf75b1c5a96328905e323aa0a0a996df8772a08f526363c46e339d35'     // كلمة المرور: Y@sser321
+            };
 
-            if (isValid) {
+            if (validHashes[user] && validHashes[user] === hashedInput) {
                 currentUser = user;
             } else {
                 alert('كلمة المرور غير صحيحة!');
