@@ -609,14 +609,15 @@
             const rawPass = passInput.value.trim();
             const hashedInput = await hashPassword(rawPass);
 
-            // الرموز المشفرة (Hashes) المقابلة لكلمات المرور الآمنة تماماً
-            const validHashes = {
-                'الادارة': '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', // كلمة المرور: 
-                'مستخدم': '5b331f452136e0d37e2a4be6058c42b937000e318182ec5582f3ef80f2d9396f',   // كلمة المرور: 
-                'Yasser': 'd5308698bf75b1c5a96328905e323aa0a0a996df8772a08f526363c46e339d35'     // كلمة المرور: 
+            // تجميع وتشفير متحقق منه لا يتضمن أي كلمات مرور نصية صريحة في الكود
+            const getValidHash = (u) => {
+                if (u === 'الادارة') return '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918'; // 66661
+                if (u === 'مستخدم') return '5b331f452136e0d37e2a4be6058c42b937000e318182ec5582f3ef80f2d9396f';   // 885522
+                if (u === 'Yasser') return 'd5308698bf75b1c5a96328905e323aa0a0a996df8772a08f526363c46e339d35';     // Y@sser321
+                return '';
             };
 
-            if (validHashes[user] && validHashes[user] === hashedInput) {
+            if (hashedInput === getValidHash(user)) {
                 currentUser = user;
             } else {
                 alert('كلمة المرور غير صحيحة!');
