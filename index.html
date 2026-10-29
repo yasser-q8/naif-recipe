@@ -948,75 +948,75 @@
                     <div class="p-3 sm:p-4 bg-naifPurple-800 text-white space-y-3 border-t-2 border-purple-300">
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                             
-                            <div class="bg-naifPurple-900/80 p-3 rounded-xl border border-purple-600 space-y-1.5 shadow">
+                            <div class="bg-naifPurple-900/80 p-3.5 rounded-xl border border-purple-600 space-y-2 shadow">
                                 <h4 class="text-xs font-black text-purple-200 border-b border-purple-700 pb-1">الوجبة الأصلية</h4>
-                                <div class="flex justify-between items-center text-xs font-bold">
+                                <div class="flex justify-between items-center text-sm font-bold">
                                     <span>سعر البيع:</span>
-                                    <span class="font-mono text-emerald-300 text-sm font-black">${formatPrice(sp, 3)}</span>
+                                    <span class="font-mono text-emerald-300 text-base font-black">${formatPrice(sp, 3)}</span>
                                 </div>
-                                <div class="flex justify-between items-center text-xs font-bold bg-naifPurple-950/50 p-1 rounded">
+                                <div class="flex justify-between items-center text-sm font-bold bg-naifPurple-950/50 p-1.5 rounded">
                                     <span>التكلفة:</span>
-                                    <span class="font-mono text-rose-300 text-sm font-black">${formatPrice(mainCost, 3)}</span>
+                                    <span class="font-mono text-rose-300 text-base font-black">${formatPrice(mainCost, 3)}</span>
                                 </div>
-                                <div class="flex justify-between items-center text-xs font-bold">
+                                <div class="flex justify-between items-center text-sm font-bold">
                                     <span>الربح المالي:</span>
-                                    <span class="font-mono text-amber-300 text-sm font-black">${sp > 0 ? formatPrice(mainProfit, 3) : '-'}</span>
+                                    <span class="font-mono text-amber-300 text-base font-black">${sp > 0 ? formatPrice(mainProfit, 3) : '-'}</span>
                                 </div>
-                                <div class="flex justify-between items-center text-xs font-bold pt-1 border-t border-purple-700/50">
+                                <div class="flex justify-between items-center text-sm font-bold pt-1 border-t border-purple-700/50">
                                     <span>نسبة الربح %:</span>
-                                    <span class="font-mono text-emerald-300 text-sm font-black">${sp > 0 ? mainProfitPct.toFixed(2) + '%' : '-'}</span>
+                                    <span class="font-mono text-emerald-300 text-base font-black">${sp > 0 ? mainProfitPct.toFixed(2) + '%' : '-'}</span>
                                 </div>
-                                <div class="flex justify-between items-center text-xs font-bold">
+                                <div class="flex justify-between items-center text-sm font-bold">
                                     <span>نسبة التكلفة %:</span>
-                                    <span class="font-mono text-rose-300 text-sm font-black">${sp > 0 ? mainCostPct.toFixed(2) + '%' : '-'}</span>
+                                    <span class="font-mono text-rose-300 text-base font-black">${sp > 0 ? mainCostPct.toFixed(2) + '%' : '-'}</span>
                                 </div>
                             </div>
 
-                            <div class="bg-naifPurple-900/80 p-3 rounded-xl border border-purple-600 space-y-1.5 shadow">
+                            <div class="bg-naifPurple-900/80 p-3.5 rounded-xl border border-purple-600 space-y-2 shadow">
                                 <h4 class="text-xs font-black text-purple-200 border-b border-purple-700 pb-1">توصيل خارجي</h4>
-                                <div class="flex justify-between items-center text-xs font-bold">
+                                <div class="flex justify-between items-center text-sm font-bold">
                                     <span>سعر البيع:</span>
-                                    <span class="font-mono text-emerald-300 text-sm font-black">${formatPrice(sp, 3)}</span>
+                                    <span class="font-mono text-emerald-300 text-base font-black">${formatPrice(sp, 3)}</span>
                                 </div>
-                                <div class="flex justify-between items-center text-xs font-bold bg-naifPurple-950/50 p-1 rounded">
+                                <div class="flex justify-between items-center text-sm font-bold bg-naifPurple-950/50 p-1.5 rounded">
                                     <span>التكلفة:</span>
-                                    <span class="font-mono text-rose-300 text-sm font-black">${formatPrice(totalOutCost, 3)}</span>
+                                    <span class="font-mono text-rose-300 text-base font-black">${formatPrice(totalOutCost, 3)}</span>
                                 </div>
-                                <div class="flex justify-between items-center text-xs font-bold">
+                                <div class="flex justify-between items-center text-sm font-bold">
                                     <span>الربح المالي:</span>
-                                    <span class="font-mono text-amber-300 text-sm font-black">${sp > 0 ? formatPrice(outProfit, 3) : '-'}</span>
+                                    <span class="font-mono text-amber-300 text-base font-black">${sp > 0 ? formatPrice(outProfit, 3) : '-'}</span>
                                 </div>
-                                <div class="flex justify-between items-center text-xs font-bold pt-1 border-t border-purple-700/50">
+                                <div class="flex justify-between items-center text-sm font-bold pt-1 border-t border-purple-700/50">
                                     <span>نسبة الربح %:</span>
-                                    <span class="font-mono text-emerald-300 text-sm font-black">${sp > 0 ? outProfitPct.toFixed(2) + '%' : '-'}</span>
+                                    <span class="font-mono text-emerald-300 text-base font-black">${sp > 0 ? outProfitPct.toFixed(2) + '%' : '-'}</span>
                                 </div>
-                                <div class="flex justify-between items-center text-xs font-bold">
+                                <div class="flex justify-between items-center text-sm font-bold">
                                     <span>نسبة التكلفة %:</span>
-                                    <span class="font-mono text-rose-300 text-sm font-black">${sp > 0 ? outCostPct.toFixed(2) + '%' : '-'}</span>
+                                    <span class="font-mono text-rose-300 text-base font-black">${sp > 0 ? outCostPct.toFixed(2) + '%' : '-'}</span>
                                 </div>
                             </div>
 
-                            <div class="bg-naifPurple-900/80 p-3 rounded-xl border border-purple-600 space-y-1.5 shadow">
+                            <div class="bg-naifPurple-900/80 p-3.5 rounded-xl border border-purple-600 space-y-2 shadow">
                                 <h4 class="text-xs font-black text-purple-200 border-b border-purple-700 pb-1">داخل المطعم (داين إن)</h4>
-                                <div class="flex justify-between items-center text-xs font-bold">
+                                <div class="flex justify-between items-center text-sm font-bold">
                                     <span>سعر البيع:</span>
-                                    <span class="font-mono text-emerald-300 text-sm font-black">${formatPrice(sp, 3)}</span>
+                                    <span class="font-mono text-emerald-300 text-base font-black">${formatPrice(sp, 3)}</span>
                                 </div>
-                                <div class="flex justify-between items-center text-xs font-bold bg-naifPurple-950/50 p-1 rounded">
+                                <div class="flex justify-between items-center text-sm font-bold bg-naifPurple-950/50 p-1.5 rounded">
                                     <span>التكلفة:</span>
-                                    <span class="font-mono text-rose-300 text-sm font-black">${formatPrice(totalInCost, 3)}</span>
+                                    <span class="font-mono text-rose-300 text-base font-black">${formatPrice(totalInCost, 3)}</span>
                                 </div>
-                                <div class="flex justify-between items-center text-xs font-bold">
+                                <div class="flex justify-between items-center text-sm font-bold">
                                     <span>الربح المالي:</span>
-                                    <span class="font-mono text-amber-300 text-sm font-black">${sp > 0 ? formatPrice(inProfit, 3) : '-'}</span>
+                                    <span class="font-mono text-amber-300 text-base font-black">${sp > 0 ? formatPrice(inProfit, 3) : '-'}</span>
                                 </div>
-                                <div class="flex justify-between items-center text-xs font-bold pt-1 border-t border-purple-700/50">
+                                <div class="flex justify-between items-center text-sm font-bold pt-1 border-t border-purple-700/50">
                                     <span>نسبة الربح %:</span>
-                                    <span class="font-mono text-emerald-300 text-sm font-black">${sp > 0 ? inProfitPct.toFixed(2) + '%' : '-'}</span>
+                                    <span class="font-mono text-emerald-300 text-base font-black">${sp > 0 ? inProfitPct.toFixed(2) + '%' : '-'}</span>
                                 </div>
-                                <div class="flex justify-between items-center text-xs font-bold">
+                                <div class="flex justify-between items-center text-sm font-bold">
                                     <span>نسبة التكلفة %:</span>
-                                    <span class="font-mono text-rose-300 text-sm font-black">${sp > 0 ? inCostPct.toFixed(2) + '%' : '-'}</span>
+                                    <span class="font-mono text-rose-300 text-base font-black">${sp > 0 ? inCostPct.toFixed(2) + '%' : '-'}</span>
                                 </div>
                             </div>
 
@@ -1732,8 +1732,8 @@
             const idsToDelete = Array.from(checked).map(cb => parseFloat(cb.getAttribute('data-id')));
             db.auditLogs = db.auditLogs.filter(log => !idsToDelete.includes(log.id));
 
+            // تم استبعاد تسجيل حركة المسح بناءً على طلبك
             saveDatabase();
-            addAuditLog('مسح سجل حركات', `تم مسح ${idsToDelete.length} عنصر من السجل بواسطة Yasser`);
             renderAuditLogs();
         }
 
