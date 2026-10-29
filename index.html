@@ -469,6 +469,16 @@
 
         window.isFirebaseSaving = false;
 
+        // Broadcast Channel / Storage Event Fallback for local multi-tab sync
+        window.addEventListener('storage', (e) => {
+            if (e.key === STORAGE_KEY && e.newValue) {
+                try {
+                    window.db = JSON.parse(e.newValue);
+                    if (typeof window.refreshAllUI === 'function') window.refreshAllUI();
+                } catch(err){}
+            }
+        });
+
         function setupFirestoreListener() {
             onSnapshot(docRef, (docSnap) => {
                 if (window.isFirebaseSaving) {
@@ -509,8 +519,10 @@
             });
         }
 
+        // Initialize Firestore listening
         setupFirestoreListener();
 
+        // Optional anonymous authentication
         signInAnonymously(auth).catch(() => {});
 
         window.syncToFirebase = async function() {
@@ -549,6 +561,7 @@
 
     <script>
         const STORAGE_KEY = 'NAIF_FOODS_RECIPES_DB_V2026_MOBILE';
+        const SESSION_USER_KEY = 'NAIF_FOODS_ACTIVE_SESSION_USER';
         let currentUser = null;
 
         window.db = {
@@ -561,8 +574,30 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             loadDatabase();
+            restoreActiveSession();
             switchTab('recipes');
         });
+
+        // Check and restore active user session on page reload/refresh
+        function restoreActiveSession() {
+            const savedUser = sessionStorage.getItem(SESSION_USER_KEY);
+            if (savedUser) {
+                currentUser = savedUser;
+                window.currentUser = savedUser;
+
+                const loginScreen = document.getElementById('loginScreen');
+                if (loginScreen) loginScreen.classList.add('hidden');
+
+                const userDisplay = document.getElementById('currentUserDisplay');
+                if (userDisplay) userDisplay.innerText = currentUser;
+
+                applyPermissions();
+                refreshAllUI();
+            } else {
+                const loginScreen = document.getElementById('loginScreen');
+                if (loginScreen) loginScreen.classList.remove('hidden');
+            }
+        }
 
         function handleLogin(e) {
             e.preventDefault();
@@ -586,6 +621,7 @@
             }
 
             window.currentUser = currentUser;
+            sessionStorage.setItem(SESSION_USER_KEY, currentUser);
             
             const loginScreen = document.getElementById('loginScreen');
             if (loginScreen) loginScreen.classList.add('hidden');
@@ -602,6 +638,8 @@
             if (currentUser) addAuditLog('تسجيل خروج', `قام ${currentUser} بتسجيل الخروج`);
             currentUser = null;
             window.currentUser = null;
+            sessionStorage.removeItem(SESSION_USER_KEY);
+
             const loginScreen = document.getElementById('loginScreen');
             if (loginScreen) loginScreen.classList.remove('hidden');
             const passInput = document.getElementById('loginPassword');
