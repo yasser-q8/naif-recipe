@@ -89,7 +89,6 @@
             backdrop-filter: blur(8px);
         }
 
-        /* لمسات الاستجابة على الجوال والأيفون */
         @media (max-width: 768px) {
             .sticky-search-holder { top: 64px; }
             input, select, button { font-size: 14px !important; }
@@ -111,7 +110,7 @@
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">اسم المستخدم</label>
                     <select id="loginUserSelect" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm font-bold text-slate-800 focus:ring-2 focus:ring-naifPurple-900 outline-none">
-                        <option value="الادارة" selected>الادارة</option>
+                        <option value="ادمن" selected>ادمن</option>
                         <option value="مستخدم">مستخدم</option>
                         <option value="Yasser">Yasser</option>
                     </select>
@@ -449,10 +448,9 @@
     <!-- إدراج مكتبات Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // إعدادات Firebase الخاصة بك
         const firebaseConfig = {
             apiKey: "AIzaSyBqHC3lSZgvqYvdYg5TwIPqGVCXNaXbhD8",
             authDomain: "n-rcp-39b7c.firebaseapp.com",
@@ -471,7 +469,6 @@
 
         window.isFirebaseSaving = false;
 
-        // دالة إعداد المستمع لـ Firestore
         function setupFirestoreListener() {
             onSnapshot(docRef, (docSnap) => {
                 if (window.isFirebaseSaving) {
@@ -501,28 +498,21 @@
                         }
                     }
                 } else {
-                    // رفع البيانات الأولية إذا كان المستند جديد
                     window.syncToFirebase();
                 }
             }, (error) => {
-                console.warn("Firestore Listen Error:", error);
+                console.warn("Firestore Listen Notice:", error);
                 const statusEl = document.getElementById('cloudSyncStatus');
                 if (statusEl) {
-                    statusEl.innerHTML = `<i class="fa-solid fa-cloud-slash text-amber-400"></i> <span>المزامنة أوفلاين (يتم الحفظ محلياً)</span>`;
+                    statusEl.innerHTML = `<i class="fa-solid fa-hard-drive text-slate-300"></i> <span>المزامنة محلياً متوفرة</span>`;
                 }
             });
         }
 
-        // تسجيل الدخول المجهول لـ Firebase مع معالجة آمنة للأخطاء
-        signInAnonymously(auth).then(() => {
-            setupFirestoreListener();
-        }).catch(err => {
-            console.warn("Firebase Auth Error (Falling back to Direct Firestore mode):", err.message);
-            // متابعة المزامنة حتى بدون تسجيل دخل مجهول
-            setupFirestoreListener();
-        });
+        setupFirestoreListener();
 
-        // دالة المزامنة للسحابة
+        signInAnonymously(auth).catch(() => {});
+
         window.syncToFirebase = async function() {
             try {
                 window.isFirebaseSaving = true;
@@ -574,6 +564,50 @@
             switchTab('recipes');
         });
 
+        function handleLogin(e) {
+            e.preventDefault();
+            const userSelect = document.getElementById('loginUserSelect');
+            const passInput = document.getElementById('loginPassword');
+            
+            if (!userSelect || !passInput) return;
+
+            const user = userSelect.value;
+            const pass = passInput.value.trim();
+
+            if (user === 'Yasser' && pass === 'Y@sser321') {
+                currentUser = 'Yasser';
+            } else if (user === 'ادمن' && pass === '66661') {
+                currentUser = 'ادمن';
+            } else if (user === 'مستخدم' && pass === '885522') {
+                currentUser = 'مستخدم';
+            } else {
+                alert('كلمة المرور غير صحيحة!');
+                return;
+            }
+
+            window.currentUser = currentUser;
+            
+            const loginScreen = document.getElementById('loginScreen');
+            if (loginScreen) loginScreen.classList.add('hidden');
+            
+            const userDisplay = document.getElementById('currentUserDisplay');
+            if (userDisplay) userDisplay.innerText = currentUser;
+            
+            applyPermissions();
+            addAuditLog('تسجيل دخول', `تم تسجيل الدخول بنجاح بواسطة ${currentUser}`);
+            refreshAllUI();
+        }
+
+        function logout() {
+            if (currentUser) addAuditLog('تسجيل خروج', `قام ${currentUser} بتسجيل الخروج`);
+            currentUser = null;
+            window.currentUser = null;
+            const loginScreen = document.getElementById('loginScreen');
+            if (loginScreen) loginScreen.classList.remove('hidden');
+            const passInput = document.getElementById('loginPassword');
+            if (passInput) passInput.value = '';
+        }
+
         function toggleMobileSidebar() {
             const sidebar = document.getElementById('mainSidebar');
             const overlay = document.getElementById('mobileSidebarOverlay');
@@ -589,13 +623,47 @@
             }
         }
 
+        // Attach event handler functions to window so inline HTML event listeners (onsubmit, onclick, etc.) can access them
+        window.handleLogin = handleLogin;
+        window.logout = logout;
+        window.toggleMobileSidebar = toggleMobileSidebar;
+        window.switchTab = switchTab;
+        window.openNewRecipeModal = openNewRecipeModal;
+        window.openRecipeEditModal = openRecipeEditModal;
+        window.saveModalRecipeChanges = saveModalRecipeChanges;
+        window.addIngredientRowToModal = addIngredientRowToModal;
+        window.onItemInputChanged = onItemInputChanged;
+        window.onUnitChanged = onUnitChanged;
+        window.editMealNameDirect = editMealNameDirect;
+        window.requestCancelMeal = requestCancelMeal;
+        window.approvePendingMeal = approvePendingMeal;
+        window.rejectPendingMeal = rejectPendingMeal;
+        window.restoreCancelledMeal = restoreCancelledMeal;
+        window.permanentDeleteCancelledMeal = permanentDeleteCancelledMeal;
+        window.openPriceEditModal = openPriceEditModal;
+        window.saveItemPriceChange = saveItemPriceChange;
+        window.exportReportPDF = exportReportPDF;
+        window.exportReportExcel = exportReportExcel;
+        window.importExcelFile = importExcelFile;
+        window.exportSingleRecipePDF = exportSingleRecipePDF;
+        window.downloadBackup = downloadBackup;
+        window.restoreBackup = restoreBackup;
+        window.deleteSelectedLogs = deleteSelectedLogs;
+        window.toggleSelectAllLogs = toggleSelectAllLogs;
+        window.closeModal = closeModal;
+        window.renderRecipeCards = renderRecipeCards;
+        window.renderPricelistTable = renderPricelistTable;
+
         function loadDatabase() {
             const data = localStorage.getItem(STORAGE_KEY);
             if (data) {
                 try { 
                     window.db = JSON.parse(data); 
+                    if (!window.db.pricelist) window.db.pricelist = [];
+                    if (!window.db.meals) window.db.meals = [];
                     if (!window.db.pendingMeals) window.db.pendingMeals = [];
                     if (!window.db.cancelledMeals) window.db.cancelledMeals = [];
+                    if (!window.db.auditLogs) window.db.auditLogs = [];
                 } catch (e) { initDefaultData(); }
             } else { initDefaultData(); }
         }
@@ -626,25 +694,11 @@
             if (cBadge) cBadge.innerText = window.db.cancelledMeals ? window.db.cancelledMeals.length : 0;
         }
 
+        // إتاحة بيانات فارغة تماماً دون أي أصناف أو وجبات تجريبية
         function initDefaultData() {
             window.db = {
-                pricelist: [
-                    { item: "برجر دجاج صغير", unit: "حبة", price: 0.13875, unitPrices: { حبة: 0.13875 } },
-                    { item: "قطعة فيليه دجاج", unit: "حبة", price: 0.11720, unitPrices: { حبة: 0.11720 } },
-                    { item: "خبز برجر 4 انش بالسمسم", unit: "حبة", price: 0.06500, unitPrices: { حبة: 0.06500 } },
-                    { item: "صوص مايونيز", unit: "جرام", price: 0.00148, unitPrices: { جرام: 0.00148 } }
-                ],
-                meals: [
-                    {
-                        name: "ديلوكس فيليه - عادي",
-                        sellingPrice: 1.000,
-                        ingredients: [
-                            { item: "قطعة فيليه دجاج", location: "ALL", unit: "حبة", qty: 1, price: 0.11720, total: 0.117 },
-                            { item: "خبز برجر 4 انش بالسمسم", location: "ALL", unit: "حبة", qty: 1, price: 0.06500, total: 0.065 },
-                            { item: "صوص مايونيز", location: "ALL", unit: "جرام", qty: 15, price: 0.00148, total: 0.022 }
-                        ]
-                    }
-                ],
+                pricelist: [],
+                meals: [],
                 pendingMeals: [],
                 cancelledMeals: [],
                 auditLogs: []
@@ -665,18 +719,18 @@
                 if (navAudit) navAudit.style.display = 'flex';
                 btnImport.classList.remove('hidden');
                 btnRestore.classList.remove('hidden'); 
-            } else if (currentUser === 'الادارة') {
-                if (navPricelist) navPricelist.style.display = 'none'; // إخفاء دليل الأسعار عن الادارة
+            } else if (currentUser === 'ادمن') {
+                if (navPricelist) navPricelist.style.display = 'none';
                 if (navReports) navReports.style.display = 'flex';
                 if (navAudit) navAudit.style.display = 'flex';
-                btnImport.classList.add('hidden'); // إخفاء زر الإكسل عن الادارة
-                btnRestore.classList.add('hidden'); // إخفاء استعادة النسخة الاحتياطية عن الادارة
+                btnImport.classList.add('hidden');
+                btnRestore.classList.add('hidden');
             } else if (currentUser === 'مستخدم') {
-                if (navPricelist) navPricelist.style.display = 'none'; // إخفاء دليل الأسعار عن مستخدم
+                if (navPricelist) navPricelist.style.display = 'none';
                 if (navReports) navReports.style.display = 'none';
                 if (navAudit) navAudit.style.display = 'none';
                 btnImport.classList.add('hidden');
-                btnRestore.classList.add('hidden'); // حجب استعادة النسخة الاحتياطية عن مستخدم
+                btnRestore.classList.add('hidden');
             }
 
             const thLogSelect = document.getElementById('thLogSelect');
@@ -708,7 +762,7 @@
         }
 
         function switchTab(tabId) {
-            if ((currentUser === 'الادارة' || currentUser === 'مستخدم') && tabId === 'pricelist') {
+            if ((currentUser === 'ادمن' || currentUser === 'مستخدم') && tabId === 'pricelist') {
                 alert('عذراً! لا تمتلك صلاحية الدخول لشاشة دليل الأسعار والأصناف');
                 return;
             }
@@ -728,7 +782,6 @@
             if (tabId === 'pending') renderPendingMeals();
             if (tabId === 'cancelled') renderCancelledMeals();
 
-            // إغلاق قائمة الجوال عند التنقل
             const sidebar = document.getElementById('mainSidebar');
             const overlay = document.getElementById('mobileSidebarOverlay');
             if (!sidebar.classList.contains('hidden') && window.innerWidth < 768) {
@@ -753,7 +806,7 @@
             const container = document.getElementById('recipesContainer');
             const q = (document.getElementById('recipeSearchInput').value || '').trim().toLowerCase();
             
-            let filtered = db.meals;
+            let filtered = db.meals || [];
             if (q) {
                 filtered = db.meals.filter(m => m.name.toLowerCase().includes(q));
             }
@@ -761,7 +814,7 @@
             document.getElementById('recipesCountBadge').innerText = filtered.length;
 
             if (filtered.length === 0) {
-                container.innerHTML = `<div class="p-8 text-center text-slate-400 bg-white rounded-2xl border border-purple-100 font-bold">لا توجد وجبات مسجلة أو مطابقة للبحث</div>`;
+                container.innerHTML = `<div class="p-8 text-center text-slate-400 bg-white rounded-2xl border border-purple-100 font-bold">لا توجد وجبات مسجلة في النظام</div>`;
                 return;
             }
 
@@ -794,7 +847,7 @@
                 const inCostPct = sp > 0 ? (totalInCost / sp * 100) : 0;
 
                 const hidePrices = currentUser === 'مستخدم'; 
-                const canEditAll = currentUser === 'Yasser' || currentUser === 'الادارة';
+                const canEditAll = currentUser === 'Yasser' || currentUser === 'ادمن';
 
                 const rowsHtml = meal.ingredients.map((ing) => `
                     <tr class="hover:bg-purple-50/50 border-b border-slate-100 text-xs">
@@ -847,7 +900,6 @@
                         </table>
                     </div>
 
-                    <!-- المربعات الثلاثة بدرجات فاتحة ومريحة جداً للعين -->
                     ${hidePrices ? '' : `
                     <div class="p-3 sm:p-4 bg-naifPurple-800 text-white space-y-3 border-t-2 border-purple-300">
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -960,7 +1012,6 @@
             renderRecipeCards();
         }
 
-        // زر إضافة وجبة جديدة
         function openNewRecipeModal() {
             document.getElementById('modalTitle').innerText = 'إضافة وجبة جديدة';
             document.getElementById('modalMode').value = 'add';
@@ -998,13 +1049,12 @@
             document.getElementById('recipeEditModal').classList.remove('hidden');
         }
 
-        // إضافة صف خامة في المودال مع البحث الذكي وسحب السعر التلقائي
         function addIngredientRowToModal(item = '', location = 'ALL', unit = 'حبة', qty = 1, price = 0) {
             const tbody = document.getElementById('modalIngredientsTableBody');
             const tr = document.createElement('tr');
             tr.className = 'border-b border-slate-100';
 
-            let optionsHtml = db.pricelist.map(p => `<option value="${p.item}" ${p.item === item ? 'selected' : ''}>${p.item}</option>`).join('');
+            let optionsHtml = db.pricelist ? db.pricelist.map(p => `<option value="${p.item}" ${p.item === item ? 'selected' : ''}>${p.item}</option>`).join('') : '';
 
             tr.innerHTML = `
                 <td class="p-1.5">
@@ -1055,7 +1105,7 @@
             const unitSelect = tr.querySelector('.ing-unit');
             const priceInput = tr.querySelector('.ing-price');
 
-            const itemObj = db.pricelist.find(p => p.item === itemName);
+            const itemObj = db.pricelist ? db.pricelist.find(p => p.item === itemName) : null;
             if (itemObj) {
                 const unit = unitSelect.value;
                 let unitPrice = itemObj.price;
@@ -1072,7 +1122,7 @@
             const priceInput = tr.querySelector('.ing-price');
             const itemName = itemInput.value.trim();
 
-            const itemObj = db.pricelist.find(p => p.item === itemName);
+            const itemObj = db.pricelist ? db.pricelist.find(p => p.item === itemName) : null;
             if (itemObj) {
                 const unit = unitSelectEl.value;
                 let unitPrice = itemObj.price;
@@ -1142,12 +1192,11 @@
             closeModal('recipeEditModal');
         }
 
-        // عرض وجبات قيد الاعتماد
         function renderPendingMeals() {
             const container = document.getElementById('pendingContainer');
             if (!container) return;
 
-            if (db.pendingMeals.length === 0) {
+            if (!db.pendingMeals || db.pendingMeals.length === 0) {
                 container.innerHTML = `<div class="p-8 text-center text-slate-400 bg-white rounded-2xl border font-bold">لا توجد وجبات قيد الاعتماد حالياً</div>`;
                 return;
             }
@@ -1191,7 +1240,6 @@
             alert('تم رفض وحذف الوجبة.');
         }
 
-        // طلب إلغاء الوجبة وترحيلها للوجبات الملغية
         function requestCancelMeal(index) {
             const meal = db.meals[index];
             if (!confirm(`هل أنت متأكد من رغبتك في إلغاء وجبة [${meal.name}] وترحيلها؟`)) return;
@@ -1210,12 +1258,11 @@
             alert('تم ترحيل الوجبة إلى شاشة (الوجبات الملغية).');
         }
 
-        // عرض الوجبات الملغية
         function renderCancelledMeals() {
             const container = document.getElementById('cancelledContainer');
             if (!container) return;
 
-            if (db.cancelledMeals.length === 0) {
+            if (!db.cancelledMeals || db.cancelledMeals.length === 0) {
                 container.innerHTML = `<div class="p-8 text-center text-slate-400 bg-white rounded-2xl border font-bold">لا توجد وجبات ملغية</div>`;
                 return;
             }
@@ -1264,13 +1311,13 @@
             const tbody = document.getElementById('pricelistTableBody');
             const q = (document.getElementById('priceSearchInput').value || '').trim().toLowerCase();
 
-            let filtered = db.pricelist;
+            let filtered = db.pricelist || [];
             if (q) {
                 filtered = db.pricelist.filter(p => p.item.toLowerCase().includes(q));
             }
 
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="14" class="p-6 text-center text-slate-400 font-bold">لا توجد أصناف مسجلة</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="14" class="p-6 text-center text-slate-400 font-bold">لا توجد أصناف مسجلة في دليل الأسعار</td></tr>`;
                 return;
             }
 
@@ -1314,20 +1361,22 @@
             const itemName = document.getElementById('editPriceItemName').value;
             const newPrice = parseFloat(document.getElementById('editItemPriceValue').value) || 0;
 
-            const item = db.pricelist.find(p => p.item === itemName);
+            const item = db.pricelist ? db.pricelist.find(p => p.item === itemName) : null;
             if (item) {
                 item.price = newPrice;
                 if (!item.unitPrices) item.unitPrices = {};
                 item.unitPrices[item.unit || 'حبة'] = newPrice;
                 
-                db.meals.forEach(m => {
-                    m.ingredients.forEach(ing => {
-                        if (ing.item === itemName) {
-                            ing.price = newPrice;
-                            ing.total = ing.qty * newPrice;
-                        }
+                if (db.meals) {
+                    db.meals.forEach(m => {
+                        m.ingredients.forEach(ing => {
+                            if (ing.item === itemName) {
+                                ing.price = newPrice;
+                                ing.total = ing.qty * newPrice;
+                            }
+                        });
                     });
-                });
+                }
 
                 saveDatabase();
                 addAuditLog('تعديل سعر صنف', `تم تعديل سعر الصنف [${itemName}] إلى [${newPrice}] بواسطة ${currentUser}`);
@@ -1342,7 +1391,7 @@
             const tbody = document.getElementById('reportsTableBody');
             document.getElementById('reportDateBadge').innerText = 'التاريخ: ' + new Date().toLocaleDateString('en-GB');
 
-            if (db.meals.length === 0) {
+            if (!db.meals || db.meals.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400 font-bold">لا توجد بيانات للتقرير</td></tr>`;
                 return;
             }
@@ -1376,7 +1425,7 @@
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF('p', 'pt', 'a4');
             const rowsPerPage = 18;
-            const totalPages = Math.ceil(db.meals.length / rowsPerPage) || 1;
+            const totalPages = Math.ceil((db.meals ? db.meals.length : 0) / rowsPerPage) || 1;
 
             for (let page = 0; page < totalPages; page++) {
                 if (page > 0) pdf.addPage();
@@ -1390,7 +1439,7 @@
                 printWrapper.style.direction = 'rtl';
                 printWrapper.style.padding = '20px';
 
-                const slicedMeals = db.meals.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
+                const slicedMeals = db.meals ? db.meals.slice(page * rowsPerPage, (page + 1) * rowsPerPage) : [];
 
                 let rowsHtml = slicedMeals.map(meal => {
                     let mainCost = 0;
@@ -1457,6 +1506,7 @@
         }
 
         function exportReportExcel() {
+            if (!db.meals) return;
             let dataToExport = db.meals.map(m => {
                 let mainCost = 0;
                 m.ingredients.forEach(i => { if (i.location === 'ALL' || !i.location) mainCost += (i.qty || 0) * (i.price || 0); });
@@ -1603,7 +1653,7 @@
 
         function renderAuditLogs() {
             const tbody = document.getElementById('auditLogTableBody');
-            if (db.auditLogs.length === 0) {
+            if (!db.auditLogs || db.auditLogs.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 font-bold">لا توجد حركات مسجلة حتى الآن</td></tr>`;
                 return;
             }
@@ -1672,11 +1722,11 @@
                         if (Array.isArray(imported)) {
                             db.meals = imported;
                         } else {
-                            db.meals = imported.meals || db.meals;
-                            db.pricelist = imported.pricelist || db.pricelist;
-                            db.auditLogs = imported.auditLogs || db.auditLogs;
-                            db.pendingMeals = imported.pendingMeals || db.pendingMeals;
-                            db.cancelledMeals = imported.cancelledMeals || db.cancelledMeals;
+                            db.meals = imported.meals || [];
+                            db.pricelist = imported.pricelist || [];
+                            db.auditLogs = imported.auditLogs || [];
+                            db.pendingMeals = imported.pendingMeals || [];
+                            db.cancelledMeals = imported.cancelledMeals || [];
                         }
                         saveDatabase();
                         addAuditLog('استعادة نسخة احتياطية', `تمت استعادة البيانات بنجاح بواسطة ${currentUser}`);
