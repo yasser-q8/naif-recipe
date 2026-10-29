@@ -876,6 +876,9 @@
                 const hidePrices = currentUser === 'مستخدم'; 
                 const canEditAll = currentUser === 'Yasser' || currentUser === 'ادمن';
 
+                // البحث عن الرقم الأصلي للوجبة في القائمة الشاملة db.meals لتجنب خطأ شاشة البحث
+                const realMealIndex = db.meals.findIndex(m => (m.id && meal.id ? m.id === meal.id : m.name === meal.name));
+
                 const rowsHtml = meal.ingredients.map((ing) => `
                     <tr class="hover:bg-purple-50/50 border-b border-slate-100 text-xs">
                         <td class="py-2 px-1 font-bold text-slate-800 text-right text-[13px] sm:text-[13.5px]">${ing.item}</td>
@@ -896,7 +899,7 @@
                             <div>
                                 <h3 class="font-extrabold text-base sm:text-lg text-white flex items-center gap-2">
                                     <span>${meal.name}</span>
-                                    <button onclick="editMealNameDirect('${meal.name}', ${index})" class="text-[11px] bg-naifPurple-800 hover:bg-naifPurple-950 px-2 py-0.5 rounded text-purple-200 no-print active:scale-95">
+                                    <button onclick="editMealNameDirect('${meal.name}', ${realMealIndex})" class="text-[11px] bg-naifPurple-800 hover:bg-naifPurple-950 px-2 py-0.5 rounded text-purple-200 no-print active:scale-95">
                                         <i class="fa-solid fa-pen"></i> <span class="hidden sm:inline">تعديل الاسم</span>
                                     </button>
                                 </h3>
@@ -1009,16 +1012,16 @@
 
                     <div class="p-3 bg-purple-50 border-t border-purple-200 flex flex-wrap items-center justify-between gap-2 no-print">
                         ${canEditAll ? `
-                            <button onclick="openRecipeEditModal(${index})" class="bg-naifPurple-900 hover:bg-naifPurple-800 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1 shadow active:scale-95">
+                            <button onclick="openRecipeEditModal(${realMealIndex})" class="bg-naifPurple-900 hover:bg-naifPurple-800 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1 shadow active:scale-95">
                                 <i class="fa-solid fa-pen-to-square"></i> تعديل المكونات
                             </button>
                         ` : '<span class="text-xs text-slate-400 font-bold">عرض فقط</span>'}
 
                         <div class="flex items-center gap-2 mr-auto">
-                            <button onclick="requestCancelMeal(${index})" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1 shadow active:scale-95">
+                            <button onclick="requestCancelMeal(${realMealIndex})" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1 shadow active:scale-95">
                                 <i class="fa-solid fa-ban"></i> إلغاء الوجبة
                             </button>
-                            <button onclick="exportSingleRecipePDF(${index})" class="bg-slate-700 hover:bg-slate-800 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1 shadow active:scale-95">
+                            <button onclick="exportSingleRecipePDF(${realMealIndex})" class="bg-slate-700 hover:bg-slate-800 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1 shadow active:scale-95">
                                 <i class="fa-solid fa-file-pdf"></i> PDF
                             </button>
                         </div>
