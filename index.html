@@ -18,13 +18,13 @@
             theme: {
                 extend: {
                     colors: {
-                        naifPurple: {
-                            800: '#58325a',
-                            900: '#6d4370',
-                            950: '#3d203f'
+                        naifRed: {
+                            800: '#991b1b',
+                            900: '#7f1d1d',
+                            950: '#450a0a'
                         },
                         naifPink: {
-                            500: '#c95574'
+                            500: '#dc2626'
                         }
                     },
                     fontFamily: { sans: ['Segoe UI', 'Tahoma', 'Cairo', 'sans-serif'] }
@@ -37,13 +37,13 @@
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
         body { 
             font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif; 
-            background-color: #f7f3f8;
+            background-color: #fef2f2;
             -webkit-tap-highlight-color: transparent;
         }
 
         ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #9d68a0; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #991b1b; border-radius: 4px; }
 
         .signature-card {
             position: fixed;
@@ -53,7 +53,7 @@
             color: #1e3a8a;
             padding: 6px 12px;
             border-radius: 8px;
-            box-shadow: 0 8px 20px rgba(109, 67, 112, 0.25);
+            box-shadow: 0 8px 20px rgba(127, 29, 29, 0.25);
             font-size: 0.68rem;
             font-weight: 700;
             z-index: 99;
@@ -85,7 +85,7 @@
             position: sticky;
             top: 72px;
             z-index: 30;
-            background-color: rgba(247, 243, 248, 0.95);
+            background-color: rgba(254, 242, 242, 0.95);
             backdrop-filter: blur(8px);
         }
 
@@ -95,21 +95,21 @@
         }
     </style>
 </head>
-<body class="bg-purple-50 text-slate-800 antialiased min-h-screen flex flex-col selection:bg-purple-200">
+<body class="bg-red-50 text-slate-800 antialiased min-h-screen flex flex-col selection:bg-red-200">
 
     <!-- شاشة تسجيل الدخول -->
-    <div id="loginScreen" class="fixed inset-0 bg-naifPurple-950/95 backdrop-blur-md z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6 sm:p-8 border border-naifPurple-900">
+    <div id="loginScreen" class="fixed inset-0 bg-naifRed-950/95 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6 sm:p-8 border border-naifRed-900">
             <div class="text-center mb-6">
-                <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" onError="this.onerror=null;this.src='https://via.placeholder.com/80?text=NAIF';" alt="شركة نايف للأغذية" class="w-20 h-20 mx-auto rounded-full shadow-lg border-2 border-naifPurple-900 object-cover mb-3">
-                <h2 class="text-2xl font-black text-naifPurple-900">شركة نايف للأغذية</h2>
+                <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" onError="this.onerror=null;this.src='https://via.placeholder.com/80?text=NAIF';" alt="شركة نايف للأغذية" class="w-20 h-20 mx-auto rounded-full shadow-lg border-2 border-naifRed-900 object-cover mb-3">
+                <h2 class="text-2xl font-black text-naifRed-900">شركة نايف للأغذية</h2>
                 <p class="text-xs text-slate-500 font-bold mt-1">نظام إدارة الأصناف وتكاليف الريسبي</p>
             </div>
             
             <form onsubmit="handleLogin(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">اسم المستخدم</label>
-                    <select id="loginUserSelect" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm font-bold text-slate-800 focus:ring-2 focus:ring-naifPurple-900 outline-none">
+                    <select id="loginUserSelect" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm font-bold text-slate-800 focus:ring-2 focus:ring-naifRed-900 outline-none">
                         <option value="الادارة" selected>الادارة</option>
                         <option value="مستخدم">مستخدم</option>
                         <option value="Yasser">Yasser</option>
@@ -117,9 +117,9 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">كلمة المرور</label>
-                    <input type="password" id="loginPassword" required placeholder="أدخل كلمة المرور" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm font-bold focus:ring-2 focus:ring-naifPurple-900 outline-none">
+                    <input type="password" id="loginPassword" required placeholder="أدخل كلمة المرور" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm font-bold focus:ring-2 focus:ring-naifRed-900 outline-none">
                 </div>
-                <button type="submit" class="w-full bg-naifPurple-900 hover:bg-naifPurple-800 active:scale-[0.98] text-white font-black py-3 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-sm">
+                <button type="submit" class="w-full bg-naifRed-900 hover:bg-naifRed-800 active:scale-[0.98] text-white font-black py-3 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-sm">
                     <i class="fa-solid fa-right-to-bracket"></i> تسجيل الدخول
                 </button>
             </form>
@@ -127,23 +127,23 @@
     </div>
 
     <!-- الهيدر الرئيسي -->
-    <header class="bg-naifPurple-900 text-white shadow-xl sticky top-0 z-40 border-b-4 border-naifPink-500">
+    <header class="bg-naifRed-900 text-white shadow-xl sticky top-0 z-40 border-b-4 border-naifPink-500">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16 sm:h-20">
                 <div class="flex items-center gap-2 sm:gap-4">
-                    <button onclick="toggleMobileSidebar()" class="md:hidden text-white p-2 rounded-lg hover:bg-naifPurple-800 text-xl flex items-center justify-center">
+                    <button onclick="toggleMobileSidebar()" class="md:hidden text-white p-2 rounded-lg hover:bg-naifRed-800 text-xl flex items-center justify-center">
                         <i class="fa-solid fa-bars"></i>
                     </button>
                     <div class="text-right">
                         <h1 class="text-base sm:text-xl font-black tracking-wide leading-tight">شركة نايف للأغذية</h1>
-                        <p class="text-[10px] sm:text-xs text-purple-200">إدارة الريسبي والتكاليف</p>
+                        <p class="text-[10px] sm:text-xs text-red-200">إدارة الريسبي والتكاليف</p>
                     </div>
                     <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" onError="this.onerror=null;this.src='https://via.placeholder.com/50?text=NAIF';" alt="شركة نايف للأغذية" class="w-10 h-10 sm:w-14 sm:h-14 rounded-full border-2 border-white object-cover shadow-md">
                 </div>
 
                 <div class="flex items-center gap-1.5 sm:gap-3">
-                    <div class="bg-naifPurple-950/60 px-2.5 py-1.5 rounded-xl border border-purple-700/50 flex items-center gap-1.5 text-[11px] sm:text-xs">
-                        <i class="fa-solid fa-user-gear text-purple-300"></i>
+                    <div class="bg-naifRed-950/60 px-2.5 py-1.5 rounded-xl border border-red-700/50 flex items-center gap-1.5 text-[11px] sm:text-xs">
+                        <i class="fa-solid fa-user-gear text-red-300"></i>
                         <span class="hidden sm:inline">المستخدم:</span> <strong id="currentUserDisplay" class="text-white">--</strong>
                     </div>
 
@@ -173,7 +173,7 @@
     </header>
 
     <!-- مؤشر حالة المزامنة السحابية Firebase -->
-    <div id="cloudSyncStatus" class="bg-purple-900/90 text-white text-[11px] font-bold px-4 py-1.5 text-center flex items-center justify-center gap-2 border-b border-purple-700">
+    <div id="cloudSyncStatus" class="bg-red-900/90 text-white text-[11px] font-bold px-4 py-1.5 text-center flex items-center justify-center gap-2 border-b border-red-700">
         <i class="fa-solid fa-cloud-arrow-up text-emerald-400 animate-pulse"></i>
         <span>جاري المزامنة مع السحابة (Firebase)...</span>
     </div>
@@ -185,34 +185,34 @@
     <div class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 flex flex-col md:flex-row gap-4 sm:gap-6">
 
         <!-- القائمة الجانبية -->
-        <aside id="mainSidebar" class="w-full md:w-64 bg-white rounded-2xl shadow-lg border border-purple-100 p-3 shrink-0 self-start sticky top-20 hidden md:block z-30 transition-all duration-300">
-            <div class="text-[11px] font-black text-naifPurple-900 uppercase px-3 py-2 flex items-center justify-between">
+        <aside id="mainSidebar" class="w-full md:w-64 bg-white rounded-2xl shadow-lg border border-red-100 p-3 shrink-0 self-start sticky top-20 hidden md:block z-30 transition-all duration-300">
+            <div class="text-[11px] font-black text-naifRed-900 uppercase px-3 py-2 flex items-center justify-between">
                 <span>القائمة الرئيسية</span>
                 <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-base"></i></button>
             </div>
             <nav class="space-y-1">
-                <button onclick="switchTab('recipes')" id="nav-recipes" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-xs text-slate-700 hover:bg-purple-50 transition">
-                    <i class="fa-solid fa-utensils text-naifPurple-900 text-base w-5"></i>
+                <button onclick="switchTab('recipes')" id="nav-recipes" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-xs text-slate-700 hover:bg-red-50 transition">
+                    <i class="fa-solid fa-utensils text-naifRed-900 text-base w-5"></i>
                     <span>وصفات الوجبات (BOM)</span>
                 </button>
-                <button onclick="switchTab('pricelist')" id="nav-pricelist" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-xs text-slate-700 hover:bg-purple-50 transition">
-                    <i class="fa-solid fa-tags text-naifPurple-900 text-base w-5"></i>
+                <button onclick="switchTab('pricelist')" id="nav-pricelist" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-xs text-slate-700 hover:bg-red-50 transition">
+                    <i class="fa-solid fa-tags text-naifRed-900 text-base w-5"></i>
                     <span>دليل الأسعار والأصناف</span>
                 </button>
-                <button onclick="switchTab('reports')" id="nav-reports" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-xs text-slate-700 hover:bg-purple-50 transition">
-                    <i class="fa-solid fa-chart-line text-naifPurple-900 text-base w-5"></i>
+                <button onclick="switchTab('reports')" id="nav-reports" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-xs text-slate-700 hover:bg-red-50 transition">
+                    <i class="fa-solid fa-chart-line text-naifRed-900 text-base w-5"></i>
                     <span>التقارير التحليلية</span>
                 </button>
-                <button onclick="switchTab('pending')" id="nav-pending" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-xs text-slate-700 hover:bg-purple-50 transition">
+                <button onclick="switchTab('pending')" id="nav-pending" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-xs text-slate-700 hover:bg-red-50 transition">
                     <i class="fa-solid fa-hourglass-half text-amber-600 text-base w-5"></i>
                     <span>وجبات قيد الاعتماد</span> <span id="pendingBadge" class="bg-amber-100 text-amber-800 text-[10px] px-2 py-0.5 rounded-full mr-auto font-bold">0</span>
                 </button>
-                <button onclick="switchTab('cancelled')" id="nav-cancelled" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-xs text-slate-700 hover:bg-purple-50 transition">
+                <button onclick="switchTab('cancelled')" id="nav-cancelled" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-xs text-slate-700 hover:bg-red-50 transition">
                     <i class="fa-solid fa-ban text-rose-600 text-base w-5"></i>
                     <span>الوجبات الملغية</span> <span id="cancelledBadge" class="bg-rose-100 text-rose-800 text-[10px] px-2 py-0.5 rounded-full mr-auto font-bold">0</span>
                 </button>
-                <button onclick="switchTab('auditlog')" id="nav-auditlog" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-xs text-slate-700 hover:bg-purple-50 transition">
-                    <i class="fa-solid fa-clock-rotate-left text-naifPurple-900 text-base w-5"></i>
+                <button onclick="switchTab('auditlog')" id="nav-auditlog" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-xs text-slate-700 hover:bg-red-50 transition">
+                    <i class="fa-solid fa-clock-rotate-left text-naifRed-900 text-base w-5"></i>
                     <span>سجل الحركات الكامل</span>
                 </button>
             </nav>
@@ -223,26 +223,30 @@
 
             <!-- الشاشة 1: الوصفات -->
             <section id="view-recipes" class="tab-view space-y-4">
-                <div class="sticky-search-holder p-3 rounded-2xl border border-naifPurple-900/30 shadow-md flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
+                <div class="sticky-search-holder p-3 rounded-2xl border border-naifRed-900/30 shadow-md flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
                     <div class="flex items-center gap-2 flex-1">
-                        <i class="fa-solid fa-magnifying-glass text-naifPurple-900 text-base pr-1"></i>
-                        <input type="text" id="recipeSearchInput" onkeyup="renderRecipeCards()" placeholder="ابحث باسم الوجبة بالحرف أو الكلمة..." class="w-full bg-white border border-naifPurple-900/40 rounded-xl px-3 py-2 text-xs font-bold focus:ring-2 focus:ring-naifPurple-900 outline-none shadow-inner">
-                        <span class="text-xs font-black text-naifPurple-900 shrink-0 bg-purple-100 px-3 py-2 rounded-xl border border-naifPurple-900/20">
-                            العدد: <span id="recipesCountBadge" class="text-naifPurple-900 font-mono">0</span>
+                        <i class="fa-solid fa-magnifying-glass text-naifRed-900 text-base pr-1"></i>
+                        <input type="text" id="recipeSearchInput" onkeyup="onRecipeSearchInput()" placeholder="ابحث باسم الوجبة بالحرف أو الكلمة..." class="w-full bg-white border border-naifRed-900/40 rounded-xl px-3 py-2 text-xs font-bold focus:ring-2 focus:ring-naifRed-900 outline-none shadow-inner">
+                        <span class="text-xs font-black text-naifRed-900 shrink-0 bg-red-100 px-3 py-2 rounded-xl border border-naifRed-900/20">
+                            العدد: <span id="recipesCountBadge" class="text-naifRed-900 font-mono">0</span>
                         </span>
                     </div>
-                    <button onclick="openNewRecipeModal()" class="bg-naifPurple-900 hover:bg-naifPurple-800 active:scale-95 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition flex items-center justify-center gap-1.5 shadow">
+                    <button onclick="openNewRecipeModal()" class="bg-naifRed-900 hover:bg-naifRed-800 active:scale-95 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition flex items-center justify-center gap-1.5 shadow">
                         <i class="fa-solid fa-plus"></i> إضافة وجبة جديدة
                     </button>
                 </div>
+
                 <div id="recipesContainer" class="space-y-4 sm:space-y-6"></div>
+
+                <!-- أزرار التنقل بين الصفحات لتسريع الأداء -->
+                <div id="paginationControls" class="bg-white p-3 rounded-2xl border border-red-100 shadow-sm flex items-center justify-between text-xs font-bold text-slate-700"></div>
             </section>
 
             <!-- الشاشة 2: دليل الأسعار -->
             <section id="view-pricelist" class="tab-view hidden space-y-4">
-                <div class="bg-white p-4 rounded-2xl border border-purple-100 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div class="bg-white p-4 rounded-2xl border border-red-100 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                     <div>
-                        <h2 class="text-base font-extrabold text-naifPurple-900">دليل الأصناف والأسعار (pricelist)</h2>
+                        <h2 class="text-base font-extrabold text-naifRed-900">دليل الأصناف والأسعار (pricelist)</h2>
                         <p class="text-xs text-slate-500">قائمة تكاليف الأصناف بجميع الوحدات المعتمدة</p>
                     </div>
                     <div class="w-full sm:w-auto">
@@ -250,10 +254,10 @@
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl border border-purple-100 shadow-sm overflow-hidden">
+                <div class="bg-white rounded-2xl border border-red-100 shadow-sm overflow-hidden">
                     <div class="overflow-x-auto">
                         <table class="w-full text-right text-xs min-w-[700px]">
-                            <thead class="bg-naifPurple-900 text-white font-bold">
+                            <thead class="bg-naifRed-900 text-white font-bold">
                                 <tr>
                                     <th class="p-3">اسم الصنف</th>
                                     <th class="p-3 text-center">حبة</th>
@@ -279,9 +283,9 @@
 
             <!-- الشاشة 3: التقارير -->
             <section id="view-reports" class="tab-view hidden space-y-4">
-                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-purple-100 shadow-sm flex flex-wrap items-center justify-between gap-3">
+                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-red-100 shadow-sm flex flex-wrap items-center justify-between gap-3">
                     <div>
-                        <h2 class="text-base font-extrabold text-naifPurple-900">التقارير التحليلية الشاملة لجميع الوجبات</h2>
+                        <h2 class="text-base font-extrabold text-naifRed-900">التقارير التحليلية الشاملة لجميع الوجبات</h2>
                         <p class="text-xs text-slate-500">استعراض أسعار البيع، التكاليف، الأرباح، ونسب الربحية الاحترافية</p>
                     </div>
                     <div class="flex items-center gap-2 w-full sm:w-auto">
@@ -294,10 +298,10 @@
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl border border-purple-100 shadow-sm overflow-hidden" id="reportPrintArea">
-                    <div class="p-4 bg-naifPurple-900 text-white flex justify-between items-center">
+                <div class="bg-white rounded-2xl border border-red-100 shadow-sm overflow-hidden" id="reportPrintArea">
+                    <div class="p-4 bg-naifRed-900 text-white flex justify-between items-center">
                         <h3 class="font-bold text-sm">تقرير ربحية وتكاليف الوجبات الرئيسي</h3>
-                        <span class="text-xs text-purple-200" id="reportDateBadge">--</span>
+                        <span class="text-xs text-red-200" id="reportDateBadge">--</span>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-right text-xs min-w-[600px]">
@@ -319,15 +323,15 @@
 
             <!-- الشاشة 4: وجبات قيد الاعتماد -->
             <section id="view-pending" class="tab-view hidden space-y-4">
-                <div class="bg-white p-4 rounded-2xl border border-purple-100 shadow-sm">
-                    <h2 class="text-base font-extrabold text-naifPurple-900">الوجبات الجديدة قيد الاعتماد</h2>
+                <div class="bg-white p-4 rounded-2xl border border-red-100 shadow-sm">
+                    <h2 class="text-base font-extrabold text-naifRed-900">الوجبات الجديدة قيد الاعتماد</h2>
                 </div>
                 <div id="pendingContainer" class="space-y-3 sm:space-y-4"></div>
             </section>
 
             <!-- الشاشة 5: الوجبات الملغية -->
             <section id="view-cancelled" class="tab-view hidden space-y-4">
-                <div class="bg-white p-4 rounded-2xl border border-purple-100 shadow-sm">
+                <div class="bg-white p-4 rounded-2xl border border-red-100 shadow-sm">
                     <h2 class="text-base font-extrabold text-rose-700">الوجبات الملغية</h2>
                 </div>
                 <div id="cancelledContainer" class="space-y-3 sm:space-y-4"></div>
@@ -335,9 +339,9 @@
 
             <!-- الشاشة 6: سجل الحركات -->
             <section id="view-auditlog" class="tab-view hidden space-y-4">
-                <div class="bg-white p-4 rounded-2xl border border-purple-100 shadow-sm flex items-center justify-between">
+                <div class="bg-white p-4 rounded-2xl border border-red-100 shadow-sm flex items-center justify-between">
                     <div>
-                        <h2 class="text-base font-extrabold text-naifPurple-900">سجل أنشطة وحركات النظام (Audit Log)</h2>
+                        <h2 class="text-base font-extrabold text-naifRed-900">سجل أنشطة وحركات النظام (Audit Log)</h2>
                         <p class="text-xs text-slate-500">سجل التعديلات والعمليات في النظام</p>
                     </div>
                     <button id="btnDeleteLogSelection" onclick="deleteSelectedLogs()" class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 hidden">
@@ -345,10 +349,10 @@
                     </button>
                 </div>
 
-                <div class="bg-white rounded-2xl border border-purple-100 shadow-sm overflow-hidden">
+                <div class="bg-white rounded-2xl border border-red-100 shadow-sm overflow-hidden">
                     <div class="overflow-x-auto">
                         <table class="w-full text-right text-xs min-w-[550px]">
-                            <thead class="bg-naifPurple-950 text-white font-bold">
+                            <thead class="bg-naifRed-950 text-white font-bold">
                                 <tr>
                                     <th class="p-3 text-center" id="thLogSelect"><input type="checkbox" onchange="toggleSelectAllLogs(this)"></th>
                                     <th class="p-3">التاريخ والوقت</th>
@@ -367,11 +371,11 @@
     </div>
 
     <!-- مودال إضافة / تعديل الوجبة -->
-    <div id="recipeEditModal" class="fixed inset-0 bg-naifPurple-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4 hidden">
+    <div id="recipeEditModal" class="fixed inset-0 bg-naifRed-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4 hidden">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[92vh]">
-            <div class="bg-naifPurple-900 text-white p-3.5 sm:p-4 flex items-center justify-between shrink-0">
+            <div class="bg-naifRed-900 text-white p-3.5 sm:p-4 flex items-center justify-between shrink-0">
                 <h3 class="font-extrabold text-xs sm:text-sm" id="modalTitle">إضافة / تعديل الوجبة</h3>
-                <button onclick="closeModal('recipeEditModal')" class="text-purple-200 hover:text-white p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+                <button onclick="closeModal('recipeEditModal')" class="text-red-200 hover:text-white p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             
             <div class="p-4 sm:p-6 overflow-y-auto space-y-4 flex-1">
@@ -380,18 +384,18 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">اسم الوجبة</label>
-                        <input type="text" id="editMealName" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs font-bold focus:ring-2 focus:ring-naifPurple-900 outline-none">
+                        <input type="text" id="editMealName" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs font-bold focus:ring-2 focus:ring-naifRed-900 outline-none">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">سعر البيع</label>
-                        <input type="number" step="any" id="editMealPrice" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs font-mono font-bold text-emerald-700 focus:ring-2 focus:ring-naifPurple-900 outline-none">
+                        <input type="number" step="any" id="editMealPrice" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs font-mono font-bold text-emerald-700 focus:ring-2 focus:ring-naifRed-900 outline-none">
                     </div>
                 </div>
 
-                <div class="border border-purple-100 rounded-xl overflow-hidden mt-2">
-                    <div class="bg-purple-50 p-2.5 sm:p-3 flex items-center justify-between">
-                        <span class="text-xs font-extrabold text-naifPurple-900">جدول المكونات والخامات (البحث بالحرف)</span>
-                        <button onclick="addIngredientRowToModal()" class="bg-naifPurple-900 hover:bg-naifPurple-800 text-white text-xs font-bold px-3 py-1.5 rounded-lg active:scale-95">
+                <div class="border border-red-100 rounded-xl overflow-hidden mt-2">
+                    <div class="bg-red-50 p-2.5 sm:p-3 flex items-center justify-between">
+                        <span class="text-xs font-extrabold text-naifRed-900">جدول المكونات والخامات (البحث بالحرف)</span>
+                        <button onclick="addIngredientRowToModal()" class="bg-naifRed-900 hover:bg-naifRed-800 text-white text-xs font-bold px-3 py-1.5 rounded-lg active:scale-95">
                             + إضافة خامة
                         </button>
                     </div>
@@ -415,15 +419,15 @@
 
             <div class="p-3.5 sm:p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-2 shrink-0">
                 <button onclick="closeModal('recipeEditModal')" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-200 hover:bg-slate-300">إلغاء</button>
-                <button onclick="saveModalRecipeChanges()" class="px-5 py-2 rounded-xl text-xs font-bold bg-naifPurple-900 hover:bg-naifPurple-800 text-white shadow-md active:scale-95">حفظ وإرسال</button>
+                <button onclick="saveModalRecipeChanges()" class="px-5 py-2 rounded-xl text-xs font-bold bg-naifRed-900 hover:bg-naifRed-800 text-white shadow-md active:scale-95">حفظ وإرسال</button>
             </div>
         </div>
     </div>
 
     <!-- مودال تعديل سعر الصنف المباشر -->
-    <div id="priceEditModal" class="fixed inset-0 bg-naifPurple-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div id="priceEditModal" class="fixed inset-0 bg-naifRed-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden p-5 space-y-4">
-            <h3 class="font-extrabold text-sm text-naifPurple-900 border-b pb-2">تعديل أسعار الصنف</h3>
+            <h3 class="font-extrabold text-sm text-naifRed-900 border-b pb-2">تعديل أسعار الصنف</h3>
             <input type="hidden" id="editPriceItemName">
             <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1" id="lblEditItemName">الصنف</label>
@@ -434,7 +438,7 @@
             </div>
             <div class="flex justify-end gap-2 pt-2">
                 <button onclick="closeModal('priceEditModal')" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-200">إلغاء</button>
-                <button onclick="saveItemPriceChange()" class="px-4 py-1.5 rounded-xl text-xs font-bold bg-naifPurple-900 text-white">حفظ</button>
+                <button onclick="saveItemPriceChange()" class="px-4 py-1.5 rounded-xl text-xs font-bold bg-naifRed-900 text-white">حفظ</button>
             </div>
         </div>
     </div>
@@ -464,12 +468,10 @@
         const auth = getAuth(app);
         const dbFirestore = getFirestore(app);
 
-        // المسار السحابي الآمن والمعتمد
         const docRef = doc(dbFirestore, 'artifacts', 'n-rcp-39b7c', 'public', 'data', 'naif_main_db', 'main_doc');
 
         window.isFirebaseSaving = false;
 
-        // بدء تسجيل الدخول السحابي أولاً
         async function initFirebaseConnection() {
             try {
                 await signInAnonymously(auth);
@@ -479,7 +481,6 @@
             setupFirestoreListener();
         }
 
-        // استماع تلقائي ومستمر للتغييرات السحابية
         function setupFirestoreListener() {
             onSnapshot(docRef, (docSnap) => {
                 if (window.isFirebaseSaving) {
@@ -529,7 +530,7 @@
                 window.isFirebaseSaving = true;
                 const statusEl = document.getElementById('cloudSyncStatus');
                 if (statusEl) {
-                    statusEl.innerHTML = `<i class="fa-solid fa-rotate text-purple-300 animate-spin"></i> <span>جاري إرسال التعديل للسحابة...</span>`;
+                    statusEl.innerHTML = `<i class="fa-solid fa-rotate text-red-300 animate-spin"></i> <span>جاري إرسال التعديل للسحابة...</span>`;
                 }
                 
                 await setDoc(docRef, {
@@ -565,6 +566,10 @@
         const SESSION_USER_KEY = 'NAIF_FOODS_ACTIVE_SESSION_USER';
         let currentUser = null;
 
+        // إعدادات الصفحات والتسريع
+        let currentPage = 1;
+        const pageSize = 12;
+
         window.db = {
             pricelist: [],
             meals: [],
@@ -579,7 +584,6 @@
             switchTab('recipes');
         });
 
-        // Check and restore active user session on page reload/refresh
         function restoreActiveSession() {
             const savedUser = sessionStorage.getItem(SESSION_USER_KEY);
             if (savedUser) {
@@ -609,7 +613,6 @@
             const user = userSelect.value;
             const rawPass = passInput.value.trim();
 
-            // التحقق المباشر والآمن لكلمات المرور
             const validPasswords = {
                 'الادارة': '66661',
                 'مستخدم': '885522',
@@ -664,7 +667,6 @@
             }
         }
 
-        // Attach event handler functions to window so inline HTML event listeners (onsubmit, onclick, etc.) can access them
         window.handleLogin = handleLogin;
         window.logout = logout;
         window.toggleMobileSidebar = toggleMobileSidebar;
@@ -694,6 +696,8 @@
         window.closeModal = closeModal;
         window.renderRecipeCards = renderRecipeCards;
         window.renderPricelistTable = renderPricelistTable;
+        window.changePage = changePage;
+        window.onRecipeSearchInput = onRecipeSearchInput;
 
         function loadDatabase() {
             const data = localStorage.getItem(STORAGE_KEY);
@@ -735,7 +739,6 @@
             if (cBadge) cBadge.innerText = window.db.cancelledMeals ? window.db.cancelledMeals.length : 0;
         }
 
-        // إتاحة بيانات فارغة تماماً دون أي أصناف أو وجبات تجريبية
         function initDefaultData() {
             window.db = {
                 pricelist: [],
@@ -813,11 +816,11 @@
             }
 
             document.querySelectorAll('.tab-view').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('bg-purple-100', 'text-naifPurple-900'));
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('bg-red-100', 'text-naifRed-900'));
             
             document.getElementById(`view-${tabId}`).classList.remove('hidden');
             const activeNav = document.getElementById(`nav-${tabId}`);
-            if (activeNav) activeNav.classList.add('bg-purple-100', 'text-naifPurple-900');
+            if (activeNav) activeNav.classList.add('bg-red-100', 'text-naifRed-900');
 
             if (tabId === 'reports') renderReportsTable();
             if (tabId === 'pending') renderPendingMeals();
@@ -843,8 +846,20 @@
             return parseFloat(val).toFixed(decimals);
         }
 
+        function onRecipeSearchInput() {
+            currentPage = 1;
+            renderRecipeCards();
+        }
+
+        function changePage(newPage) {
+            currentPage = newPage;
+            renderRecipeCards();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
         function renderRecipeCards() {
             const container = document.getElementById('recipesContainer');
+            const paginationContainer = document.getElementById('paginationControls');
             const q = (document.getElementById('recipeSearchInput').value || '').trim().toLowerCase();
             
             let filtered = db.meals || [];
@@ -855,11 +870,20 @@
             document.getElementById('recipesCountBadge').innerText = filtered.length;
 
             if (filtered.length === 0) {
-                container.innerHTML = `<div class="p-8 text-center text-slate-400 bg-white rounded-2xl border border-purple-100 font-bold">لا توجد وجبات مسجلة في النظام</div>`;
+                container.innerHTML = `<div class="p-8 text-center text-slate-400 bg-white rounded-2xl border border-red-100 font-bold">لا توجد وجبات مسجلة في النظام</div>`;
+                paginationContainer.innerHTML = '';
                 return;
             }
 
-            container.innerHTML = filtered.map((meal, index) => {
+            // تقسيم الصفحات لتسريع العرض التفاعلي
+            const totalPages = Math.ceil(filtered.length / pageSize);
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+
+            const startIndex = (currentPage - 1) * pageSize;
+            const paginatedMeals = filtered.slice(startIndex, startIndex + pageSize);
+
+            container.innerHTML = paginatedMeals.map((meal) => {
                 let mainCost = 0;
                 let outExtra = 0;
                 let inExtra = 0;
@@ -885,51 +909,50 @@
 
                 const mainCostPct = sp > 0 ? (mainCost / sp * 100) : 0;
                 const outCostPct = sp > 0 ? (totalOutCost / sp * 100) : 0;
-                const inCostPct = sp > 0 ? (totalInCost / sp * 100) : 0;
+                const inCostPct = sp > 0 ? (inCost / sp * 100) : 0;
 
                 const hidePrices = currentUser === 'مستخدم'; 
                 const canEditAll = currentUser === 'Yasser' || currentUser === 'ادمن';
 
-                // البحث عن الرقم الأصلي للوجبة في القائمة الشاملة db.meals لتجنب خطأ شاشة البحث
                 const realMealIndex = db.meals.findIndex(m => (m.id && meal.id ? m.id === meal.id : m.name === meal.name));
 
                 const rowsHtml = meal.ingredients.map((ing) => `
-                    <tr class="hover:bg-purple-50/50 border-b border-slate-100 text-xs">
+                    <tr class="hover:bg-red-50/50 border-b border-slate-100 text-xs">
                         <td class="py-2 px-1 font-bold text-slate-800 text-right text-[13px] sm:text-[13.5px]">${ing.item}</td>
-                        <td class="py-2 px-1 text-center font-bold text-naifPurple-900">${ing.location || 'ALL'}</td>
+                        <td class="py-2 px-1 text-center font-bold text-naifRed-900">${ing.location || 'ALL'}</td>
                         <td class="py-2 px-1 text-center text-slate-600">${ing.unit}</td>
                         <td class="py-2 px-1 text-center font-bold font-mono text-slate-900">${formatQty(ing.qty)}</td>
                         <td class="py-2 px-1 text-center font-mono">${hidePrices ? '***' : formatPrice(ing.price, 5)}</td>
-                        <td class="py-2 px-1 text-center font-mono font-black text-naifPurple-900 text-xs sm:text-sm">${hidePrices ? '***' : formatPrice(ing.qty * ing.price, 3)}</td>
+                        <td class="py-2 px-1 text-center font-mono font-black text-naifRed-900 text-xs sm:text-sm">${hidePrices ? '***' : formatPrice(ing.qty * ing.price, 3)}</td>
                     </tr>
                 `).join('');
 
                 return `
-                <div class="bg-white rounded-2xl border-2 border-purple-200 shadow-md overflow-hidden flex flex-col recipe-card-box">
+                <div class="bg-white rounded-2xl border-2 border-red-200 shadow-md overflow-hidden flex flex-col recipe-card-box">
                     
-                    <div class="bg-naifPurple-900 text-white p-3.5 sm:p-4 flex flex-wrap items-center justify-between gap-2.5">
+                    <div class="bg-naifRed-900 text-white p-3.5 sm:p-4 flex flex-wrap items-center justify-between gap-2.5">
                         <div class="flex items-center gap-2.5">
                             <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" onError="this.onerror=null;this.src='https://via.placeholder.com/40?text=NAIF';" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-white object-cover">
                             <div>
                                 <h3 class="font-extrabold text-base sm:text-lg text-white flex items-center gap-2">
                                     <span>${meal.name}</span>
-                                    <button onclick="editMealNameDirect('${meal.name}', ${realMealIndex})" class="text-[11px] bg-naifPurple-800 hover:bg-naifPurple-950 px-2 py-0.5 rounded text-purple-200 no-print active:scale-95">
+                                    <button onclick="editMealNameDirect('${meal.name}', ${realMealIndex})" class="text-[11px] bg-naifRed-800 hover:bg-naifRed-950 px-2 py-0.5 rounded text-red-200 no-print active:scale-95">
                                         <i class="fa-solid fa-pen"></i> <span class="hidden sm:inline">تعديل الاسم</span>
                                     </button>
                                 </h3>
                             </div>
                         </div>
 
-                        <div class="bg-naifPurple-950/80 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl border border-purple-600/50 text-left mr-auto sm:mr-0">
-                            <span class="text-[9px] sm:text-[10px] text-purple-200 block font-bold">سعر البيع</span>
+                        <div class="bg-naifRed-950/80 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl border border-red-600/50 text-left mr-auto sm:mr-0">
+                            <span class="text-[9px] sm:text-[10px] text-red-200 block font-bold">سعر البيع</span>
                             <span class="text-lg sm:text-xl font-black font-mono text-emerald-400">${formatPrice(sp, 3)}</span>
                         </div>
                     </div>
 
-                    <div class="p-3 sm:p-4 bg-purple-50/20 overflow-x-auto">
+                    <div class="p-3 sm:p-4 bg-red-50/20 overflow-x-auto">
                         <table class="w-full text-right border-collapse min-w-[500px]">
                             <thead>
-                                <tr class="bg-naifPurple-900 text-white text-xs">
+                                <tr class="bg-naifRed-900 text-white text-xs">
                                     <th class="py-2 px-1">الصنف</th>
                                     <th class="py-2 px-1 text-center">مكان الصنف</th>
                                     <th class="py-2 px-1 text-center">الوحدة</th>
@@ -945,16 +968,16 @@
                     </div>
 
                     ${hidePrices ? '' : `
-                    <div class="p-3 sm:p-4 bg-naifPurple-800 text-white space-y-3 border-t-2 border-purple-300">
+                    <div class="p-3 sm:p-4 bg-naifRed-800 text-white space-y-3 border-t-2 border-red-300">
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                             
-                            <div class="bg-naifPurple-900/80 p-3.5 rounded-xl border border-purple-600 space-y-2 shadow">
-                                <h4 class="text-xs font-black text-purple-200 border-b border-purple-700 pb-1">الوجبة الأصلية</h4>
+                            <div class="bg-naifRed-900/80 p-3.5 rounded-xl border border-red-600 space-y-2 shadow">
+                                <h4 class="text-xs font-black text-red-200 border-b border-red-700 pb-1">الوجبة الأصلية</h4>
                                 <div class="flex justify-between items-center text-sm font-bold">
                                     <span>سعر البيع:</span>
                                     <span class="font-mono text-emerald-300 text-base font-black">${formatPrice(sp, 3)}</span>
                                 </div>
-                                <div class="flex justify-between items-center text-sm font-bold bg-naifPurple-950/50 p-1.5 rounded">
+                                <div class="flex justify-between items-center text-sm font-bold bg-naifRed-950/50 p-1.5 rounded">
                                     <span>التكلفة:</span>
                                     <span class="font-mono text-rose-300 text-base font-black">${formatPrice(mainCost, 3)}</span>
                                 </div>
@@ -962,7 +985,7 @@
                                     <span>الربح المالي:</span>
                                     <span class="font-mono text-amber-300 text-base font-black">${sp > 0 ? formatPrice(mainProfit, 3) : '-'}</span>
                                 </div>
-                                <div class="flex justify-between items-center text-sm font-bold pt-1 border-t border-purple-700/50">
+                                <div class="flex justify-between items-center text-sm font-bold pt-1 border-t border-red-700/50">
                                     <span>نسبة الربح %:</span>
                                     <span class="font-mono text-emerald-300 text-base font-black">${sp > 0 ? mainProfitPct.toFixed(2) + '%' : '-'}</span>
                                 </div>
@@ -972,13 +995,13 @@
                                 </div>
                             </div>
 
-                            <div class="bg-naifPurple-900/80 p-3.5 rounded-xl border border-purple-600 space-y-2 shadow">
-                                <h4 class="text-xs font-black text-purple-200 border-b border-purple-700 pb-1">توصيل خارجي</h4>
+                            <div class="bg-naifRed-900/80 p-3.5 rounded-xl border border-red-600 space-y-2 shadow">
+                                <h4 class="text-xs font-black text-red-200 border-b border-red-700 pb-1">توصيل خارجي</h4>
                                 <div class="flex justify-between items-center text-sm font-bold">
                                     <span>سعر البيع:</span>
                                     <span class="font-mono text-emerald-300 text-base font-black">${formatPrice(sp, 3)}</span>
                                 </div>
-                                <div class="flex justify-between items-center text-sm font-bold bg-naifPurple-950/50 p-1.5 rounded">
+                                <div class="flex justify-between items-center text-sm font-bold bg-naifRed-950/50 p-1.5 rounded">
                                     <span>التكلفة:</span>
                                     <span class="font-mono text-rose-300 text-base font-black">${formatPrice(totalOutCost, 3)}</span>
                                 </div>
@@ -986,7 +1009,7 @@
                                     <span>الربح المالي:</span>
                                     <span class="font-mono text-amber-300 text-base font-black">${sp > 0 ? formatPrice(outProfit, 3) : '-'}</span>
                                 </div>
-                                <div class="flex justify-between items-center text-sm font-bold pt-1 border-t border-purple-700/50">
+                                <div class="flex justify-between items-center text-sm font-bold pt-1 border-t border-red-700/50">
                                     <span>نسبة الربح %:</span>
                                     <span class="font-mono text-emerald-300 text-base font-black">${sp > 0 ? outProfitPct.toFixed(2) + '%' : '-'}</span>
                                 </div>
@@ -996,13 +1019,13 @@
                                 </div>
                             </div>
 
-                            <div class="bg-naifPurple-900/80 p-3.5 rounded-xl border border-purple-600 space-y-2 shadow">
-                                <h4 class="text-xs font-black text-purple-200 border-b border-purple-700 pb-1">داخل المطعم (داين إن)</h4>
+                            <div class="bg-naifRed-900/80 p-3.5 rounded-xl border border-red-600 space-y-2 shadow">
+                                <h4 class="text-xs font-black text-red-200 border-b border-red-700 pb-1">داخل المطعم (داين إن)</h4>
                                 <div class="flex justify-between items-center text-sm font-bold">
                                     <span>سعر البيع:</span>
                                     <span class="font-mono text-emerald-300 text-base font-black">${formatPrice(sp, 3)}</span>
                                 </div>
-                                <div class="flex justify-between items-center text-sm font-bold bg-naifPurple-950/50 p-1.5 rounded">
+                                <div class="flex justify-between items-center text-sm font-bold bg-naifRed-950/50 p-1.5 rounded">
                                     <span>التكلفة:</span>
                                     <span class="font-mono text-rose-300 text-base font-black">${formatPrice(totalInCost, 3)}</span>
                                 </div>
@@ -1010,7 +1033,7 @@
                                     <span>الربح المالي:</span>
                                     <span class="font-mono text-amber-300 text-base font-black">${sp > 0 ? formatPrice(inProfit, 3) : '-'}</span>
                                 </div>
-                                <div class="flex justify-between items-center text-sm font-bold pt-1 border-t border-purple-700/50">
+                                <div class="flex justify-between items-center text-sm font-bold pt-1 border-t border-red-700/50">
                                     <span>نسبة الربح %:</span>
                                     <span class="font-mono text-emerald-300 text-base font-black">${sp > 0 ? inProfitPct.toFixed(2) + '%' : '-'}</span>
                                 </div>
@@ -1024,9 +1047,9 @@
                     </div>
                     `}
 
-                    <div class="p-3 bg-purple-50 border-t border-purple-200 flex flex-wrap items-center justify-between gap-2 no-print">
+                    <div class="p-3 bg-red-50 border-t border-red-200 flex flex-wrap items-center justify-between gap-2 no-print">
                         ${canEditAll ? `
-                            <button onclick="openRecipeEditModal(${realMealIndex})" class="bg-naifPurple-900 hover:bg-naifPurple-800 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1 shadow active:scale-95">
+                            <button onclick="openRecipeEditModal(${realMealIndex})" class="bg-naifRed-900 hover:bg-naifRed-800 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1 shadow active:scale-95">
                                 <i class="fa-solid fa-pen-to-square"></i> تعديل المكونات
                             </button>
                         ` : '<span class="text-xs text-slate-400 font-bold">عرض فقط</span>'}
@@ -1044,6 +1067,16 @@
                 </div>
                 `;
             }).join('');
+
+            // شريط أزرار التنقل بين الصفحات
+            paginationContainer.innerHTML = `
+                <div>عرض الوجبات من <strong>${startIndex + 1}</strong> إلى <strong>${Math.min(startIndex + pageSize, filtered.length)}</strong> (إجمالي ${filtered.length})</div>
+                <div class="flex items-center gap-1">
+                    <button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed">السابق</button>
+                    <span class="px-3 py-1 bg-naifRed-900 text-white rounded-lg">${currentPage} / ${totalPages}</span>
+                    <button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed">التالي</button>
+                </div>
+            `;
         }
 
         function editMealNameDirect(currentName, index) {
@@ -1128,7 +1161,7 @@
                     </select>
                 </td>
                 <td class="p-1.5"><input type="number" step="any" value="${qty}" class="ing-qty w-20 bg-slate-50 border p-1 rounded text-xs text-center font-bold font-mono"></td>
-                <td class="p-1.5"><input type="number" step="0.00001" value="${price}" class="ing-price w-24 bg-slate-50 border p-1 rounded text-xs text-center font-bold font-mono bg-purple-50" readonly></td>
+                <td class="p-1.5"><input type="number" step="0.00001" value="${price}" class="ing-price w-24 bg-slate-50 border p-1 rounded text-xs text-center font-bold font-mono bg-red-50" readonly></td>
                 <td class="p-1.5 text-center"><button onclick="this.closest('tr').remove()" class="text-rose-600 hover:text-rose-800 p-1"><i class="fa-solid fa-trash"></i></button></td>
             `;
             tbody.appendChild(tr);
@@ -1248,7 +1281,7 @@
             container.innerHTML = db.pendingMeals.map((meal, idx) => `
                 <div class="bg-white p-4 rounded-2xl border-2 border-amber-300 shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                     <div>
-                        <h3 class="font-black text-base text-naifPurple-900">${meal.name}</h3>
+                        <h3 class="font-black text-base text-naifRed-900">${meal.name}</h3>
                         <p class="text-xs text-slate-500">أُضيف بواسطة: <strong class="text-amber-700">${meal.createdBy}</strong> | سعر البيع: ${formatPrice(meal.sellingPrice, 3)}</p>
                     </div>
                     <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
@@ -1368,7 +1401,7 @@
             tbody.innerHTML = filtered.map((p) => {
                 const up = p.unitPrices || {};
                 return `
-                <tr class="hover:bg-purple-50 border-b border-slate-100">
+                <tr class="hover:bg-red-50 border-b border-slate-100">
                     <td class="p-3 font-bold text-slate-800">${p.item}</td>
                     <td class="p-3 text-center font-mono font-bold">${up['حبة'] !== undefined ? formatPrice(up['حبة'], 5) : '--'}</td>
                     <td class="p-3 text-center font-mono font-bold">${up['جرام'] !== undefined ? formatPrice(up['جرام'], 5) : '--'}</td>
@@ -1383,7 +1416,7 @@
                     <td class="p-3 text-center font-mono font-bold">${up['مل لتر'] !== undefined ? formatPrice(up['مل لتر'], 5) : '--'}</td>
                     <td class="p-3 text-center font-mono font-bold">${up['الشد'] !== undefined ? formatPrice(up['الشد'], 5) : '--'}</td>
                     <td class="p-3 text-center no-print">
-                        <button onclick="openPriceEditModal('${p.item}', ${p.price})" class="text-naifPurple-900 hover:text-black font-bold p-1"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="openPriceEditModal('${p.item}', ${p.price})" class="text-naifRed-900 hover:text-black font-bold p-1"><i class="fa-solid fa-pen"></i></button>
                     </td>
                 </tr>
             `;
@@ -1509,14 +1542,14 @@
                 }).join('');
 
                 printWrapper.innerHTML = `
-                    <div style="text-align:center; border-bottom:3px solid #6d4370; padding-bottom:10px; margin-bottom:14px;">
-                        <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" style="width:50px;height:50px;border-radius:50%;object-fit:cover;border:2px solid #6d4370;display:inline-block;">
-                        <h2 style="color:#6d4370; font-weight:900; margin:4px 0 2px 0; font-size:16px;">شركة نايف للأغذية</h2>
+                    <div style="text-align:center; border-bottom:3px solid #7f1d1d; padding-bottom:10px; margin-bottom:14px;">
+                        <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" style="width:50px;height:50px;border-radius:50%;object-fit:cover;border:2px solid #7f1d1d;display:inline-block;">
+                        <h2 style="color:#7f1d1d; font-weight:900; margin:4px 0 2px 0; font-size:16px;">شركة نايف للأغذية</h2>
                         <p style="font-size:11px; color:#555; margin:0;">تقرير ربحية وتكاليف الوجبات الشامل - صفحة ${page + 1} من ${totalPages}</p>
                     </div>
                     <table style="width:100%; border-collapse:collapse; text-align:right;">
                         <thead>
-                            <tr style="background:#6d4370; color:#fff; font-size:11px;">
+                            <tr style="background:#7f1d1d; color:#fff; font-size:11px;">
                                 <th style="padding:8px;">اسم الوجبة</th>
                                 <th style="padding:8px; text-align:center;">سعر البيع</th>
                                 <th style="padding:8px; text-align:center;">التكلفة الرئيسية</th>
@@ -1527,7 +1560,7 @@
                         </thead>
                         <tbody>${rowsHtml}</tbody>
                     </table>
-                    <div style="margin-top:20px; padding-top:8px; border-top:2px solid #6d4370; display:flex; justify-content:space-between; font-size:9px; color:#6d4370; font-weight:bold;">
+                    <div style="margin-top:20px; padding-top:8px; border-top:2px solid #7f1d1d; display:flex; justify-content:space-between; font-size:9px; color:#7f1d1d; font-weight:bold;">
                         <div>تاريخ التصدير: ${new Date().toLocaleDateString('en-GB')}</div>
                         <div>Yasser Elkhateeb - 67011143</div>
                     </div>
@@ -1579,6 +1612,8 @@
 
             const file = event.target.files[0];
             if (!file) return;
+
+            window.isFirebaseSaving = true;
 
             const reader = new FileReader();
             reader.onload = function(e) {
@@ -1680,15 +1715,22 @@
                     if (importedPricelist.length > 0) db.pricelist = importedPricelist;
                     if (importedMeals.length > 0) db.meals = importedMeals;
 
-                    saveDatabase();
                     addAuditLog('سحب إكسل', `تم سحب ملف إكسل بنجاح (${importedMeals.length} وجبة) بواسطة ${currentUser}`);
+                    saveDatabase();
+                    
+                    if (typeof window.syncToFirebase === 'function') {
+                        window.syncToFirebase();
+                    }
+
                     alert(`تم سحب الملف بنجاح! تم استيراد ${importedMeals.length} وجبة من أصل ${workbook.SheetNames.length} شيت.`);
+                    currentPage = 1;
                     renderRecipeCards();
                     renderPricelistTable();
                     renderReportsTable();
 
                 } catch (err) {
                     console.error(err);
+                    window.isFirebaseSaving = false;
                     alert('حدث خطأ أثناء قراءة ملف الإكسل. يرجى التأكد من أن الملف بصيغة xlsx أو xlsm سليمة.');
                 }
             };
@@ -1708,7 +1750,7 @@
                 <tr class="hover:bg-slate-50 border-b border-slate-100">
                     <td class="p-3 text-center ${isYasser ? '' : 'hidden'}"><input type="checkbox" class="log-checkbox" data-id="${log.id}"></td>
                     <td class="p-3 font-mono text-slate-500 font-bold">${log.date}</td>
-                    <td class="p-3 font-bold text-naifPurple-900">${log.user}</td>
+                    <td class="p-3 font-bold text-naifRed-900">${log.user}</td>
                     <td class="p-3 font-bold text-slate-700">${log.type}</td>
                     <td class="p-3 text-slate-600">${log.details}</td>
                 </tr>
@@ -1732,7 +1774,6 @@
             const idsToDelete = Array.from(checked).map(cb => parseFloat(cb.getAttribute('data-id')));
             db.auditLogs = db.auditLogs.filter(log => !idsToDelete.includes(log.id));
 
-            // تم استبعاد تسجيل حركة المسح بناءً على طلبك
             saveDatabase();
             renderAuditLogs();
         }
@@ -1787,16 +1828,48 @@
             reader.readAsText(file);
         }
 
+        // إصلاح زر تصدير PDF للوجبة المحددة بشكل مباشر ومضمون 100%
         async function exportSingleRecipePDF(mealIndex) {
             const meal = db.meals[mealIndex];
-            if (!meal) return;
+            if (!meal) {
+                alert('عذراً، لم يتم العثور على بيانات الوجبة المطلوبة!');
+                return;
+            }
 
-            const cardEls = document.querySelectorAll('.recipe-card-box');
-            const targetEl = cardEls[mealIndex];
-            if (!targetEl) return;
+            let mainCost = 0, outExtra = 0, inExtra = 0;
+            meal.ingredients.forEach(ing => {
+                const lineTotal = (ing.qty || 0) * (ing.price || 0);
+                if (ing.location === 'ALL') mainCost += lineTotal;
+                else if (ing.location === 'OUT') outExtra += lineTotal;
+                else if (ing.location === 'IN') inExtra += lineTotal;
+            });
 
-            const clone = targetEl.cloneNode(true);
-            clone.querySelectorAll('.no-print').forEach(el => el.remove());
+            const totalOutCost = mainCost + outExtra;
+            const totalInCost = mainCost + inExtra;
+            const sp = meal.sellingPrice || 0;
+
+            const mainProfit = sp > 0 ? sp - mainCost : 0;
+            const outProfit = sp > 0 ? sp - totalOutCost : 0;
+            const inProfit = sp > 0 ? sp - totalInCost : 0;
+
+            const mainProfitPct = sp > 0 ? (mainProfit / sp * 100) : 0;
+            const outProfitPct = sp > 0 ? (outProfit / sp * 100) : 0;
+            const inProfitPct = sp > 0 ? (inProfit / sp * 100) : 0;
+
+            const mainCostPct = sp > 0 ? (mainCost / sp * 100) : 0;
+            const outCostPct = sp > 0 ? (totalOutCost / sp * 100) : 0;
+            const inCostPct = sp > 0 ? (inCost / sp * 100) : 0;
+
+            const rowsHtml = meal.ingredients.map(ing => `
+                <tr style="border-bottom: 1px solid #fee2e2; font-size: 11px;">
+                    <td style="padding: 6px; font-weight: bold; text-align: right;">${ing.item}</td>
+                    <td style="padding: 6px; text-align: center;">${ing.location || 'ALL'}</td>
+                    <td style="padding: 6px; text-align: center;">${ing.unit}</td>
+                    <td style="padding: 6px; text-align: center; font-family: monospace; font-weight: bold;">${formatQty(ing.qty)}</td>
+                    <td style="padding: 6px; text-align: center; font-family: monospace;">${formatPrice(ing.price, 5)}</td>
+                    <td style="padding: 6px; text-align: center; font-family: monospace; font-weight: bold; color: #7f1d1d;">${formatPrice(ing.qty * ing.price, 3)}</td>
+                </tr>
+            `).join('');
 
             const printWrapper = document.createElement('div');
             printWrapper.style.position = 'fixed';
@@ -1806,30 +1879,72 @@
             printWrapper.style.background = '#ffffff';
             printWrapper.style.direction = 'rtl';
             printWrapper.style.padding = '20px';
+            printWrapper.style.fontFamily = "'Cairo', Tahoma, sans-serif";
 
-            const headerHtml = `
-                <div style="text-align:center; border-bottom:3px solid #6d4370; padding-bottom:10px; margin-bottom:14px;">
-                    <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" style="width:50px;height:50px;border-radius:50%;object-fit:cover;border:2px solid #6d4370; display:inline-block;">
-                    <h2 style="color:#6d4370; font-weight:900; margin:4px 0 2px 0; font-size:16px;">شركة نايف للأغذية</h2>
+            printWrapper.innerHTML = `
+                <div style="text-align:center; border-bottom:3px solid #7f1d1d; padding-bottom:10px; margin-bottom:14px;">
+                    <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" style="width:50px;height:50px;border-radius:50%;object-fit:cover;border:2px solid #7f1d1d; display:inline-block;">
+                    <h2 style="color:#7f1d1d; font-weight:900; margin:4px 0 2px 0; font-size:16px;">شركة نايف للأغذية</h2>
                     <p style="font-size:11px; color:#555; margin:0;">بطاقة ريسبي الوجبة: ${meal.name}</p>
                 </div>
-            `;
-            const headerDiv = document.createElement('div');
-            headerDiv.innerHTML = headerHtml;
-            printWrapper.appendChild(headerDiv);
 
-            printWrapper.appendChild(clone);
+                <div style="background:#7f1d1d; color:#fff; padding:12px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                    <h3 style="margin:0; font-size:16px; font-weight:bold;">${meal.name}</h3>
+                    <div style="background:#450a0a; padding:6px 12px; border-radius:8px; text-align:left;">
+                        <span style="font-size:9px; color:#fca5a5; display:block;">سعر البيع</span>
+                        <span style="font-size:16px; font-weight:bold; font-family:monospace; color:#34d399;">${formatPrice(sp, 3)}</span>
+                    </div>
+                </div>
 
-            const exportTime = new Date().toLocaleDateString('en-GB') + ' ' + new Date().toLocaleTimeString('en-GB');
-            const footerHtml = `
-                <div style="margin-top:15px; padding-top:8px; border-top:2px solid #6d4370; display:flex; justify-content:space-between; align-items:center; font-size:9px; color:#6d4370; font-weight:bold;">
-                    <div>تاريخ ووقت التصدير: ${exportTime}</div>
+                <table style="width:100%; border-collapse:collapse; text-align:right; margin-bottom:15px;">
+                    <thead>
+                        <tr style="background:#7f1d1d; color:#fff; font-size:11px;">
+                            <th style="padding:6px;">الصنف</th>
+                            <th style="padding:6px; text-align:center;">المكان</th>
+                            <th style="padding:6px; text-align:center;">الوحدة</th>
+                            <th style="padding:6px; text-align:center;">الكمية</th>
+                            <th style="padding:6px; text-align:center;">السعر</th>
+                            <th style="padding:6px; text-align:center;">القيمة</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rowsHtml}</tbody>
+                </table>
+
+                <div style="background:#991b1b; color:#fff; padding:12px; border-radius:12px; margin-bottom:15px;">
+                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
+                        
+                        <div style="background:#7f1d1d; padding:10px; border-radius:8px; font-size:11px;">
+                            <h4 style="margin:0 0 6px 0; font-size:12px; border-bottom:1px solid #ef4444; padding-bottom:4px; color:#fca5a5;">الوجبة الأصلية</h4>
+                            <div>التكلفة: <strong style="color:#fca5a5; font-family:monospace;">${formatPrice(mainCost, 3)}</strong></div>
+                            <div>الربح: <strong style="color:#fcd34d; font-family:monospace;">${formatPrice(mainProfit, 3)}</strong></div>
+                            <div>نسبة الربح: <strong style="color:#6ee7b7; font-family:monospace;">${mainProfitPct.toFixed(2)}%</strong></div>
+                            <div>نسبة التكلفة: <strong style="color:#fca5a5; font-family:monospace;">${mainCostPct.toFixed(2)}%</strong></div>
+                        </div>
+
+                        <div style="background:#7f1d1d; padding:10px; border-radius:8px; font-size:11px;">
+                            <h4 style="margin:0 0 6px 0; font-size:12px; border-bottom:1px solid #ef4444; padding-bottom:4px; color:#fca5a5;">توصيل خارجي</h4>
+                            <div>التكلفة: <strong style="color:#fca5a5; font-family:monospace;">${formatPrice(totalOutCost, 3)}</strong></div>
+                            <div>الربح: <strong style="color:#fcd34d; font-family:monospace;">${formatPrice(outProfit, 3)}</strong></div>
+                            <div>نسبة الربح: <strong style="color:#6ee7b7; font-family:monospace;">${outProfitPct.toFixed(2)}%</strong></div>
+                            <div>نسبة التكلفة: <strong style="color:#fca5a5; font-family:monospace;">${outCostPct.toFixed(2)}%</strong></div>
+                        </div>
+
+                        <div style="background:#7f1d1d; padding:10px; border-radius:8px; font-size:11px;">
+                            <h4 style="margin:0 0 6px 0; font-size:12px; border-bottom:1px solid #ef4444; padding-bottom:4px; color:#fca5a5;">داخل المطعم</h4>
+                            <div>التكلفة: <strong style="color:#fca5a5; font-family:monospace;">${formatPrice(totalInCost, 3)}</strong></div>
+                            <div>الربح: <strong style="color:#fcd34d; font-family:monospace;">${formatPrice(inProfit, 3)}</strong></div>
+                            <div>نسبة الربح: <strong style="color:#6ee7b7; font-family:monospace;">${inProfitPct.toFixed(2)}%</strong></div>
+                            <div>نسبة التكلفة: <strong style="color:#fca5a5; font-family:monospace;">${inCostPct.toFixed(2)}%</strong></div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div style="margin-top:15px; padding-top:8px; border-top:2px solid #7f1d1d; display:flex; justify-content:space-between; align-items:center; font-size:9px; color:#7f1d1d; font-weight:bold;">
+                    <div>تاريخ ووقت التصدير: ${new Date().toLocaleDateString('en-GB')} ${new Date().toLocaleTimeString('en-GB')}</div>
                     <div>Yasser Elkhateeb - 67011143</div>
                 </div>
             `;
-            const footerDiv = document.createElement('div');
-            footerDiv.innerHTML = footerHtml;
-            printWrapper.appendChild(footerDiv);
 
             document.body.appendChild(printWrapper);
 
