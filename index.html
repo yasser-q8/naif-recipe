@@ -490,7 +490,7 @@
 
                 if (docSnap.exists()) {
                     const remoteData = docSnap.data();
-                    if (remoteData) {
+                    if (remoteData && remoteData.meals && remoteData.meals.length > 0) {
                         window.db = {
                             pricelist: remoteData.pricelist || [],
                             meals: remoteData.meals || [],
@@ -566,7 +566,6 @@
         const SESSION_USER_KEY = 'NAIF_FOODS_ACTIVE_SESSION_USER';
         let currentUser = null;
 
-        // إعدادات الصفحات والتسريع
         let currentPage = 1;
         const pageSize = 12;
 
@@ -864,19 +863,18 @@
             
             let filtered = db.meals || [];
             if (q) {
-                filtered = db.meals.filter(m => m.name.toLowerCase().includes(q));
+                filtered = db.meals.filter(m => m.name && m.name.toLowerCase().includes(q));
             }
 
             document.getElementById('recipesCountBadge').innerText = filtered.length;
 
             if (filtered.length === 0) {
-                container.innerHTML = `<div class="p-8 text-center text-slate-400 bg-white rounded-2xl border border-red-100 font-bold">لا توجد وجبات مسجلة في النظام</div>`;
+                container.innerHTML = `<div class="p-8 text-center text-slate-400 bg-white rounded-2xl border border-red-100 font-bold">لا توجد وجبات مسجلة في النظام حالياً أو بانتظار التحميل</div>`;
                 paginationContainer.innerHTML = '';
                 return;
             }
 
-            // تقسيم الصفحات لتسريع العرض التفاعلي
-            const totalPages = Math.ceil(filtered.length / pageSize);
+            const totalPages = Math.ceil(filtered.length / pageSize) || 1;
             if (currentPage > totalPages) currentPage = totalPages;
             if (currentPage < 1) currentPage = 1;
 
@@ -888,12 +886,14 @@
                 let outExtra = 0;
                 let inExtra = 0;
 
-                meal.ingredients.forEach(ing => {
-                    const lineTotal = (ing.qty || 0) * (ing.price || 0);
-                    if (ing.location === 'ALL') mainCost += lineTotal;
-                    else if (ing.location === 'OUT') outExtra += lineTotal;
-                    else if (ing.location === 'IN') inExtra += lineTotal;
-                });
+                if (meal.ingredients && Array.isArray(meal.ingredients)) {
+                    meal.ingredients.forEach(ing => {
+                        const lineTotal = (ing.qty || 0) * (ing.price || 0);
+                        if (!ing.location || ing.location === 'ALL') mainCost += lineTotal;
+                        else if (ing.location === 'OUT') outExtra += lineTotal;
+                        else if (ing.location === 'IN') inExtra += lineTotal;
+                    });
+                }
 
                 const totalOutCost = mainCost + outExtra;
                 const totalInCost = mainCost + inExtra;
@@ -909,23 +909,23 @@
 
                 const mainCostPct = sp > 0 ? (mainCost / sp * 100) : 0;
                 const outCostPct = sp > 0 ? (totalOutCost / sp * 100) : 0;
-                const inCostPct = sp > 0 ? (inCost / sp * 100) : 0;
+                const inCostPct = sp > 0 ? (totalInCost / sp * 100) : 0;
 
                 const hidePrices = currentUser === 'مستخدم'; 
-                const canEditAll = currentUser === 'Yasser' || currentUser === 'ادمن';
+                const canEditAll = currentUser === 'Yasser' || currentUser === 'الادارة';
 
                 const realMealIndex = db.meals.findIndex(m => (m.id && meal.id ? m.id === meal.id : m.name === meal.name));
 
-                const rowsHtml = meal.ingredients.map((ing) => `
+                const rowsHtml = meal.ingredients && Array.isArray(meal.ingredients) ? meal.ingredients.map((ing) => `
                     <tr class="hover:bg-red-50/50 border-b border-slate-100 text-xs">
-                        <td class="py-2 px-1 font-bold text-slate-800 text-right text-[13px] sm:text-[13.5px]">${ing.item}</td>
+                        <td class="py-2 px-1 font-bold text-slate-800 text-right text-[13px] sm:text-[13.5px]">${ing.item || ''}</td>
                         <td class="py-2 px-1 text-center font-bold text-naifRed-900">${ing.location || 'ALL'}</td>
-                        <td class="py-2 px-1 text-center text-slate-600">${ing.unit}</td>
+                        <td class="py-2 px-1 text-center text-slate-600">${ing.unit || ''}</td>
                         <td class="py-2 px-1 text-center font-bold font-mono text-slate-900">${formatQty(ing.qty)}</td>
                         <td class="py-2 px-1 text-center font-mono">${hidePrices ? '***' : formatPrice(ing.price, 5)}</td>
                         <td class="py-2 px-1 text-center font-mono font-black text-naifRed-900 text-xs sm:text-sm">${hidePrices ? '***' : formatPrice(ing.qty * ing.price, 3)}</td>
                     </tr>
-                `).join('');
+                `).join('') : '';
 
                 return `
                 <div class="bg-white rounded-2xl border-2 border-red-200 shadow-md overflow-hidden flex flex-col recipe-card-box">
@@ -935,8 +935,8 @@
                             <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" onError="this.onerror=null;this.src='https://via.placeholder.com/40?text=NAIF';" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-white object-cover">
                             <div>
                                 <h3 class="font-extrabold text-base sm:text-lg text-white flex items-center gap-2">
-                                    <span>${meal.name}</span>
-                                    <button onclick="editMealNameDirect('${meal.name}', ${realMealIndex})" class="text-[11px] bg-naifRed-800 hover:bg-naifRed-950 px-2 py-0.5 rounded text-red-200 no-print active:scale-95">
+                                    <span>${meal.name || 'وجبة بدون اسم'}</span>
+                                    <button onclick="editMealNameDirect('${meal.name || ''}', ${realMealIndex})" class="text-[11px] bg-naifRed-800 hover:bg-naifRed-950 px-2 py-0.5 rounded text-red-200 no-print active:scale-95">
                                         <i class="fa-solid fa-pen"></i> <span class="hidden sm:inline">تعديل الاسم</span>
                                     </button>
                                 </h3>
@@ -1068,7 +1068,6 @@
                 `;
             }).join('');
 
-            // شريط أزرار التنقل بين الصفحات
             paginationContainer.innerHTML = `
                 <div>عرض الوجبات من <strong>${startIndex + 1}</strong> إلى <strong>${Math.min(startIndex + pageSize, filtered.length)}</strong> (إجمالي ${filtered.length})</div>
                 <div class="flex items-center gap-1">
@@ -1119,9 +1118,11 @@
             const tbody = document.getElementById('modalIngredientsTableBody');
             tbody.innerHTML = '';
 
-            meal.ingredients.forEach((ing) => {
-                addIngredientRowToModal(ing.item, ing.location, ing.unit, ing.qty, ing.price);
-            });
+            if (meal.ingredients && Array.isArray(meal.ingredients)) {
+                meal.ingredients.forEach((ing) => {
+                    addIngredientRowToModal(ing.item, ing.location, ing.unit, ing.qty, ing.price);
+                });
+            }
 
             document.getElementById('recipeEditModal').classList.remove('hidden');
         }
@@ -1248,14 +1249,14 @@
                 createdBy: currentUser
             };
 
-            if (currentUser === 'Yasser') {
+            if (currentUser === 'Yasser' || currentUser === 'الادارة') {
                 if (mode === 'add') {
                     db.meals.push(mealData);
-                    addAuditLog('إضافة وجبة', `تمت إضافة وجبة جديدة [${newName}] بواسطة Yasser`);
+                    addAuditLog('إضافة وجبة', `تمت إضافة وجبة جديدة [${newName}] بواسطة ${currentUser}`);
                 } else {
                     const index = document.getElementById('editMealIndex').value;
                     db.meals[index] = mealData;
-                    addAuditLog('تعديل وجبة', `تم تعديل وجبة [${newName}] بواسطة Yasser`);
+                    addAuditLog('تعديل وجبة', `تم تعديل وجبة [${newName}] بواسطة ${currentUser}`);
                 }
                 renderRecipeCards();
             } else {
@@ -1285,7 +1286,7 @@
                         <p class="text-xs text-slate-500">أُضيف بواسطة: <strong class="text-amber-700">${meal.createdBy}</strong> | سعر البيع: ${formatPrice(meal.sellingPrice, 3)}</p>
                     </div>
                     <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
-                        ${currentUser === 'Yasser' ? `
+                        ${currentUser === 'Yasser' || currentUser === 'الادارة' ? `
                             <button onclick="approvePendingMeal(${idx})" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-2 rounded-xl shadow active:scale-95">
                                 <i class="fa-solid fa-check"></i> اعتماد الوجبة
                             </button>
@@ -1299,11 +1300,11 @@
         }
 
         function approvePendingMeal(idx) {
-            if (currentUser !== 'Yasser') return;
+            if (currentUser !== 'Yasser' && currentUser !== 'الادارة') return;
             const meal = db.pendingMeals.splice(idx, 1)[0];
             db.meals.push(meal);
             saveDatabase();
-            addAuditLog('اعتماد وجبة', `تم اعتماد وجبة [${meal.name}] رسمياً بواسطة Yasser`);
+            addAuditLog('اعتماد وجبة', `تم اعتماد وجبة [${meal.name}] رسمياً بواسطة ${currentUser}`);
             renderPendingMeals();
             renderRecipeCards();
             alert('تم اعتماد الوجبة وإضافتها للرئيسية بنجاح!');
@@ -1351,7 +1352,7 @@
                         <p class="text-xs text-slate-500">تم الإلغاء بواسطة: <strong class="text-rose-700">${meal.cancelledBy}</strong> في ${meal.cancelDate}</p>
                     </div>
                     <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
-                        ${currentUser === 'Yasser' ? `
+                        ${currentUser === 'Yasser' || currentUser === 'الادارة' ? `
                             <button onclick="restoreCancelledMeal(${idx})" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-2 rounded-xl shadow active:scale-95">
                                 <i class="fa-solid fa-rotate-left"></i> استعادة
                             </button>
@@ -1365,21 +1366,21 @@
         }
 
         function restoreCancelledMeal(idx) {
-            if (currentUser !== 'Yasser') return;
+            if (currentUser !== 'Yasser' && currentUser !== 'الادارة') return;
             const meal = db.cancelledMeals.splice(idx, 1)[0];
             db.meals.push(meal);
             saveDatabase();
-            addAuditLog('استعادة وجبة ملغية', `تم استعادة وجبة [${meal.name}] إلى الشاشة الرئيسية بواسطة Yasser`);
+            addAuditLog('استعادة وجبة ملغية', `تم استعادة وجبة [${meal.name}] إلى الشاشة الرئيسية بواسطة ${currentUser}`);
             renderCancelledMeals();
             renderRecipeCards();
             alert('تمت استعادة الوجبة للرئيسية بنجاح!');
         }
 
         function permanentDeleteCancelledMeal(idx) {
-            if (currentUser !== 'Yasser') return;
+            if (currentUser !== 'Yasser' && currentUser !== 'الادارة') return;
             const meal = db.cancelledMeals.splice(idx, 1)[0];
             saveDatabase();
-            addAuditLog('حذف نهائي', `تم الحذف النهائي لالوجبة [${meal.name}] بواسطة Yasser`);
+            addAuditLog('حذف نهائي', `تم الحذف النهائي لالوجبة [${meal.name}] بواسطة ${currentUser}`);
             renderCancelledMeals();
             alert('تم حذف الوجبة نهائياً من النظام.');
         }
@@ -1390,7 +1391,7 @@
 
             let filtered = db.pricelist || [];
             if (q) {
-                filtered = db.pricelist.filter(p => p.item.toLowerCase().includes(q));
+                filtered = db.pricelist.filter(p => p.item && p.item.toLowerCase().includes(q));
             }
 
             if (filtered.length === 0) {
@@ -1424,7 +1425,7 @@
         }
 
         function openPriceEditModal(itemName, currentPrice) {
-            if (currentUser !== 'Yasser') {
+            if (currentUser !== 'Yasser' && currentUser !== 'الادارة') {
                 alert('لا تمتلك صلاحية تعديل الأسعار');
                 return;
             }
@@ -1475,11 +1476,13 @@
 
             tbody.innerHTML = db.meals.map(meal => {
                 let mainCost = 0;
-                meal.ingredients.forEach(ing => {
-                    if (ing.location === 'ALL' || !ing.location) {
-                        mainCost += (ing.qty || 0) * (ing.price || 0);
-                    }
-                });
+                if (meal.ingredients && Array.isArray(meal.ingredients)) {
+                    meal.ingredients.forEach(ing => {
+                        if (!ing.location || ing.location === 'ALL') {
+                            mainCost += (ing.qty || 0) * (ing.price || 0);
+                        }
+                    });
+                }
                 const sp = meal.sellingPrice || 0;
                 const profit = sp > 0 ? sp - mainCost : 0;
                 const profitPct = sp > 0 ? (profit / sp * 100) : 0;
@@ -1487,7 +1490,7 @@
 
                 return `
                     <tr class="hover:bg-slate-50 border-b">
-                        <td class="p-3 font-bold text-slate-800">${meal.name}</td>
+                        <td class="p-3 font-bold text-slate-800">${meal.name || ''}</td>
                         <td class="p-3 text-center font-mono font-bold text-emerald-700">${formatPrice(sp, 3)}</td>
                         <td class="p-3 text-center font-mono font-bold text-rose-700">${formatPrice(mainCost, 3)}</td>
                         <td class="p-3 text-center font-mono font-bold text-amber-600">${sp > 0 ? formatPrice(profit, 3) : '-'}</td>
@@ -1520,9 +1523,11 @@
 
                 let rowsHtml = slicedMeals.map(meal => {
                     let mainCost = 0;
-                    meal.ingredients.forEach(ing => {
-                        if (ing.location === 'ALL' || !ing.location) mainCost += (ing.qty || 0) * (ing.price || 0);
-                    });
+                    if (meal.ingredients && Array.isArray(meal.ingredients)) {
+                        meal.ingredients.forEach(ing => {
+                            if (!ing.location || ing.location === 'ALL') mainCost += (ing.qty || 0) * (ing.price || 0);
+                        });
+                    }
                     const sp = meal.sellingPrice || 0;
                     const profit = sp > 0 ? sp - mainCost : 0;
                     const profitStr = sp > 0 ? formatPrice(profit, 3) : '-';
@@ -1531,7 +1536,7 @@
 
                     return `
                         <tr style="border-bottom:1px solid #ddd; font-size:11px;">
-                            <td style="padding:8px; font-weight:bold;">${meal.name}</td>
+                            <td style="padding:8px; font-weight:bold;">${meal.name || ''}</td>
                             <td style="padding:8px; text-align:center;">${formatPrice(sp, 3)}</td>
                             <td style="padding:8px; text-align:center;">${formatPrice(mainCost, 3)}</td>
                             <td style="padding:8px; text-align:center;">${profitStr}</td>
@@ -1586,11 +1591,13 @@
             if (!db.meals) return;
             let dataToExport = db.meals.map(m => {
                 let mainCost = 0;
-                m.ingredients.forEach(i => { if (i.location === 'ALL' || !i.location) mainCost += (i.qty || 0) * (i.price || 0); });
+                if (m.ingredients && Array.isArray(m.ingredients)) {
+                    m.ingredients.forEach(i => { if (!i.location || i.location === 'ALL') mainCost += (i.qty || 0) * (i.price || 0); });
+                }
                 const sp = m.sellingPrice || 0;
                 const profit = sp > 0 ? sp - mainCost : 0;
                 return {
-                    "اسم الوجبة": m.name,
+                    "اسم الوجبة": m.name || '',
                     "سعر البيع": sp > 0 ? sp : "-",
                     "التكلفة الرئيسية": parseFloat(mainCost.toFixed(3)),
                     "الربح المالي": sp > 0 ? parseFloat(profit.toFixed(3)) : "-",
@@ -1604,6 +1611,7 @@
             XLSX.writeFile(workbook, "Naif_Foods_Reports.xlsx");
         }
 
+        // دالة استيراد الإكسل المطورة والمرنة بالكامل لضمان قراءة جميع الشيتات والوجبات بدقة
         function importExcelFile(event) {
             if (currentUser === 'مستخدم') {
                 alert('عذراً! لا تمتلك صلاحية سحب ملف الإكسل');
@@ -1627,11 +1635,11 @@
                     const unitsList = ['حبة', 'جرام', 'علبة', 'شريحة', 'جالون', 'ماعون', 'باكت', 'بطل', 'قطعة', 'اونس', 'مل لتر', 'الشد'];
 
                     try {
-                        const priceSheetName = workbook.SheetNames.find(s => s.toLowerCase().trim() === 'pricelist' || s.toLowerCase().trim() === 'price');
+                        const priceSheetName = workbook.SheetNames.find(s => s.toLowerCase().trim().includes('price') || s.toLowerCase().trim().includes('أسعار'));
                         if (priceSheetName) {
                             const priceSheet = workbook.Sheets[priceSheetName];
                             const priceJson = XLSX.utils.sheet_to_json(priceSheet, { header: 1, raw: true });
-                            for (let i = 3; i < priceJson.length; i++) {
+                            for (let i = 1; i < priceJson.length; i++) {
                                 const row = priceJson[i];
                                 if (row && row[0]) {
                                     const itemName = String(row[0]).trim();
@@ -1665,22 +1673,51 @@
                     workbook.SheetNames.forEach(sheetName => {
                         try {
                             const sNameClean = sheetName.toLowerCase().trim();
-                            if (sNameClean !== 'pricelist' && sNameClean !== 'price') {
+                            if (!sNameClean.includes('price') && !sNameClean.includes('أسعار')) {
                                 const sheet = workbook.Sheets[sheetName];
                                 if (!sheet) return;
                                 
-                                const b2Cell = sheet['B2'] || sheet['b2'];
-                                const mealName = b2Cell && b2Cell.v !== undefined ? String(b2Cell.v).trim() : sheetName;
-
-                                const c41Cell = sheet['C41'] || sheet['c41'];
-                                const sellingPrice = c41Cell && c41Cell.v !== undefined ? (parseFloat(c41Cell.v) || 0) : 0;
-
                                 const sheetJson = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: true });
+                                
+                                let mealName = sheetName;
+                                let sellingPrice = 0;
                                 const ingredients = [];
 
-                                for (let r = 4; r <= Math.min(34, sheetJson.length - 1); r++) {
+                                // البحث الذكي عن اسم الوجبة وسعر البيع داخل الشيت في أي خلية
+                                for (let r = 0; r < Math.min(10, sheetJson.length); r++) {
                                     const row = sheetJson[r];
-                                    if (row && row[0] && String(row[0]).trim() !== '') {
+                                    if (row) {
+                                        for (let c = 0; c < row.length; c++) {
+                                            const cellVal = row[c];
+                                            if (cellVal !== undefined && cellVal !== null) {
+                                                const strVal = String(cellVal).trim();
+                                                if (strVal.includes('سعر البيع') || strVal === 'سعر البيع') {
+                                                    if (row[c + 1] !== undefined) sellingPrice = parseFloat(row[c + 1]) || 0;
+                                                }
+                                                // التقاط اسم الوجبة إذا وُجد في خلية B2 أو ما يشابهها
+                                                if ((r === 1 && c === 1) || strVal.startsWith('وجبة')) {
+                                                    if (strVal.length > 3 && strVal !== 'وجبة') mealName = strVal;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                // التقاط دقيق من الخلايا المعتادة إذا لم يتم العثور عليها بالبحث الحر
+                                const b2Cell = sheet['B2'] || sheet['b2'];
+                                if (b2Cell && b2Cell.v !== undefined) {
+                                    mealName = String(b2Cell.v).trim();
+                                }
+
+                                const c41Cell = sheet['C41'] || sheet['c41'] || sheet['C35'] || sheet['c35'];
+                                if (c41Cell && c41Cell.v !== undefined) {
+                                    sellingPrice = parseFloat(c41Cell.v) || sellingPrice;
+                                }
+
+                                // استخراج المكونات والخامات من الجدول
+                                for (let r = 3; r < sheetJson.length; r++) {
+                                    const row = sheetJson[r];
+                                    if (row && row[0] && String(row[0]).trim() !== '' && String(row[0]).trim() !== 'اسم الصنف') {
                                         const itemName = String(row[0]).trim();
                                         const location = row[1] ? String(row[1]).trim() : 'ALL';
                                         const unit = row[2] ? String(row[2]).trim() : 'حبة';
@@ -1701,6 +1738,7 @@
 
                                 if (ingredients.length > 0) {
                                     importedMeals.push({
+                                        id: Date.now() + Math.random(),
                                         name: mealName,
                                         sellingPrice: sellingPrice,
                                         ingredients: ingredients
@@ -1713,7 +1751,9 @@
                     });
 
                     if (importedPricelist.length > 0) db.pricelist = importedPricelist;
-                    if (importedMeals.length > 0) db.meals = importedMeals;
+                    if (importedMeals.length > 0) {
+                        db.meals = importedMeals;
+                    }
 
                     addAuditLog('سحب إكسل', `تم سحب ملف إكسل بنجاح (${importedMeals.length} وجبة) بواسطة ${currentUser}`);
                     saveDatabase();
@@ -1724,14 +1764,12 @@
 
                     alert(`تم سحب الملف بنجاح! تم استيراد ${importedMeals.length} وجبة من أصل ${workbook.SheetNames.length} شيت.`);
                     currentPage = 1;
-                    renderRecipeCards();
-                    renderPricelistTable();
-                    renderReportsTable();
+                    refreshAllUI();
 
                 } catch (err) {
                     console.error(err);
                     window.isFirebaseSaving = false;
-                    alert('حدث خطأ أثناء قراءة ملف الإكسل. يرجى التأكد من أن الملف بصيغة xlsx أو xlsm سليمة.');
+                    alert('حدث خطأ أثناء قراءة ملف الإكسل. يرجى التأكد من أن الملف بصيغة سليمة.');
                 }
             };
             reader.readAsArrayBuffer(file);
@@ -1744,15 +1782,15 @@
                 return;
             }
 
-            const isYasser = currentUser === 'Yasser';
+            const isYasser = currentUser === 'Yasser' || currentUser === 'الادارة';
 
             tbody.innerHTML = db.auditLogs.map(log => `
                 <tr class="hover:bg-slate-50 border-b border-slate-100">
                     <td class="p-3 text-center ${isYasser ? '' : 'hidden'}"><input type="checkbox" class="log-checkbox" data-id="${log.id}"></td>
-                    <td class="p-3 font-mono text-slate-500 font-bold">${log.date}</td>
-                    <td class="p-3 font-bold text-naifRed-900">${log.user}</td>
-                    <td class="p-3 font-bold text-slate-700">${log.type}</td>
-                    <td class="p-3 text-slate-600">${log.details}</td>
+                    <td class="p-3 font-mono text-slate-500 font-bold">${log.date || ''}</td>
+                    <td class="p-3 font-bold text-naifRed-900">${log.user || ''}</td>
+                    <td class="p-3 font-bold text-slate-700">${log.type || ''}</td>
+                    <td class="p-3 text-slate-600">${log.details || ''}</td>
                 </tr>
             `).join('');
         }
@@ -1762,7 +1800,7 @@
         }
 
         function deleteSelectedLogs() {
-            if (currentUser !== 'Yasser') return;
+            if (currentUser !== 'Yasser' && currentUser !== 'الادارة') return;
             const checked = document.querySelectorAll('.log-checkbox:checked');
             if (checked.length === 0) {
                 alert('يرجى تحديد حركات لمسحها');
@@ -1789,14 +1827,17 @@
             addAuditLog('تنزيل نسخة احتياطية', `تم تنزيل النسخة الاحتياطية للبيانات بواسطة ${currentUser}`);
         }
 
+        // دالة استعادة النسخة الاحتياطية المصححة لدعم كافة صيغ ملفات الjson واستعادة الوجبات فوراً
         function restoreBackup(event) {
-            if (currentUser !== 'Yasser') {
-                alert('استعادة النسخة الاحتياطية مقتصرة حصرياً على Yasser');
+            if (currentUser !== 'Yasser' && currentUser !== 'الادارة') {
+                alert('استعادة النسخة الاحتياطية مقتصرة حصرياً على الإدارة و Yasser');
                 return;
             }
 
             const file = event.target.files[0];
             if (!file) return;
+
+            window.isFirebaseSaving = true;
 
             const reader = new FileReader();
             reader.onload = function(e) {
@@ -1814,21 +1855,27 @@
                             db.cancelledMeals = imported.cancelledMeals || [];
                         }
                         saveDatabase();
+                        
+                        if (typeof window.syncToFirebase === 'function') {
+                            window.syncToFirebase();
+                        }
+
                         addAuditLog('استعادة نسخة احتياطية', `تمت استعادة البيانات بنجاح بواسطة ${currentUser}`);
-                        alert('تمت استعادة البيانات بنجاح!');
-                        location.reload();
+                        alert(`تمت استعادة البيانات بنجاح! تم تحميل ${db.meals.length} وجبة.`);
+                        currentPage = 1;
+                        refreshAllUI();
                     } else {
                         alert('ملف النسخة الاحتياطية فارغ أو غير صالح!');
                     }
                 } catch (err) {
                     console.error("Restore error:", err);
+                    window.isFirebaseSaving = false;
                     alert('خطأ في قراءة ملف النسخة الاحتياطية: تأكد من أن الملف بصيغة JSON سليمة.');
                 }
             };
             reader.readAsText(file);
         }
 
-        // إصلاح زر تصدير PDF للوجبة المحددة بشكل مباشر ومضمون 100%
         async function exportSingleRecipePDF(mealIndex) {
             const meal = db.meals[mealIndex];
             if (!meal) {
@@ -1837,12 +1884,14 @@
             }
 
             let mainCost = 0, outExtra = 0, inExtra = 0;
-            meal.ingredients.forEach(ing => {
-                const lineTotal = (ing.qty || 0) * (ing.price || 0);
-                if (ing.location === 'ALL') mainCost += lineTotal;
-                else if (ing.location === 'OUT') outExtra += lineTotal;
-                else if (ing.location === 'IN') inExtra += lineTotal;
-            });
+            if (meal.ingredients && Array.isArray(meal.ingredients)) {
+                meal.ingredients.forEach(ing => {
+                    const lineTotal = (ing.qty || 0) * (ing.price || 0);
+                    if (!ing.location || ing.location === 'ALL') mainCost += lineTotal;
+                    else if (ing.location === 'OUT') outExtra += lineTotal;
+                    else if (ing.location === 'IN') inExtra += lineTotal;
+                });
+            }
 
             const totalOutCost = mainCost + outExtra;
             const totalInCost = mainCost + inExtra;
@@ -1858,18 +1907,18 @@
 
             const mainCostPct = sp > 0 ? (mainCost / sp * 100) : 0;
             const outCostPct = sp > 0 ? (totalOutCost / sp * 100) : 0;
-            const inCostPct = sp > 0 ? (inCost / sp * 100) : 0;
+            const inCostPct = sp > 0 ? (totalInCost / sp * 100) : 0;
 
-            const rowsHtml = meal.ingredients.map(ing => `
+            const rowsHtml = meal.ingredients && Array.isArray(meal.ingredients) ? meal.ingredients.map(ing => `
                 <tr style="border-bottom: 1px solid #fee2e2; font-size: 11px;">
-                    <td style="padding: 6px; font-weight: bold; text-align: right;">${ing.item}</td>
+                    <td style="padding: 6px; font-weight: bold; text-align: right;">${ing.item || ''}</td>
                     <td style="padding: 6px; text-align: center;">${ing.location || 'ALL'}</td>
-                    <td style="padding: 6px; text-align: center;">${ing.unit}</td>
+                    <td style="padding: 6px; text-align: center;">${ing.unit || ''}</td>
                     <td style="padding: 6px; text-align: center; font-family: monospace; font-weight: bold;">${formatQty(ing.qty)}</td>
                     <td style="padding: 6px; text-align: center; font-family: monospace;">${formatPrice(ing.price, 5)}</td>
                     <td style="padding: 6px; text-align: center; font-family: monospace; font-weight: bold; color: #7f1d1d;">${formatPrice(ing.qty * ing.price, 3)}</td>
                 </tr>
-            `).join('');
+            `).join('') : '';
 
             const printWrapper = document.createElement('div');
             printWrapper.style.position = 'fixed';
@@ -1885,11 +1934,11 @@
                 <div style="text-align:center; border-bottom:3px solid #7f1d1d; padding-bottom:10px; margin-bottom:14px;">
                     <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" style="width:50px;height:50px;border-radius:50%;object-fit:cover;border:2px solid #7f1d1d; display:inline-block;">
                     <h2 style="color:#7f1d1d; font-weight:900; margin:4px 0 2px 0; font-size:16px;">شركة نايف للأغذية</h2>
-                    <p style="font-size:11px; color:#555; margin:0;">بطاقة ريسبي الوجبة: ${meal.name}</p>
+                    <p style="font-size:11px; color:#555; margin:0;">بطاقة ريسبي الوجبة: ${meal.name || ''}</p>
                 </div>
 
                 <div style="background:#7f1d1d; color:#fff; padding:12px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-                    <h3 style="margin:0; font-size:16px; font-weight:bold;">${meal.name}</h3>
+                    <h3 style="margin:0; font-size:16px; font-weight:bold;">${meal.name || ''}</h3>
                     <div style="background:#450a0a; padding:6px 12px; border-radius:8px; text-align:left;">
                         <span style="font-size:9px; color:#fca5a5; display:block;">سعر البيع</span>
                         <span style="font-size:16px; font-weight:bold; font-family:monospace; color:#34d399;">${formatPrice(sp, 3)}</span>
@@ -1958,9 +2007,9 @@
                 const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
                 pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
-                pdf.save(`وجبة_${meal.name}.pdf`);
+                pdf.save(`وجبة_${meal.name || 'recipe'}.pdf`);
 
-                addAuditLog('تصدير PDF', `تم تصدير وجبة [${meal.name}] إلى ملف PDF`);
+                addAuditLog('تصدير PDF', `تم تصدير وجبة [${meal.name || ''}] إلى ملف PDF`);
             } catch (err) {
                 console.error(err);
                 alert('حدث خطأ أثناء تصدير PDF');
