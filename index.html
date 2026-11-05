@@ -19,12 +19,12 @@
                 extend: {
                     colors: {
                         naifRed: {
-                            800: '#D92200',
-                            900: '#FF2800',
+                            800: '#028090',
+                            900: '#05668D',
                             950: '#B51C00'
                         },
                         naifOrange: {
-                            600: '#FF4500'
+                            600: '#028090'
                         },
                         naifPink: {
                             500: '#FF5722'
@@ -46,31 +46,34 @@
 
         ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #FF2800; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #05668D; border-radius: 4px; }
 
-        .signature-card {
-            position: fixed;
-            bottom: 8px;
-            left: 8px;
-            background: #ffffff;
-            color: #1e3a8a;
-            padding: 4px 8px;
-            border-radius: 6px;
-            box-shadow: 0 4px 12px rgba(255, 40, 0, 0.2);
-            font-size: 0.55rem;
-            font-weight: 700;
-            z-index: 10;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            border: 1.5px solid #FF4500;
-            text-decoration: none;
-            display: inline-block;
-        }
+       .signature-card {
+    position: fixed;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ffffff;
+    color: #1e3a8a;
+    padding: 6px 16px;
+    border-radius: 8px;
+    box-shadow: 0 8px 20px rgba(255, 40, 0, 0.25);
+    font-size: 0.68rem;
+    font-weight: 700;
+    z-index: 99;
+    animation: floatSignature 5s ease-in-out infinite;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 2px solid #FF4500;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+}
 
         .signature-card:hover { transform: scale(1.05); }
 
         .signature-card .name { font-size: 0.65rem; font-weight: 800; color: #1e3a8a; }
-        .signature-card .title { font-size: 0.5rem; color: #FF2800; font-weight: 600; }
+        .signature-card .title { font-size: 0.5rem; color: #05668D; font-weight: 600; }
 
         @media print {
             .no-print { display: none !important; }
@@ -1543,14 +1546,14 @@
                 }).join('');
 
                 printWrapper.innerHTML = `
-                    <div style="text-align:center; border-bottom:3px solid #FF2800; padding-bottom:10px; margin-bottom:14px;">
-                        <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" style="width:50px;height:50px;border-radius:50%;object-fit:cover;border:2px solid #FF2800;display:inline-block;">
-                        <h2 style="color:#FF2800; font-weight:900; margin:4px 0 2px 0; font-size:16px;">شركة نايف للأغذية</h2>
+                    <div style="text-align:center; border-bottom:3px solid #05668D; padding-bottom:10px; margin-bottom:14px;">
+                        <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" style="width:50px;height:50px;border-radius:50%;object-fit:cover;border:2px solid #05668D;display:inline-block;">
+                        <h2 style="color:#05668D; font-weight:900; margin:4px 0 2px 0; font-size:16px;">شركة نايف للأغذية</h2>
                         <p style="font-size:11px; color:#555; margin:0;">تقرير ربحية وتكاليف الوجبات الشامل - صفحة ${page + 1} من ${totalPages}</p>
                     </div>
                     <table style="width:100%; border-collapse:collapse; text-align:right;">
                         <thead>
-                            <tr style="background:#FF2800; color:#fff; font-size:11px;">
+                            <tr style="background:#05668D; color:#fff; font-size:11px;">
                                 <th style="padding:8px;">اسم الوجبة</th>
                                 <th style="padding:8px; text-align:center;">سعر البيع</th>
                                 <th style="padding:8px; text-align:center;">التكلفة الرئيسية</th>
@@ -1561,7 +1564,7 @@
                         </thead>
                         <tbody>${rowsHtml}</tbody>
                     </table>
-                    <div style="margin-top:20px; padding-top:8px; border-top:2px solid #FF2800; display:flex; justify-content:space-between; font-size:9px; color:#FF2800; font-weight:bold;">
+                    <div style="margin-top:20px; padding-top:8px; border-top:2px solid #05668D; display:flex; justify-content:space-between; font-size:9px; color:#05668D; font-weight:bold;">
                         <div>تاريخ التصدير: ${new Date().toLocaleDateString('en-GB')}</div>
                         <div>Yasser Elkhateeb - 67011143</div>
                     </div>
@@ -1912,7 +1915,7 @@
                     <td style="padding: 6px; text-align: center;">${ing.unit || ''}</td>
                     <td style="padding: 6px; text-align: center; font-family: monospace; font-weight: bold;">${formatQty(ing.qty)}</td>
                     <td style="padding: 6px; text-align: center; font-family: monospace;">${formatPrice(ing.price, 5)}</td>
-                    <td style="padding: 6px; text-align: center; font-family: monospace; font-weight: bold; color: #FF2800;">${formatPrice(ing.qty * ing.price, 3)}</td>
+                    <td style="padding: 6px; text-align: center; font-family: monospace; font-weight: bold; color: #05668D;">${formatPrice(ing.qty * ing.price, 3)}</td>
                 </tr>
             `).join('') : '';
 
@@ -1927,13 +1930,13 @@
             printWrapper.style.fontFamily = "'Cairo', Tahoma, sans-serif";
 
             printWrapper.innerHTML = `
-                <div style="text-align:center; border-bottom:3px solid #FF2800; padding-bottom:10px; margin-bottom:14px;">
-                    <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" style="width:50px;height:50px;border-radius:50%;object-fit:cover;border:2px solid #FF2800; display:inline-block;">
-                    <h2 style="color:#FF2800; font-weight:900; margin:4px 0 2px 0; font-size:16px;">شركة نايف للأغذية</h2>
+                <div style="text-align:center; border-bottom:3px solid #05668D; padding-bottom:10px; margin-bottom:14px;">
+                    <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" style="width:50px;height:50px;border-radius:50%;object-fit:cover;border:2px solid #05668D; display:inline-block;">
+                    <h2 style="color:#05668D; font-weight:900; margin:4px 0 2px 0; font-size:16px;">شركة نايف للأغذية</h2>
                     <p style="font-size:11px; color:#555; margin:0;">بطاقة ريسبي الوجبة: ${meal.name || ''}</p>
                 </div>
 
-                <div style="background:#FF2800; color:#fff; padding:12px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                <div style="background:#05668D; color:#fff; padding:12px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
                     <h3 style="margin:0; font-size:16px; font-weight:bold;">${meal.name || ''}</h3>
                     <div style="background:#B51C00; padding:6px 12px; border-radius:8px; text-align:left;">
                         <span style="font-size:9px; color:#fca5a5; display:block;">سعر البيع</span>
@@ -1943,7 +1946,7 @@
 
                 <table style="width:100%; border-collapse:collapse; text-align:right; margin-bottom:15px;">
                     <thead>
-                        <tr style="background:#FF2800; color:#fff; font-size:11px;">
+                        <tr style="background:#05668D; color:#fff; font-size:11px;">
                             <th style="padding:6px;">الصنف</th>
                             <th style="padding:6px; text-align:center;">المكان</th>
                             <th style="padding:6px; text-align:center;">الوحدة</th>
@@ -1955,7 +1958,7 @@
                     <tbody>${rowsHtml}</tbody>
                 </table>
 
-                <div style="background:#FF4500; color:#fff; padding:12px; border-radius:12px; margin-bottom:15px;">
+                <div style="background:#028090; color:#fff; padding:12px; border-radius:12px; margin-bottom:15px;">
                     <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
                         
                         <div style="background:rgba(0,0,0,0.15); padding:10px; border-radius:8px; font-size:11px;">
@@ -1985,7 +1988,7 @@
                     </div>
                 </div>
 
-                <div style="margin-top:15px; padding-top:8px; border-top:2px solid #FF2800; display:flex; justify-content:space-between; align-items:center; font-size:9px; color:#FF2800; font-weight:bold;">
+                <div style="margin-top:15px; padding-top:8px; border-top:2px solid #05668D; display:flex; justify-content:space-between; align-items:center; font-size:9px; color:#05668D; font-weight:bold;">
                     <div>تاريخ ووقت التصدير: ${new Date().toLocaleDateString('en-GB')} ${new Date().toLocaleTimeString('en-GB')}</div>
                     <div>Yasser Elkhateeb - 67011143</div>
                 </div>
