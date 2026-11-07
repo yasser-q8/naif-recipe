@@ -206,6 +206,10 @@
                     <i class="fa-solid fa-hourglass-half text-amber-600 text-base w-5"></i>
                     <span>وجبات قيد الاعتماد</span> <span id="pendingBadge" class="bg-amber-100 text-amber-800 text-[10px] px-2 py-0.5 rounded-full mr-auto font-bold">0</span>
                 </button>
+                <button onclick="switchTab('pendingItems')" id="nav-pendingItems" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-xs text-slate-700 hover:bg-red-50 transition hidden">
+                    <i class="fa-solid fa-boxes-packing text-purple-600 text-base w-5"></i>
+                    <span>أصناف قيد الاعتماد</span> <span id="pendingItemsBadge" class="bg-purple-100 text-purple-800 text-[10px] px-2 py-0.5 rounded-full mr-auto font-bold">0</span>
+                </button>
                 <button onclick="switchTab('cancelled')" id="nav-cancelled" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-xs text-slate-700 hover:bg-red-50 transition">
                     <i class="fa-solid fa-ban text-rose-600 text-base w-5"></i>
                     <span>الوجبات الملغية</span> <span id="cancelledBadge" class="bg-rose-100 text-rose-800 text-[10px] px-2 py-0.5 rounded-full mr-auto font-bold">0</span>
@@ -237,7 +241,6 @@
 
                 <div id="recipesContainer" class="space-y-4 sm:space-y-6"></div>
 
-                <!-- أزرار التنقل بين الصفحات لتسريع الأداء (تم استبدال العرض إلى 6 وجبات بالصفحة) -->
                 <div id="paginationControls" class="bg-white p-3 rounded-2xl border border-red-100 shadow-sm flex items-center justify-between text-xs font-bold text-slate-700"></div>
             </section>
 
@@ -298,7 +301,6 @@
                         </div>
                     </div>
 
-                    <!-- مربع البحث في التقارير التحليلية -->
                     <div class="flex flex-col sm:flex-row items-center justify-between gap-2 pt-2 border-t border-slate-100">
                         <div class="flex items-center gap-2 w-full sm:w-96">
                             <i class="fa-solid fa-magnifying-glass text-naifRed-900 text-xs"></i>
@@ -334,9 +336,19 @@
             <!-- الشاشة 4: وجبات قيد الاعتماد -->
             <section id="view-pending" class="tab-view hidden space-y-4">
                 <div class="bg-white p-4 rounded-2xl border border-red-100 shadow-sm">
-                    <h2 class="text-base font-extrabold text-naifRed-900">الوجبات الجديدة قيد الاعتماد</h2>
+                    <h2 class="text-base font-extrabold text-naifRed-900">الوجبات والتعديلات قيد الاعتماد</h2>
+                    <p class="text-xs text-slate-500">الوجبات والتعديلات المسجلة بانتظار الموافقة واعتماد الأسعار</p>
                 </div>
                 <div id="pendingContainer" class="space-y-3 sm:space-y-4"></div>
+            </section>
+
+            <!-- الشاشة 4-مكرر: أصناف جديدة قيد الاعتماد (Yasser حصرياً) -->
+            <section id="view-pendingItems" class="tab-view hidden space-y-4">
+                <div class="bg-white p-4 rounded-2xl border border-purple-100 shadow-sm">
+                    <h2 class="text-base font-extrabold text-purple-900">الأصناف الجديدة بانتظار تحديد السعر والاعتماد</h2>
+                    <p class="text-xs text-slate-500">خامات وأصناف أضافها المستخدمون في الوجبات ولكنها غير موجودة بدليل الأسعار</p>
+                </div>
+                <div id="pendingItemsContainer" class="space-y-3 sm:space-y-4"></div>
             </section>
 
             <!-- الشاشة 5: الوجبات الملغية -->
@@ -404,20 +416,17 @@
 
                 <div class="border border-red-100 rounded-xl overflow-hidden mt-2">
                     <div class="bg-red-50 p-2.5 sm:p-3 flex items-center justify-between">
-                        <span class="text-xs font-extrabold text-naifRed-900">جدول المكونات والخامات (البحث بالحرف)</span>
-                        <button onclick="addIngredientRowToModal()" class="bg-naifRed-900 hover:bg-naifRed-800 text-white text-xs font-bold px-3 py-1.5 rounded-lg active:scale-95">
-                            + إضافة خامة
-                        </button>
+                        <span class="text-xs font-extrabold text-naifRed-900">جدول المكونات والخامات (البحث بالحرف أو كتابة صنف جديد)</span>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-right text-xs min-w-[550px]">
                             <thead class="bg-slate-100 text-slate-600 font-bold">
                                 <tr>
-                                    <th class="p-2">اسم الصنف (بحث بالحرف)</th>
+                                    <th class="p-2">اسم الصنف (بحث/جديد)</th>
                                     <th class="p-2">مكان الصنف</th>
                                     <th class="p-2">الوحدة</th>
                                     <th class="p-2">الكمية</th>
-                                    <th class="p-2">السعر التلقائي</th>
+                                    <th class="p-2 col-price-header">السعر التلقائي</th>
                                     <th class="p-2 text-center">حذف</th>
                                 </tr>
                             </thead>
@@ -427,9 +436,14 @@
                 </div>
             </div>
 
-            <div class="p-3.5 sm:p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-2 shrink-0">
-                <button onclick="closeModal('recipeEditModal')" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-200 hover:bg-slate-300">إلغاء</button>
-                <button onclick="saveModalRecipeChanges()" class="px-5 py-2 rounded-xl text-xs font-bold bg-naifRed-900 hover:bg-naifRed-800 text-white shadow-md active:scale-95">حفظ وإرسال</button>
+            <div class="p-3.5 sm:p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-2 shrink-0">
+                <button onclick="addIngredientRowToModal()" class="bg-naifRed-900 hover:bg-naifRed-800 text-white text-xs font-bold px-4 py-2 rounded-xl shadow active:scale-95 flex items-center gap-1.5">
+                    <i class="fa-solid fa-plus"></i> إضافة خامة جديدة
+                </button>
+                <div class="flex items-center gap-2">
+                    <button onclick="closeModal('recipeEditModal')" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-200 hover:bg-slate-300">إلغاء</button>
+                    <button onclick="saveModalRecipeChanges()" class="px-5 py-2 rounded-xl text-xs font-bold bg-naifRed-900 hover:bg-naifRed-800 text-white shadow-md active:scale-95">حفظ وإرسال</button>
+                </div>
             </div>
         </div>
     </div>
@@ -505,10 +519,11 @@
                             pricelist: remoteData.pricelist || [],
                             meals: remoteData.meals || [],
                             pendingMeals: remoteData.pendingMeals || [],
+                            pendingItems: remoteData.pendingItems || [],
                             cancelledMeals: remoteData.cancelledMeals || [],
                             auditLogs: remoteData.auditLogs || []
                         };
-                        localStorage.setItem(STORAGE_KEY, JSON.stringify(window.db));
+                        localStorage.setItem(window.STORAGE_KEY, JSON.stringify(window.db));
                         
                         if (typeof window.refreshAllUI === 'function') {
                             window.refreshAllUI();
@@ -547,6 +562,7 @@
                     pricelist: window.db.pricelist || [],
                     meals: window.db.meals || [],
                     pendingMeals: window.db.pendingMeals || [],
+                    pendingItems: window.db.pendingItems || [],
                     cancelledMeals: window.db.cancelledMeals || [],
                     auditLogs: window.db.auditLogs || [],
                     lastUpdatedBy: window.currentUser || 'النظام',
@@ -577,12 +593,13 @@
         let currentUser = null;
 
         let currentPage = 1;
-        const pageSize = 6; // تم تعديل عدد الوجبات بالصفحة الواحدة إلى 6 بدل 12
+        const pageSize = 6;
 
         window.db = {
             pricelist: [],
             meals: [],
             pendingMeals: [],
+            pendingItems: [],
             cancelledMeals: [],
             auditLogs: []
         };
@@ -712,12 +729,19 @@
             const data = localStorage.getItem(STORAGE_KEY);
             if (data) {
                 try { 
-                    window.db = JSON.parse(data); 
-                    if (!window.db.pricelist) window.db.pricelist = [];
-                    if (!window.db.meals) window.db.meals = [];
-                    if (!window.db.pendingMeals) window.db.pendingMeals = [];
-                    if (!window.db.cancelledMeals) window.db.cancelledMeals = [];
-                    if (!window.db.auditLogs) window.db.auditLogs = [];
+                    const parsed = JSON.parse(data);
+                    if (Array.isArray(parsed)) {
+                        window.db.meals = parsed;
+                    } else if (parsed && typeof parsed === 'object') {
+                        window.db = {
+                            pricelist: parsed.pricelist || [],
+                            meals: parsed.meals || [],
+                            pendingMeals: parsed.pendingMeals || [],
+                            pendingItems: parsed.pendingItems || [],
+                            cancelledMeals: parsed.cancelledMeals || [],
+                            auditLogs: parsed.auditLogs || []
+                        };
+                    }
                 } catch (e) { initDefaultData(); }
             } else { initDefaultData(); }
         }
@@ -735,6 +759,7 @@
             renderPricelistTable();
             renderReportsTable();
             renderPendingMeals();
+            renderPendingItems();
             renderCancelledMeals();
             renderAuditLogs();
             updateBadges();
@@ -743,8 +768,10 @@
 
         function updateBadges() {
             const pBadge = document.getElementById('pendingBadge');
+            const piBadge = document.getElementById('pendingItemsBadge');
             const cBadge = document.getElementById('cancelledBadge');
             if (pBadge) pBadge.innerText = window.db.pendingMeals ? window.db.pendingMeals.length : 0;
+            if (piBadge) piBadge.innerText = window.db.pendingItems ? window.db.pendingItems.length : 0;
             if (cBadge) cBadge.innerText = window.db.cancelledMeals ? window.db.cancelledMeals.length : 0;
         }
 
@@ -753,6 +780,7 @@
                 pricelist: [],
                 meals: [],
                 pendingMeals: [],
+                pendingItems: [],
                 cancelledMeals: [],
                 auditLogs: []
             };
@@ -765,23 +793,27 @@
             const navPricelist = document.getElementById('nav-pricelist');
             const navReports = document.getElementById('nav-reports');
             const navAudit = document.getElementById('nav-auditlog');
+            const navPendingItems = document.getElementById('nav-pendingItems');
 
             if (currentUser === 'Yasser') {
                 if (navPricelist) navPricelist.style.display = 'flex';
                 if (navReports) navReports.style.display = 'flex';
                 if (navAudit) navAudit.style.display = 'flex';
+                if (navPendingItems) navPendingItems.classList.remove('hidden');
                 btnImport.classList.remove('hidden');
                 btnRestore.classList.remove('hidden'); 
             } else if (currentUser === 'الادارة') {
                 if (navPricelist) navPricelist.style.display = 'none';
                 if (navReports) navReports.style.display = 'flex';
                 if (navAudit) navAudit.style.display = 'flex';
+                if (navPendingItems) navPendingItems.classList.add('hidden');
                 btnImport.classList.add('hidden');
                 btnRestore.classList.add('hidden');
             } else if (currentUser === 'مستخدم') {
                 if (navPricelist) navPricelist.style.display = 'none';
                 if (navReports) navReports.style.display = 'none';
                 if (navAudit) navAudit.style.display = 'none';
+                if (navPendingItems) navPendingItems.classList.add('hidden');
                 btnImport.classList.add('hidden');
                 btnRestore.classList.add('hidden');
             }
@@ -819,6 +851,10 @@
                 alert('عذراً! لا تمتلك صلاحية الدخول لشاشة دليل الأسعار والأصناف');
                 return;
             }
+            if (currentUser !== 'Yasser' && tabId === 'pendingItems') {
+                alert('عذراً! شاشة اعتماد الأصناف الجديدة مخصصة لـ Yasser فقط');
+                return;
+            }
             if (currentUser === 'مستخدم' && (tabId === 'reports' || tabId === 'auditlog')) {
                 alert('عذراً! لا تمتلك صلاحية الدخول لهذه الشاشة');
                 return;
@@ -833,6 +869,7 @@
 
             if (tabId === 'reports') renderReportsTable();
             if (tabId === 'pending') renderPendingMeals();
+            if (tabId === 'pendingItems') renderPendingItems();
             if (tabId === 'cancelled') renderCancelledMeals();
 
             const sidebar = document.getElementById('mainSidebar');
@@ -953,7 +990,6 @@
                             </div>
                         </div>
 
-                        <!-- تم تغيير لون خط السعر إلى الأبيض بدل الأخضر بناءً على طلبك -->
                         <div class="bg-naifRed-950/80 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl border border-red-600/50 text-left mr-auto sm:mr-0">
                             <span class="text-[9px] sm:text-[10px] text-red-200 block font-bold">سعر البيع</span>
                             <span class="text-lg sm:text-xl font-black font-mono text-white">${formatPrice(sp, 3)}</span>
@@ -1106,6 +1142,12 @@
             document.getElementById('editMealName').value = '';
             document.getElementById('editMealPrice').value = '';
 
+            const priceHeader = document.querySelector('.col-price-header');
+            if (priceHeader) {
+                if (currentUser === 'مستخدم') priceHeader.classList.add('hidden');
+                else priceHeader.classList.remove('hidden');
+            }
+
             const tbody = document.getElementById('modalIngredientsTableBody');
             tbody.innerHTML = '';
             addIngredientRowToModal();
@@ -1126,6 +1168,12 @@
             document.getElementById('editMealName').value = meal.name;
             document.getElementById('editMealPrice').value = meal.sellingPrice || 0;
 
+            const priceHeader = document.querySelector('.col-price-header');
+            if (priceHeader) {
+                if (currentUser === 'مستخدم') priceHeader.classList.add('hidden');
+                else priceHeader.classList.remove('hidden');
+            }
+
             const tbody = document.getElementById('modalIngredientsTableBody');
             tbody.innerHTML = '';
 
@@ -1145,9 +1193,11 @@
 
             let optionsHtml = db.pricelist ? db.pricelist.map(p => `<option value="${p.item}" ${p.item === item ? 'selected' : ''}>${p.item}</option>`).join('') : '';
 
+            const isUserRole = currentUser === 'مستخدم';
+
             tr.innerHTML = `
                 <td class="p-1.5">
-                    <input type="text" list="pricelistOptions" value="${item}" onchange="onItemInputChanged(this)" placeholder="اكتب للبحث بالحرف..." class="ing-item w-full bg-slate-50 border p-1.5 rounded text-xs font-bold">
+                    <input type="text" list="pricelistOptions" value="${item}" onchange="onItemInputChanged(this)" placeholder="اكتب للبحث أو صنف جديد..." class="ing-item w-full bg-slate-50 border p-1.5 rounded text-xs font-bold">
                 </td>
                 <td class="p-1.5">
                     <select class="ing-location bg-slate-50 border p-1 rounded text-xs font-bold">
@@ -1173,7 +1223,7 @@
                     </select>
                 </td>
                 <td class="p-1.5"><input type="number" step="any" value="${qty}" class="ing-qty w-20 bg-slate-50 border p-1 rounded text-xs text-center font-bold font-mono"></td>
-                <td class="p-1.5"><input type="number" step="0.00001" value="${price}" class="ing-price w-24 bg-slate-50 border p-1 rounded text-xs text-center font-bold font-mono bg-red-50" readonly></td>
+                <td class="p-1.5 ${isUserRole ? 'hidden' : ''}"><input type="number" step="0.00001" value="${price}" class="ing-price w-24 bg-slate-50 border p-1 rounded text-xs text-center font-bold font-mono bg-red-50" readonly></td>
                 <td class="p-1.5 text-center"><button onclick="this.closest('tr').remove()" class="text-rose-600 hover:text-rose-800 p-1"><i class="fa-solid fa-trash"></i></button></td>
             `;
             tbody.appendChild(tr);
@@ -1201,7 +1251,7 @@
                 if (itemObj.unitPrices && itemObj.unitPrices[unit] !== undefined) {
                     unitPrice = itemObj.unitPrices[unit];
                 }
-                priceInput.value = unitPrice;
+                if (priceInput) priceInput.value = unitPrice;
             }
         }
 
@@ -1218,7 +1268,7 @@
                 if (itemObj.unitPrices && itemObj.unitPrices[unit] !== undefined) {
                     unitPrice = itemObj.unitPrices[unit];
                 }
-                priceInput.value = unitPrice;
+                if (priceInput) priceInput.value = unitPrice;
             }
         }
 
@@ -1234,22 +1284,41 @@
 
             const rows = document.querySelectorAll('#modalIngredientsTableBody tr');
             const newIngredients = [];
+            const newPendingItems = [];
 
             rows.forEach(tr => {
                 const item = tr.querySelector('.ing-item').value.trim();
                 const location = tr.querySelector('.ing-location').value;
                 const unit = tr.querySelector('.ing-unit').value.trim();
                 const qty = parseFloat(tr.querySelector('.ing-qty').value) || 0;
-                const price = parseFloat(tr.querySelector('.ing-price').value) || 0;
+                const priceEl = tr.querySelector('.ing-price');
+                const price = priceEl ? (parseFloat(priceEl.value) || 0) : 0;
 
                 if (item) {
                     newIngredients.push({ item, location, unit, qty, price, total: qty * price });
+                    
+                    const existsInPriceList = db.pricelist.some(p => p.item === item);
+                    const existsInPending = db.pendingItems.some(pi => pi.item === item);
+                    if (!existsInPriceList && !existsInPending) {
+                        newPendingItems.push({
+                            id: Date.now() + Math.random(),
+                            item: item,
+                            unit: unit,
+                            createdBy: currentUser,
+                            date: new Date().toLocaleDateString('en-GB')
+                        });
+                    }
                 }
             });
 
             if (newIngredients.length === 0) {
                 alert('يرجى إضافة مكون واحد على الأقل للوجبة');
                 return;
+            }
+
+            if (newPendingItems.length > 0) {
+                if (!db.pendingItems) db.pendingItems = [];
+                db.pendingItems.push(...newPendingItems);
             }
 
             const mealData = {
@@ -1262,7 +1331,6 @@
 
             if (currentUser === 'Yasser' || currentUser === 'الادارة') {
                 if (mode === 'add') {
-                    // تم التعديل: تظهر الوجبة الجديدة أول شيء في الصفحة الأولى (unshift بدلاً من push)
                     db.meals.unshift(mealData);
                     addAuditLog('إضافة وجبة', `تمت إضافة وجبة جديدة [${newName}] بواسطة ${currentUser}`);
                 } else {
@@ -1270,7 +1338,6 @@
                     db.meals[index] = mealData;
                     addAuditLog('تعديل وجبة', `تم تعديل وجبة [${newName}] بواسطة ${currentUser}`);
                 }
-                currentPage = 1; // الانتقال التلقائي للصفحة الأولى لرؤية الوجبة الجديدة
                 renderRecipeCards();
             } else {
                 db.pendingMeals.unshift(mealData);
@@ -1292,37 +1359,143 @@
                 return;
             }
 
-            container.innerHTML = db.pendingMeals.map((meal, idx) => `
-                <div class="bg-white p-4 rounded-2xl border-2 border-amber-300 shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            const hidePrices = currentUser === 'مستخدم';
+
+            container.innerHTML = db.pendingMeals.map((meal, idx) => {
+                let mainCost = 0;
+                if (meal.ingredients && Array.isArray(meal.ingredients)) {
+                    meal.ingredients.forEach(i => {
+                        if (!i.location || i.location === 'ALL') mainCost += (i.qty || 0) * (i.price || 0);
+                    });
+                }
+
+                const rowsHtml = meal.ingredients && Array.isArray(meal.ingredients) ? meal.ingredients.map(ing => `
+                    <tr class="hover:bg-amber-50/50 border-b border-amber-100 text-xs">
+                        <td class="py-1.5 px-2 font-bold text-slate-800">${ing.item || ''}</td>
+                        <td class="py-1.5 px-2 text-center font-bold text-amber-900">${ing.location || 'ALL'}</td>
+                        <td class="py-1.5 px-2 text-center text-slate-600">${ing.unit || ''}</td>
+                        <td class="py-1.5 px-2 text-center font-mono font-bold">${formatQty(ing.qty)}</td>
+                        <td class="py-1.5 px-2 text-center font-mono">${hidePrices ? '***' : formatPrice(ing.price, 5)}</td>
+                        <td class="py-1.5 px-2 text-center font-mono font-bold text-naifRed-900">${hidePrices ? '***' : formatPrice(ing.qty * ing.price, 3)}</td>
+                    </tr>
+                `).join('') : '';
+
+                return `
+                <div class="bg-white p-4 rounded-2xl border-2 border-amber-300 shadow-md space-y-3">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-amber-100 pb-3">
+                        <div>
+                            <h3 class="font-black text-base sm:text-lg text-naifRed-900 flex items-center gap-2">
+                                <span>${meal.name}</span>
+                                <span class="text-[10px] bg-amber-100 text-amber-900 px-2.5 py-0.5 rounded-full font-bold">بانتظار الموافقة</span>
+                            </h3>
+                            <p class="text-xs text-slate-500 mt-1">أُضيف بواسطة: <strong class="text-amber-800">${meal.createdBy}</strong> | سعر البيع: <strong class="text-emerald-700 font-mono text-sm">${formatPrice(meal.sellingPrice, 3)}</strong> ${hidePrices ? '' : `| التكلفة التقديرية: <strong class="text-rose-700 font-mono text-sm">${formatPrice(mainCost, 3)}</strong>`}</p>
+                        </div>
+                        <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                            ${currentUser === 'Yasser' || currentUser === 'الادارة' ? `
+                                <button onclick="approvePendingMeal(${idx})" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl shadow active:scale-95 flex items-center gap-1">
+                                    <i class="fa-solid fa-check"></i> اعتماد الوجبة
+                                </button>
+                            ` : '<span class="text-xs font-bold text-amber-600 bg-amber-50 px-3 py-1 rounded-lg">قيد الانتظار</span>'}
+                            <button onclick="rejectPendingMeal(${idx})" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-3 py-2 rounded-xl shadow active:scale-95 flex items-center gap-1">
+                                <i class="fa-solid fa-xmark"></i> رفض وحذف
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto bg-amber-50/20 rounded-xl p-2 border border-amber-100">
+                        <table class="w-full text-right border-collapse min-w-[500px]">
+                            <thead>
+                                <tr class="bg-amber-900/90 text-white text-xs">
+                                    <th class="py-1.5 px-2">الصنف</th>
+                                    <th class="py-1.5 px-2 text-center">المكان</th>
+                                    <th class="py-1.5 px-2 text-center">الوحدة</th>
+                                    <th class="py-1.5 px-2 text-center">الكمية</th>
+                                    <th class="py-1.5 px-2 text-center">السعر</th>
+                                    <th class="py-1.5 px-2 text-center">القيمة</th>
+                                </tr>
+                            </thead>
+                            <tbody>${rowsHtml}</tbody>
+                        </table>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        function renderPendingItems() {
+            const container = document.getElementById('pendingItemsContainer');
+            if (!container) return;
+
+            if (!db.pendingItems || db.pendingItems.length === 0) {
+                container.innerHTML = `<div class="p-8 text-center text-slate-400 bg-white rounded-2xl border font-bold">لا توجد أصناف جديدة بانتظار تحديد السعر حالياً</div>`;
+                return;
+            }
+
+            container.innerHTML = db.pendingItems.map((itemObj, idx) => `
+                <div class="bg-white p-4 rounded-2xl border-2 border-purple-300 shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                     <div>
-                        <h3 class="font-black text-base text-naifRed-900">${meal.name}</h3>
-                        <p class="text-xs text-slate-500">أُضيف بواسطة: <strong class="text-amber-700">${meal.createdBy}</strong> | سعر البيع: ${formatPrice(meal.sellingPrice, 3)}</p>
+                        <h3 class="font-black text-base text-purple-900">${itemObj.item}</h3>
+                        <p class="text-xs text-slate-500">الوحدة: <strong class="text-purple-700">${itemObj.unit || 'حبة'}</strong> | أُضيف بواسطة: <strong>${itemObj.createdBy}</strong> في ${itemObj.date}</p>
                     </div>
                     <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
-                        ${currentUser === 'Yasser' || currentUser === 'الادارة' ? `
-                            <button onclick="approvePendingMeal(${idx})" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-2 rounded-xl shadow active:scale-95">
-                                <i class="fa-solid fa-check"></i> اعتماد الوجبة
-                            </button>
-                        ` : '<span class="text-xs font-bold text-amber-600 bg-amber-50 px-3 py-1 rounded-lg">قيد الانتظار</span>'}
-                        <button onclick="rejectPendingMeal(${idx})" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-3 py-2 rounded-xl shadow active:scale-95">
-                            <i class="fa-solid fa-xmark"></i> رفض وحذف
+                        <input type="number" step="0.00001" id="inputPendingItemPrice_${idx}" placeholder="أدخل التكلفة..." class="bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 text-xs font-mono font-bold w-32">
+                        <button onclick="approvePendingItem(${idx})" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-3 py-2 rounded-xl shadow active:scale-95">
+                            <i class="fa-solid fa-check"></i> اعتماد الصنف
                         </button>
                     </div>
                 </div>
             `).join('');
         }
 
+        function approvePendingItem(idx) {
+            if (currentUser !== 'Yasser') return;
+            const priceInput = document.getElementById(`inputPendingItemPrice_${idx}`);
+            const priceVal = parseFloat(priceInput.value);
+
+            if (isNaN(priceVal) || priceVal <= 0) {
+                alert('يرجى تحديد سعر تكلفة صالحة للصنف أولاً!');
+                return;
+            }
+
+            const itemObj = db.pendingItems.splice(idx, 1)[0];
+            const newItemObj = {
+                item: itemObj.item,
+                unit: itemObj.unit || 'حبة',
+                price: priceVal,
+                unitPrices: { [itemObj.unit || 'حبة']: priceVal }
+            };
+
+            if (!db.pricelist) db.pricelist = [];
+            db.pricelist.push(newItemObj);
+
+            if (db.meals) {
+                db.meals.forEach(m => {
+                    m.ingredients.forEach(i => {
+                        if (i.item === itemObj.item) {
+                            i.price = priceVal;
+                            i.total = i.qty * priceVal;
+                        }
+                    });
+                });
+            }
+
+            saveDatabase();
+            addAuditLog('اعتماد صنف جديد', `تم تحديد سعر للصنف [${itemObj.item}] بقيمة [${priceVal}] وإضافته لدليل الأسعار بواسطة ${currentUser}`);
+            renderPendingItems();
+            renderPricelistTable();
+            renderRecipeCards();
+            alert('تمت إضافة الصنف رسمياً لدليل الأسعار وتحديث الوجبات السابقة!');
+        }
+
         function approvePendingMeal(idx) {
             if (currentUser !== 'Yasser' && currentUser !== 'الادارة') return;
             const meal = db.pendingMeals.splice(idx, 1)[0];
-            // تضاف في بداية القائمة لتظهر أول شيء
             db.meals.unshift(meal);
             saveDatabase();
             addAuditLog('اعتماد وجبة', `تم اعتماد وجبة [${meal.name}] رسمياً بواسطة ${currentUser}`);
             renderPendingMeals();
-            currentPage = 1;
             renderRecipeCards();
-            alert('تم اعتماد الوجبة وإضافتها في المقدمة بالصفحة الأولى بنجاح!');
+            alert('تم اعتماد الوجبة وإضافتها للرئيسية بنجاح!');
         }
 
         function rejectPendingMeal(idx) {
@@ -1387,9 +1560,8 @@
             saveDatabase();
             addAuditLog('استعادة وجبة ملغية', `تم استعادة وجبة [${meal.name}] إلى الشاشة الرئيسية بواسطة ${currentUser}`);
             renderCancelledMeals();
-            currentPage = 1;
             renderRecipeCards();
-            alert('تمت استعادة الوجبة للرئيسية في المقدمة بنجاح!');
+            alert('تمت استعادة الوجبة للرئيسية بنجاح!');
         }
 
         function permanentDeleteCancelledMeal(idx) {
@@ -1481,39 +1653,32 @@
             }
         }
 
-        // دالة المساعدة للحصول على قائمة الوجبات مرتبة (التي لها سعر أولاً) ومفلترة حسب مربع البحث
-        function getSortedAndFilteredReportMeals() {
-            const q = (document.getElementById('reportSearchInput')?.value || '').trim().toLowerCase();
-            let mealsList = [...(db.meals || [])];
-
-            // فلترة الوجبات حسب البحث بالحرف
-            if (q) {
-                mealsList = mealsList.filter(m => m.name && m.name.toLowerCase().includes(q));
-            }
-
-            // ترتيب الوجبات: الوجبات التي لها سعر بيع أكبر من 0 أولاً، ثم التي ليس لها سعر
-            mealsList.sort((a, b) => {
-                const spA = parseFloat(a.sellingPrice) || 0;
-                const spB = parseFloat(b.sellingPrice) || 0;
-                if (spA > 0 && spB === 0) return -1;
-                if (spA === 0 && spB > 0) return 1;
-                return 0;
-            });
-
-            return mealsList;
-        }
-
         function renderReportsTable() {
             const tbody = document.getElementById('reportsTableBody');
+            const q = (document.getElementById('reportSearchInput')?.value || '').trim().toLowerCase();
+
             document.getElementById('reportDateBadge').innerText = 'التاريخ: ' + new Date().toLocaleDateString('en-GB');
 
-            const sortedMeals = getSortedAndFilteredReportMeals();
+            if (!db.meals || db.meals.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400 font-bold">لا توجد بيانات للتقرير</td></tr>`;
+                document.getElementById('reportCountBadge').innerText = 'النتائج المعروضة: 0';
+                return;
+            }
 
-            const countBadge = document.getElementById('reportCountBadge');
-            if (countBadge) countBadge.innerText = `النتائج المعروضة: ${sortedMeals.length}`;
+            let sortedMeals = [...db.meals].sort((a, b) => {
+                const aP = (a.sellingPrice || 0) > 0 ? 1 : 0;
+                const bP = (b.sellingPrice || 0) > 0 ? 1 : 0;
+                return bP - aP;
+            });
+
+            if (q) {
+                sortedMeals = sortedMeals.filter(m => m.name && m.name.toLowerCase().includes(q));
+            }
+
+            document.getElementById('reportCountBadge').innerText = `النتائج المعروضة: ${sortedMeals.length}`;
 
             if (sortedMeals.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400 font-bold">لا توجد بيانات تطابق التقرير</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400 font-bold">لا توجد وجبات تطابق البحث في التقارير</td></tr>`;
                 return;
             }
 
@@ -1544,24 +1709,33 @@
             }).join('');
         }
 
-        // دالة تصدير التقرير PDF خفيفة وسريعة جداً تمنع تهنيج الجهاز وتقوم بتقسيم الوجبات على صفحات
-        async function exportReportPDF() {
-            const sortedMeals = getSortedAndFilteredReportMeals();
-            if (sortedMeals.length === 0) {
-                alert('لا توجد وجبات لتصدير التقرير!');
-                return;
+        function exportReportPDF() {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'pt', 'a4');
+            const rowsPerPage = 26;
+
+            const q = (document.getElementById('reportSearchInput')?.value || '').trim().toLowerCase();
+            let sortedMeals = [...(db.meals || [])].sort((a, b) => {
+                const aP = (a.sellingPrice || 0) > 0 ? 1 : 0;
+                const bP = (b.sellingPrice || 0) > 0 ? 1 : 0;
+                return bP - aP;
+            });
+
+            if (q) {
+                sortedMeals = sortedMeals.filter(m => m.name && m.name.toLowerCase().includes(q));
             }
 
-            const searchVal = (document.getElementById('reportSearchInput')?.value || '').trim();
+            const totalPages = Math.ceil(sortedMeals.length / rowsPerPage) || 1;
 
-            const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF('p', 'mm', 'a4');
+            let currentPageIndex = 0;
 
-            const rowsPerPage = 26; // تم تعديل عدد الوجبات إلى 26 وجبة بالصفحة الواحدة بدلاً من 22
-            const totalPages = Math.ceil(sortedMeals.length / rowsPerPage);
+            function processNextPage() {
+                if (currentPageIndex >= totalPages) {
+                    pdf.save(q ? `تقرير_وجبات_مفلتر_${q}.pdf` : 'تقرير_ربحية_الوجبات_الشامل.pdf');
+                    return;
+                }
 
-            for (let page = 0; page < totalPages; page++) {
-                if (page > 0) pdf.addPage();
+                if (currentPageIndex > 0) pdf.addPage();
 
                 const printWrapper = document.createElement('div');
                 printWrapper.style.position = 'fixed';
@@ -1571,11 +1745,11 @@
                 printWrapper.style.background = '#ffffff';
                 printWrapper.style.direction = 'rtl';
                 printWrapper.style.padding = '20px';
-                printWrapper.style.fontFamily = "'Cairo', Tahoma, sans-serif";
+                printWrapper.style.fontFamily = "'Cairo', sans-serif";
 
-                const pageMeals = sortedMeals.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
+                const slicedMeals = sortedMeals.slice(currentPageIndex * rowsPerPage, (currentPageIndex + 1) * rowsPerPage);
 
-                const rowsHtml = pageMeals.map(meal => {
+                let rowsHtml = slicedMeals.map(meal => {
                     let mainCost = 0;
                     if (meal.ingredients && Array.isArray(meal.ingredients)) {
                         meal.ingredients.forEach(ing => {
@@ -1589,39 +1763,37 @@
                     const costPct = sp > 0 ? (mainCost / sp * 100).toFixed(2) + '%' : '-';
 
                     return `
-                        <tr style="border-bottom:1px solid #e2e8f0; font-size:11px;">
-                            <td style="padding:7px; font-weight:bold; color:#1e293b;">${meal.name || ''}</td>
-                            <td style="padding:7px; text-align:center; font-weight:bold; color:#047857;">${formatPrice(sp, 3)}</td>
-                            <td style="padding:7px; text-align:center; font-weight:bold; color:#b91c1c;">${formatPrice(mainCost, 3)}</td>
-                            <td style="padding:7px; text-align:center; font-weight:bold; color:#d97706;">${profitStr}</td>
-                            <td style="padding:7px; text-align:center; font-weight:bold; color:#059669;">${profitPct}</td>
-                            <td style="padding:7px; text-align:center; font-weight:bold; color:#dc2626;">${costPct}</td>
+                        <tr style="border-bottom:1px solid #ddd; font-size:10px;">
+                            <td style="padding:5px; font-weight:bold;">${meal.name || ''}</td>
+                            <td style="padding:5px; text-align:center;">${formatPrice(sp, 3)}</td>
+                            <td style="padding:5px; text-align:center;">${formatPrice(mainCost, 3)}</td>
+                            <td style="padding:5px; text-align:center;">${profitStr}</td>
+                            <td style="padding:5px; text-align:center;">${profitPct}</td>
+                            <td style="padding:5px; text-align:center;">${costPct}</td>
                         </tr>
                     `;
                 }).join('');
 
                 printWrapper.innerHTML = `
-                    <div style="text-align:center; border-bottom:3px solid #05668D; padding-bottom:10px; margin-bottom:12px;">
-                        <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" style="width:45px;height:45px;border-radius:50%;object-fit:cover;border:2px solid #05668D;display:inline-block;">
-                        <h2 style="color:#05668D; font-weight:900; margin:4px 0 2px 0; font-size:16px;">شركة نايف للأغذية</h2>
-                        <p style="font-size:11px; color:#555; margin:0;">
-                            تقرير ربحية وتكاليف الوجبات ${searchVal ? `(نتيجة بحث: ${searchVal})` : 'الشامل'} - صفحة ${page + 1} من ${totalPages}
-                        </p>
+                    <div style="text-align:center; border-bottom:3px solid #05668D; padding-bottom:8px; margin-bottom:10px;">
+                        <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid #05668D;display:inline-block;">
+                        <h2 style="color:#05668D; font-weight:900; margin:2px 0 1px 0; font-size:14px;">شركة نايف للأغذية</h2>
+                        <p style="font-size:10px; color:#555; margin:0;">تقرير ربحية وتكاليف الوجبات الشامل ${q ? `(نتيجة بحث: ${q})` : ''} - صفحة ${currentPageIndex + 1} من ${totalPages}</p>
                     </div>
                     <table style="width:100%; border-collapse:collapse; text-align:right;">
                         <thead>
-                            <tr style="background:#05668D; color:#fff; font-size:11px;">
-                                <th style="padding:8px;">اسم الوجبة</th>
-                                <th style="padding:8px; text-align:center;">سعر البيع</th>
-                                <th style="padding:8px; text-align:center;">التكلفة الرئيسية</th>
-                                <th style="padding:8px; text-align:center;">الربح المالي</th>
-                                <th style="padding:8px; text-align:center;">نسبة الربح %</th>
-                                <th style="padding:8px; text-align:center;">نسبة التكلفة %</th>
+                            <tr style="background:#05668D; color:#fff; font-size:10px;">
+                                <th style="padding:6px;">اسم الوجبة</th>
+                                <th style="padding:6px; text-align:center;">سعر البيع</th>
+                                <th style="padding:6px; text-align:center;">التكلفة الرئيسية</th>
+                                <th style="padding:6px; text-align:center;">الربح المالي</th>
+                                <th style="padding:6px; text-align:center;">نسبة الربح %</th>
+                                <th style="padding:6px; text-align:center;">نسبة التكلفة %</th>
                             </tr>
                         </thead>
                         <tbody>${rowsHtml}</tbody>
                     </table>
-                    <div style="margin-top:15px; padding-top:6px; border-top:2px solid #05668D; display:flex; justify-content:space-between; font-size:9px; color:#05668D; font-weight:bold;">
+                    <div style="margin-top:12px; padding-top:6px; border-top:2px solid #05668D; display:flex; justify-content:space-between; font-size:8px; color:#05668D; font-weight:bold;">
                         <div>تاريخ التصدير: ${new Date().toLocaleDateString('en-GB')}</div>
                         <div>Yasser Elkhateeb - 67011143</div>
                     </div>
@@ -1629,23 +1801,34 @@
 
                 document.body.appendChild(printWrapper);
 
-                const canvas = await html2canvas(printWrapper, { scale: 1.2, useCORS: true });
-                const imgData = canvas.toDataURL('image/jpeg', 0.85);
-                const imgWidth = pdf.internal.pageSize.getWidth();
-                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                html2canvas(printWrapper, { scale: 1.2, useCORS: true }).then(canvas => {
+                    const imgData = canvas.toDataURL('image/jpeg', 0.85);
+                    const imgWidth = pdf.internal.pageSize.getWidth();
+                    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                    pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
 
-                pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
-                document.body.removeChild(printWrapper);
+                    document.body.removeChild(printWrapper);
+                    currentPageIndex++;
+                    setTimeout(processNextPage, 50);
+                });
             }
 
-            const fileName = searchVal ? `تقرير_وجبات_${searchVal}.pdf` : `تقرير_ربحية_الوجبات_الشامل.pdf`;
-            pdf.save(fileName);
-            addAuditLog('تصدير PDF', `تم تصدير تقرير الوجبات ${searchVal ? `(بحث: ${searchVal})` : ''} بنجاح`);
+            processNextPage();
         }
 
         function exportReportExcel() {
-            const sortedMeals = getSortedAndFilteredReportMeals();
-            if (sortedMeals.length === 0) return;
+            if (!db.meals) return;
+            const q = (document.getElementById('reportSearchInput')?.value || '').trim().toLowerCase();
+
+            let sortedMeals = [...db.meals].sort((a, b) => {
+                const aP = (a.sellingPrice || 0) > 0 ? 1 : 0;
+                const bP = (b.sellingPrice || 0) > 0 ? 1 : 0;
+                return bP - aP;
+            });
+
+            if (q) {
+                sortedMeals = sortedMeals.filter(m => m.name && m.name.toLowerCase().includes(q));
+            }
 
             let dataToExport = sortedMeals.map(m => {
                 let mainCost = 0;
@@ -1669,7 +1852,6 @@
             XLSX.writeFile(workbook, "Naif_Foods_Reports.xlsx");
         }
 
-        // دالة استيراد الإكسل المطورة والمرنة بالكامل لضمان قراءة جميع الشيتات والوجبات بدقة
         function importExcelFile(event) {
             if (currentUser === 'مستخدم') {
                 alert('عذراً! لا تمتلك صلاحية سحب ملف الإكسل');
@@ -1741,7 +1923,6 @@
                                 let sellingPrice = 0;
                                 const ingredients = [];
 
-                                // البحث الذكي عن اسم الوجبة وسعر البيع داخل الشيت في أي خلية
                                 for (let r = 0; r < Math.min(10, sheetJson.length); r++) {
                                     const row = sheetJson[r];
                                     if (row) {
@@ -1752,7 +1933,6 @@
                                                 if (strVal.includes('سعر البيع') || strVal === 'سعر البيع') {
                                                     if (row[c + 1] !== undefined) sellingPrice = parseFloat(row[c + 1]) || 0;
                                                 }
-                                                // التقاط اسم الوجبة إذا وُجد في خلية B2 أو ما يشابهها
                                                 if ((r === 1 && c === 1) || strVal.startsWith('وجبة')) {
                                                     if (strVal.length > 3 && strVal !== 'وجبة') mealName = strVal;
                                                 }
@@ -1761,7 +1941,6 @@
                                     }
                                 }
 
-                                // التقاط دقيق من الخلايا المعتادة إذا لم يتم العثور عليها بالبحث الحر
                                 const b2Cell = sheet['B2'] || sheet['b2'];
                                 if (b2Cell && b2Cell.v !== undefined) {
                                     mealName = String(b2Cell.v).trim();
@@ -1772,7 +1951,6 @@
                                     sellingPrice = parseFloat(c41Cell.v) || sellingPrice;
                                 }
 
-                                // استخراج المكونات والخامات من الجدول
                                 for (let r = 3; r < sheetJson.length; r++) {
                                     const row = sheetJson[r];
                                     if (row && row[0] && String(row[0]).trim() !== '' && String(row[0]).trim() !== 'اسم الصنف') {
@@ -1909,6 +2087,7 @@
                             db.pricelist = imported.pricelist || [];
                             db.auditLogs = imported.auditLogs || [];
                             db.pendingMeals = imported.pendingMeals || [];
+                            db.pendingItems = imported.pendingItems || [];
                             db.cancelledMeals = imported.cancelledMeals || [];
                         }
                         saveDatabase();
@@ -1998,12 +2177,10 @@
 
                 <div style="background:#05668D; color:#fff; padding:12px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
                     <h3 style="margin:0; font-size:16px; font-weight:bold;">${meal.name || ''}</h3>
-                    ${hidePrices ? '' : `
                     <div style="background:#B51C00; padding:6px 12px; border-radius:8px; text-align:left;">
                         <span style="font-size:9px; color:#fca5a5; display:block;">سعر البيع</span>
                         <span style="font-size:16px; font-weight:bold; font-family:monospace; color:#ffffff;">${formatPrice(sp, 3)}</span>
                     </div>
-                    `}
                 </div>
 
                 <table style="width:100%; border-collapse:collapse; text-align:right; margin-bottom:15px;">
