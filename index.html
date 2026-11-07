@@ -49,26 +49,26 @@
         ::-webkit-scrollbar-thumb { background: #05668D; border-radius: 4px; }
 
        .signature-card {
-    position: fixed;
-    bottom: 12px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #ffffff;
-    color: #1e3a8a;
-    padding: 6px 16px;
-    border-radius: 8px;
-    box-shadow: 0 8px 20px rgba(255, 40, 0, 0.25);
-    font-size: 0.68rem;
-    font-weight: 700;
-    z-index: 99;
-    animation: floatSignature 5s ease-in-out infinite;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    border: 2px solid #FF4500;
-    text-decoration: none;
-    display: inline-block;
-    text-align: center;
-}
+            position: fixed;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ffffff;
+            color: #1e3a8a;
+            padding: 6px 16px;
+            border-radius: 8px;
+            box-shadow: 0 8px 20px rgba(255, 40, 0, 0.25);
+            font-size: 0.68rem;
+            font-weight: 700;
+            z-index: 99;
+            animation: floatSignature 5s ease-in-out infinite;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid #FF4500;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
 
         .signature-card:hover { transform: scale(1.05); }
 
@@ -237,7 +237,7 @@
 
                 <div id="recipesContainer" class="space-y-4 sm:space-y-6"></div>
 
-                <!-- أزرار التنقل بين الصفحات لتسريع الأداء -->
+                <!-- أزرار التنقل بين الصفحات لتسريع الأداء (تم استبدال العرض إلى 6 وجبات بالصفحة) -->
                 <div id="paginationControls" class="bg-white p-3 rounded-2xl border border-red-100 shadow-sm flex items-center justify-between text-xs font-bold text-slate-700"></div>
             </section>
 
@@ -282,18 +282,29 @@
 
             <!-- الشاشة 3: التقارير -->
             <section id="view-reports" class="tab-view hidden space-y-4">
-                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-red-100 shadow-sm flex flex-wrap items-center justify-between gap-3">
-                    <div>
-                        <h2 class="text-base font-extrabold text-naifRed-900">التقارير التحليلية الشاملة لجميع الوجبات</h2>
-                        <p class="text-xs text-slate-500">استعراض أسعار البيع، التكاليف، الأرباح، ونسب الربحية الاحترافية</p>
+                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-red-100 shadow-sm flex flex-col gap-3">
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                            <h2 class="text-base font-extrabold text-naifRed-900">التقارير التحليلية الشاملة لجميع الوجبات</h2>
+                            <p class="text-xs text-slate-500">مترتبة تلقائياً: الوجبات المسعرة أولاً ثم باقي الوجبات</p>
+                        </div>
+                        <div class="flex items-center gap-2 w-full sm:w-auto">
+                            <button onclick="exportReportPDF()" class="flex-1 sm:flex-initial bg-rose-600 hover:bg-rose-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow">
+                                <i class="fa-solid fa-file-pdf"></i> تصدير التقرير PDF
+                            </button>
+                            <button onclick="exportReportExcel()" class="flex-1 sm:flex-initial bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow">
+                                <i class="fa-solid fa-file-excel"></i> تصدير إكسل
+                            </button>
+                        </div>
                     </div>
-                    <div class="flex items-center gap-2 w-full sm:w-auto">
-                        <button onclick="exportReportPDF()" class="flex-1 sm:flex-initial bg-rose-600 hover:bg-rose-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow">
-                            <i class="fa-solid fa-file-pdf"></i> تصدير PDF
-                        </button>
-                        <button onclick="exportReportExcel()" class="flex-1 sm:flex-initial bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow">
-                            <i class="fa-solid fa-file-excel"></i> تصدير إكسل
-                        </button>
+
+                    <!-- مربع البحث في التقارير التحليلية -->
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-2 pt-2 border-t border-slate-100">
+                        <div class="flex items-center gap-2 w-full sm:w-96">
+                            <i class="fa-solid fa-magnifying-glass text-naifRed-900 text-xs"></i>
+                            <input type="text" id="reportSearchInput" onkeyup="renderReportsTable()" placeholder="ابحث عن وجبة بالتقارير بالحرف..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 text-xs font-bold outline-none focus:ring-2 focus:ring-naifRed-900">
+                        </div>
+                        <span id="reportCountBadge" class="text-xs font-bold text-slate-500">النتائج المعروضة: 0</span>
                     </div>
                 </div>
 
@@ -566,7 +577,7 @@
         let currentUser = null;
 
         let currentPage = 1;
-        const pageSize = 12;
+        const pageSize = 6; // تم تعديل عدد الوجبات بالصفحة الواحدة إلى 6 بدل 12
 
         window.db = {
             pricelist: [],
@@ -942,9 +953,10 @@
                             </div>
                         </div>
 
+                        <!-- تم تغيير لون خط السعر إلى الأبيض بدل الأخضر بناءً على طلبك -->
                         <div class="bg-naifRed-950/80 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl border border-red-600/50 text-left mr-auto sm:mr-0">
                             <span class="text-[9px] sm:text-[10px] text-red-200 block font-bold">سعر البيع</span>
-                            <span class="text-lg sm:text-xl font-black font-mono text-emerald-400">${formatPrice(sp, 3)}</span>
+                            <span class="text-lg sm:text-xl font-black font-mono text-white">${formatPrice(sp, 3)}</span>
                         </div>
                     </div>
 
@@ -1250,16 +1262,18 @@
 
             if (currentUser === 'Yasser' || currentUser === 'الادارة') {
                 if (mode === 'add') {
-                    db.meals.push(mealData);
+                    // تم التعديل: تظهر الوجبة الجديدة أول شيء في الصفحة الأولى (unshift بدلاً من push)
+                    db.meals.unshift(mealData);
                     addAuditLog('إضافة وجبة', `تمت إضافة وجبة جديدة [${newName}] بواسطة ${currentUser}`);
                 } else {
                     const index = document.getElementById('editMealIndex').value;
                     db.meals[index] = mealData;
                     addAuditLog('تعديل وجبة', `تم تعديل وجبة [${newName}] بواسطة ${currentUser}`);
                 }
+                currentPage = 1; // الانتقال التلقائي للصفحة الأولى لرؤية الوجبة الجديدة
                 renderRecipeCards();
             } else {
-                db.pendingMeals.push(mealData);
+                db.pendingMeals.unshift(mealData);
                 addAuditLog('طلب إضافة/تعديل وجبة', `قام ${currentUser} بإضافة وجبة [${newName}] بانتظار الاعتماد`);
                 alert('تم إرسال الوجبة بنجاح إلى قائمة (وجبات قيد الاعتماد).');
                 renderPendingMeals();
@@ -1301,12 +1315,14 @@
         function approvePendingMeal(idx) {
             if (currentUser !== 'Yasser' && currentUser !== 'الادارة') return;
             const meal = db.pendingMeals.splice(idx, 1)[0];
-            db.meals.push(meal);
+            // تضاف في بداية القائمة لتظهر أول شيء
+            db.meals.unshift(meal);
             saveDatabase();
             addAuditLog('اعتماد وجبة', `تم اعتماد وجبة [${meal.name}] رسمياً بواسطة ${currentUser}`);
             renderPendingMeals();
+            currentPage = 1;
             renderRecipeCards();
-            alert('تم اعتماد الوجبة وإضافتها للرئيسية بنجاح!');
+            alert('تم اعتماد الوجبة وإضافتها في المقدمة بالصفحة الأولى بنجاح!');
         }
 
         function rejectPendingMeal(idx) {
@@ -1322,7 +1338,7 @@
             if (!confirm(`هل أنت متأكد من رغبتك في إلغاء وجبة [${meal.name}] وترحيلها؟`)) return;
 
             db.meals.splice(index, 1);
-            db.cancelledMeals.push({
+            db.cancelledMeals.unshift({
                 ...meal,
                 cancelledBy: currentUser,
                 cancelDate: new Date().toLocaleDateString('en-GB')
@@ -1367,12 +1383,13 @@
         function restoreCancelledMeal(idx) {
             if (currentUser !== 'Yasser' && currentUser !== 'الادارة') return;
             const meal = db.cancelledMeals.splice(idx, 1)[0];
-            db.meals.push(meal);
+            db.meals.unshift(meal);
             saveDatabase();
             addAuditLog('استعادة وجبة ملغية', `تم استعادة وجبة [${meal.name}] إلى الشاشة الرئيسية بواسطة ${currentUser}`);
             renderCancelledMeals();
+            currentPage = 1;
             renderRecipeCards();
-            alert('تمت استعادة الوجبة للرئيسية بنجاح!');
+            alert('تمت استعادة الوجبة للرئيسية في المقدمة بنجاح!');
         }
 
         function permanentDeleteCancelledMeal(idx) {
@@ -1464,16 +1481,43 @@
             }
         }
 
+        // دالة المساعدة للحصول على قائمة الوجبات مرتبة (التي لها سعر أولاً) ومفلترة حسب مربع البحث
+        function getSortedAndFilteredReportMeals() {
+            const q = (document.getElementById('reportSearchInput')?.value || '').trim().toLowerCase();
+            let mealsList = [...(db.meals || [])];
+
+            // فلترة الوجبات حسب البحث بالحرف
+            if (q) {
+                mealsList = mealsList.filter(m => m.name && m.name.toLowerCase().includes(q));
+            }
+
+            // ترتيب الوجبات: الوجبات التي لها سعر بيع أكبر من 0 أولاً، ثم التي ليس لها سعر
+            mealsList.sort((a, b) => {
+                const spA = parseFloat(a.sellingPrice) || 0;
+                const spB = parseFloat(b.sellingPrice) || 0;
+                if (spA > 0 && spB === 0) return -1;
+                if (spA === 0 && spB > 0) return 1;
+                return 0;
+            });
+
+            return mealsList;
+        }
+
         function renderReportsTable() {
             const tbody = document.getElementById('reportsTableBody');
             document.getElementById('reportDateBadge').innerText = 'التاريخ: ' + new Date().toLocaleDateString('en-GB');
 
-            if (!db.meals || db.meals.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400 font-bold">لا توجد بيانات للتقرير</td></tr>`;
+            const sortedMeals = getSortedAndFilteredReportMeals();
+
+            const countBadge = document.getElementById('reportCountBadge');
+            if (countBadge) countBadge.innerText = `النتائج المعروضة: ${sortedMeals.length}`;
+
+            if (sortedMeals.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400 font-bold">لا توجد بيانات تطابق التقرير</td></tr>`;
                 return;
             }
 
-            tbody.innerHTML = db.meals.map(meal => {
+            tbody.innerHTML = sortedMeals.map(meal => {
                 let mainCost = 0;
                 if (meal.ingredients && Array.isArray(meal.ingredients)) {
                     meal.ingredients.forEach(ing => {
@@ -1500,11 +1544,21 @@
             }).join('');
         }
 
-        function exportReportPDF() {
+        // دالة تصدير التقرير PDF خفيفة وسريعة جداً تمنع تهنيج الجهاز وتقوم بتقسيم الوجبات على صفحات
+        async function exportReportPDF() {
+            const sortedMeals = getSortedAndFilteredReportMeals();
+            if (sortedMeals.length === 0) {
+                alert('لا توجد وجبات لتصدير التقرير!');
+                return;
+            }
+
+            const searchVal = (document.getElementById('reportSearchInput')?.value || '').trim();
+
             const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF('p', 'pt', 'a4');
-            const rowsPerPage = 18;
-            const totalPages = Math.ceil((db.meals ? db.meals.length : 0) / rowsPerPage) || 1;
+            const pdf = new jsPDF('p', 'mm', 'a4');
+
+            const rowsPerPage = 26; // تم تعديل عدد الوجبات إلى 26 وجبة بالصفحة الواحدة بدلاً من 22
+            const totalPages = Math.ceil(sortedMeals.length / rowsPerPage);
 
             for (let page = 0; page < totalPages; page++) {
                 if (page > 0) pdf.addPage();
@@ -1517,10 +1571,11 @@
                 printWrapper.style.background = '#ffffff';
                 printWrapper.style.direction = 'rtl';
                 printWrapper.style.padding = '20px';
+                printWrapper.style.fontFamily = "'Cairo', Tahoma, sans-serif";
 
-                const slicedMeals = db.meals ? db.meals.slice(page * rowsPerPage, (page + 1) * rowsPerPage) : [];
+                const pageMeals = sortedMeals.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
 
-                let rowsHtml = slicedMeals.map(meal => {
+                const rowsHtml = pageMeals.map(meal => {
                     let mainCost = 0;
                     if (meal.ingredients && Array.isArray(meal.ingredients)) {
                         meal.ingredients.forEach(ing => {
@@ -1534,22 +1589,24 @@
                     const costPct = sp > 0 ? (mainCost / sp * 100).toFixed(2) + '%' : '-';
 
                     return `
-                        <tr style="border-bottom:1px solid #ddd; font-size:11px;">
-                            <td style="padding:8px; font-weight:bold;">${meal.name || ''}</td>
-                            <td style="padding:8px; text-align:center;">${formatPrice(sp, 3)}</td>
-                            <td style="padding:8px; text-align:center;">${formatPrice(mainCost, 3)}</td>
-                            <td style="padding:8px; text-align:center;">${profitStr}</td>
-                            <td style="padding:8px; text-align:center;">${profitPct}</td>
-                            <td style="padding:8px; text-align:center;">${costPct}</td>
+                        <tr style="border-bottom:1px solid #e2e8f0; font-size:11px;">
+                            <td style="padding:7px; font-weight:bold; color:#1e293b;">${meal.name || ''}</td>
+                            <td style="padding:7px; text-align:center; font-weight:bold; color:#047857;">${formatPrice(sp, 3)}</td>
+                            <td style="padding:7px; text-align:center; font-weight:bold; color:#b91c1c;">${formatPrice(mainCost, 3)}</td>
+                            <td style="padding:7px; text-align:center; font-weight:bold; color:#d97706;">${profitStr}</td>
+                            <td style="padding:7px; text-align:center; font-weight:bold; color:#059669;">${profitPct}</td>
+                            <td style="padding:7px; text-align:center; font-weight:bold; color:#dc2626;">${costPct}</td>
                         </tr>
                     `;
                 }).join('');
 
                 printWrapper.innerHTML = `
-                    <div style="text-align:center; border-bottom:3px solid #05668D; padding-bottom:10px; margin-bottom:14px;">
-                        <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" style="width:50px;height:50px;border-radius:50%;object-fit:cover;border:2px solid #05668D;display:inline-block;">
+                    <div style="text-align:center; border-bottom:3px solid #05668D; padding-bottom:10px; margin-bottom:12px;">
+                        <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" style="width:45px;height:45px;border-radius:50%;object-fit:cover;border:2px solid #05668D;display:inline-block;">
                         <h2 style="color:#05668D; font-weight:900; margin:4px 0 2px 0; font-size:16px;">شركة نايف للأغذية</h2>
-                        <p style="font-size:11px; color:#555; margin:0;">تقرير ربحية وتكاليف الوجبات الشامل - صفحة ${page + 1} من ${totalPages}</p>
+                        <p style="font-size:11px; color:#555; margin:0;">
+                            تقرير ربحية وتكاليف الوجبات ${searchVal ? `(نتيجة بحث: ${searchVal})` : 'الشامل'} - صفحة ${page + 1} من ${totalPages}
+                        </p>
                     </div>
                     <table style="width:100%; border-collapse:collapse; text-align:right;">
                         <thead>
@@ -1564,7 +1621,7 @@
                         </thead>
                         <tbody>${rowsHtml}</tbody>
                     </table>
-                    <div style="margin-top:20px; padding-top:8px; border-top:2px solid #05668D; display:flex; justify-content:space-between; font-size:9px; color:#05668D; font-weight:bold;">
+                    <div style="margin-top:15px; padding-top:6px; border-top:2px solid #05668D; display:flex; justify-content:space-between; font-size:9px; color:#05668D; font-weight:bold;">
                         <div>تاريخ التصدير: ${new Date().toLocaleDateString('en-GB')}</div>
                         <div>Yasser Elkhateeb - 67011143</div>
                     </div>
@@ -1572,23 +1629,25 @@
 
                 document.body.appendChild(printWrapper);
 
-                html2canvas(printWrapper, { scale: 1.5, useCORS: true }).then(canvas => {
-                    const imgData = canvas.toDataURL('image/jpeg', 0.9);
-                    const imgWidth = pdf.internal.pageSize.getWidth();
-                    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-                    pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
+                const canvas = await html2canvas(printWrapper, { scale: 1.2, useCORS: true });
+                const imgData = canvas.toDataURL('image/jpeg', 0.85);
+                const imgWidth = pdf.internal.pageSize.getWidth();
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-                    document.body.removeChild(printWrapper);
-                    if (page === totalPages - 1) {
-                        pdf.save('تقرير_ربحية_الوجبات_الشامل.pdf');
-                    }
-                });
+                pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
+                document.body.removeChild(printWrapper);
             }
+
+            const fileName = searchVal ? `تقرير_وجبات_${searchVal}.pdf` : `تقرير_ربحية_الوجبات_الشامل.pdf`;
+            pdf.save(fileName);
+            addAuditLog('تصدير PDF', `تم تصدير تقرير الوجبات ${searchVal ? `(بحث: ${searchVal})` : ''} بنجاح`);
         }
 
         function exportReportExcel() {
-            if (!db.meals) return;
-            let dataToExport = db.meals.map(m => {
+            const sortedMeals = getSortedAndFilteredReportMeals();
+            if (sortedMeals.length === 0) return;
+
+            let dataToExport = sortedMeals.map(m => {
                 let mainCost = 0;
                 if (m.ingredients && Array.isArray(m.ingredients)) {
                     m.ingredients.forEach(i => { if (!i.location || i.location === 'ALL') mainCost += (i.qty || 0) * (i.price || 0); });
@@ -1826,7 +1885,6 @@
             addAuditLog('تنزيل نسخة احتياطية', `تم تنزيل النسخة الاحتياطية للبيانات بواسطة ${currentUser}`);
         }
 
-        // دالة استعادة النسخة الاحتياطية المصححة لدعم كافة صيغ ملفات الjson واستعادة الوجبات فوراً
         function restoreBackup(event) {
             if (currentUser !== 'Yasser' && currentUser !== 'الادارة') {
                 alert('استعادة النسخة الاحتياطية مقتصرة حصرياً على الإدارة و Yasser');
@@ -1882,6 +1940,8 @@
                 return;
             }
 
+            const hidePrices = currentUser === 'مستخدم';
+
             let mainCost = 0, outExtra = 0, inExtra = 0;
             if (meal.ingredients && Array.isArray(meal.ingredients)) {
                 meal.ingredients.forEach(ing => {
@@ -1914,8 +1974,8 @@
                     <td style="padding: 6px; text-align: center;">${ing.location || 'ALL'}</td>
                     <td style="padding: 6px; text-align: center;">${ing.unit || ''}</td>
                     <td style="padding: 6px; text-align: center; font-family: monospace; font-weight: bold;">${formatQty(ing.qty)}</td>
-                    <td style="padding: 6px; text-align: center; font-family: monospace;">${formatPrice(ing.price, 5)}</td>
-                    <td style="padding: 6px; text-align: center; font-family: monospace; font-weight: bold; color: #05668D;">${formatPrice(ing.qty * ing.price, 3)}</td>
+                    ${hidePrices ? '' : `<td style="padding: 6px; text-align: center; font-family: monospace;">${formatPrice(ing.price, 5)}</td>`}
+                    ${hidePrices ? '' : `<td style="padding: 6px; text-align: center; font-family: monospace; font-weight: bold; color: #05668D;">${formatPrice(ing.qty * ing.price, 3)}</td>`}
                 </tr>
             `).join('') : '';
 
@@ -1938,10 +1998,12 @@
 
                 <div style="background:#05668D; color:#fff; padding:12px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
                     <h3 style="margin:0; font-size:16px; font-weight:bold;">${meal.name || ''}</h3>
+                    ${hidePrices ? '' : `
                     <div style="background:#B51C00; padding:6px 12px; border-radius:8px; text-align:left;">
                         <span style="font-size:9px; color:#fca5a5; display:block;">سعر البيع</span>
-                        <span style="font-size:16px; font-weight:bold; font-family:monospace; color:#34d399;">${formatPrice(sp, 3)}</span>
+                        <span style="font-size:16px; font-weight:bold; font-family:monospace; color:#ffffff;">${formatPrice(sp, 3)}</span>
                     </div>
+                    `}
                 </div>
 
                 <table style="width:100%; border-collapse:collapse; text-align:right; margin-bottom:15px;">
@@ -1951,13 +2013,14 @@
                             <th style="padding:6px; text-align:center;">المكان</th>
                             <th style="padding:6px; text-align:center;">الوحدة</th>
                             <th style="padding:6px; text-align:center;">الكمية</th>
-                            <th style="padding:6px; text-align:center;">السعر</th>
-                            <th style="padding:6px; text-align:center;">القيمة</th>
+                            ${hidePrices ? '' : `<th style="padding:6px; text-align:center;">السعر</th>`}
+                            ${hidePrices ? '' : `<th style="padding:6px; text-align:center;">القيمة</th>`}
                         </tr>
                     </thead>
                     <tbody>${rowsHtml}</tbody>
                 </table>
 
+                ${hidePrices ? '' : `
                 <div style="background:#028090; color:#fff; padding:12px; border-radius:12px; margin-bottom:15px;">
                     <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
                         
@@ -1987,6 +2050,7 @@
 
                     </div>
                 </div>
+                `}
 
                 <div style="margin-top:15px; padding-top:8px; border-top:2px solid #05668D; display:flex; justify-content:space-between; align-items:center; font-size:9px; color:#05668D; font-weight:bold;">
                     <div>تاريخ ووقت التصدير: ${new Date().toLocaleDateString('en-GB')} ${new Date().toLocaleTimeString('en-GB')}</div>
