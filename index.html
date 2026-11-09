@@ -602,8 +602,11 @@
     <script>
         const STORAGE_KEY = 'NAIF_FOODS_RECIPES_DB_V2026_MOBILE';
         const SESSION_USER_KEY = 'NAIF_FOODS_ACTIVE_SESSION_USER';
-        let currentUser = null;
+        
+        // رابط ملف الـ Raw المباشر من GitHub لجلب النسخة الاحتياطية عند الحاجة
+        const GITHUB_DATA_URL = 'https://raw.githubusercontent.com/yasser-q8/n_rcp_data/refs/heads/main/n_rcp_data.json';
 
+        let currentUser = null;
         let currentPage = 1;
         const pageSize = 6;
 
@@ -616,8 +619,8 @@
             auditLogs: []
         };
 
-        window.addEventListener('DOMContentLoaded', () => {
-            loadDatabase();
+        window.addEventListener('DOMContentLoaded', async () => {
+            await loadDatabase();
             restoreActiveSession();
             switchTab('recipes');
         });
@@ -737,53 +740,50 @@
         window.changePage = changePage;
         window.onRecipeSearchInput = onRecipeSearchInput;
 
-        // ضع رابط الـ Raw الخاص بملفك على GitHub هنا
-const GITHUB_DATA_URL = 'https://raw.githubusercontent.com/yasser-q8/n_rcp_data/refs/heads/main/n_rcp_data.json';
+        async function loadDatabase() {
+            const localData = localStorage.getItem(STORAGE_KEY);
+            if (localData) {
+                try { 
+                    const parsed = JSON.parse(localData);
+                    applyParsedData(parsed);
+                    return;
+                } catch (e) { console.warn("خطأ في قراءة الذاكرة المحلية"); }
+            }
 
-async function loadDatabase() {
-    const data = localStorage.getItem(STORAGE_KEY);
-    
-    // 1. إذا كانت هناك بيانات محفوظة محلياً يتم اعتمادها فوراً
-    if (data) {
-        try { 
-            const parsed = JSON.parse(data);
-            applyParsedData(parsed);
-            return;
-        } catch (e) { console.warn("خطأ في قراءة الذاكرة المحلية"); }
-    }
-    
-    // 2. إذا لم توجد بيانات (أو فتحت من جهاز جديد)، يجلب البيانات فوراً من GitHub
-    try {
-        const response = await fetch(GITHUB_DATA_URL);
-        if (response.ok) {
-            const githubData = await response.json();
-            applyParsedData(githubData);
-            saveDatabase(); // حفظها محلياً للأجهزة الجديدة
-            refreshAllUI();
-            console.log("تم تحميل البيانات بنجاح من GitHub!");
-        } else {
+            // إذا لم توجد بيانات محلياً، يتم الجلب من GitHub مباشرة باستخدام الرابط المباشر
+            if (GITHUB_DATA_URL && GITHUB_DATA_URL.startsWith('http')) {
+                try {
+                    const res = await fetch(GITHUB_DATA_URL);
+                    if (res.ok) {
+                        const githubJson = await res.json();
+                        applyParsedData(githubJson);
+                        saveDatabase();
+                        refreshAllUI();
+                        console.log("تم جلب البيانات بنجاح من GitHub");
+                        return;
+                    }
+                } catch (err) {
+                    console.warn("تعذر جلب البيانات من GitHub:", err);
+                }
+            }
+
             initDefaultData();
         }
-    } catch (err) {
-        console.error("تعذر الجلب من GitHub:", err);
-        initDefaultData();
-    }
-}
 
-function applyParsedData(parsed) {
-    if (Array.isArray(parsed)) {
-        window.db.meals = parsed;
-    } else if (parsed && typeof parsed === 'object') {
-        window.db = {
-            pricelist: parsed.pricelist || [],
-            meals: parsed.meals || [],
-            pendingMeals: parsed.pendingMeals || [],
-            pendingItems: parsed.pendingItems || [],
-            cancelledMeals: parsed.cancelledMeals || [],
-            auditLogs: parsed.auditLogs || []
-        };
-    }
-}
+        function applyParsedData(parsed) {
+            if (Array.isArray(parsed)) {
+                window.db.meals = parsed;
+            } else if (parsed && typeof parsed === 'object') {
+                window.db = {
+                    pricelist: parsed.pricelist || [],
+                    meals: parsed.meals || [],
+                    pendingMeals: parsed.pendingMeals || [],
+                    pendingItems: parsed.pendingItems || [],
+                    cancelledMeals: parsed.cancelledMeals || [],
+                    auditLogs: parsed.auditLogs || []
+                };
+            }
+        }
 
         function saveDatabase() {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(window.db));
