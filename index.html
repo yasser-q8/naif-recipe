@@ -737,26 +737,53 @@
         window.changePage = changePage;
         window.onRecipeSearchInput = onRecipeSearchInput;
 
-        function loadDatabase() {
-            const data = localStorage.getItem(STORAGE_KEY);
-            if (data) {
-                try { 
-                    const parsed = JSON.parse(data);
-                    if (Array.isArray(parsed)) {
-                        window.db.meals = parsed;
-                    } else if (parsed && typeof parsed === 'object') {
-                        window.db = {
-                            pricelist: parsed.pricelist || [],
-                            meals: parsed.meals || [],
-                            pendingMeals: parsed.pendingMeals || [],
-                            pendingItems: parsed.pendingItems || [],
-                            cancelledMeals: parsed.cancelledMeals || [],
-                            auditLogs: parsed.auditLogs || []
-                        };
-                    }
-                } catch (e) { initDefaultData(); }
-            } else { initDefaultData(); }
+        // ضع رابط الـ Raw الخاص بملفك على GitHub هنا
+const GITHUB_DATA_URL = 'https://raw.githubusercontent.com/yasser-q8/n_rcp_data/refs/heads/main/n_rcp_data.json';
+
+async function loadDatabase() {
+    const data = localStorage.getItem(STORAGE_KEY);
+    
+    // 1. إذا كانت هناك بيانات محفوظة محلياً يتم اعتمادها فوراً
+    if (data) {
+        try { 
+            const parsed = JSON.parse(data);
+            applyParsedData(parsed);
+            return;
+        } catch (e) { console.warn("خطأ في قراءة الذاكرة المحلية"); }
+    }
+    
+    // 2. إذا لم توجد بيانات (أو فتحت من جهاز جديد)، يجلب البيانات فوراً من GitHub
+    try {
+        const response = await fetch(GITHUB_DATA_URL);
+        if (response.ok) {
+            const githubData = await response.json();
+            applyParsedData(githubData);
+            saveDatabase(); // حفظها محلياً للأجهزة الجديدة
+            refreshAllUI();
+            console.log("تم تحميل البيانات بنجاح من GitHub!");
+        } else {
+            initDefaultData();
         }
+    } catch (err) {
+        console.error("تعذر الجلب من GitHub:", err);
+        initDefaultData();
+    }
+}
+
+function applyParsedData(parsed) {
+    if (Array.isArray(parsed)) {
+        window.db.meals = parsed;
+    } else if (parsed && typeof parsed === 'object') {
+        window.db = {
+            pricelist: parsed.pricelist || [],
+            meals: parsed.meals || [],
+            pendingMeals: parsed.pendingMeals || [],
+            pendingItems: parsed.pendingItems || [],
+            cancelledMeals: parsed.cancelledMeals || [],
+            auditLogs: parsed.auditLogs || []
+        };
+    }
+}
 
         function saveDatabase() {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(window.db));
