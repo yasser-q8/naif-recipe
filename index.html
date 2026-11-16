@@ -489,7 +489,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, onSnapshot, runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBqHC3lSZgvqYvdYg5TwIPqGVCXNaXbhD8",
@@ -507,100 +507,130 @@
         const docRef = doc(dbFirestore, 'artifacts', 'n-rcp-39b7c', 'public', 'data', 'naif_main_db', 'main_doc');
 
         window.isFirebaseSaving = false;
+        let firebaseReady = false;
+        let firebaseFirstSnapshot = true;
+        let lastRemoteState = null;
+        let syncQueue = Promise.resolve();
+        const DB_ARRAY_KEYS = ['pricelist','meals','pendingMeals','pendingItems','cancelledMeals','auditLogs'];
+
+        const cloneData = value => JSON.parse(JSON.stringify(value ?? null));
+        function normalizeCloudData(data = {}) {
+            const out = {};
+            DB_ARRAY_KEYS.forEach(key => {
+                out[key] = Array.isArray(data[key]) ? data[key].map((item, i) => {
+                    const copy = { ...item };
+                    if (copy.id === undefined || copy.id === null || copy.id === '') {
+                        // دليل الأسعار لا يحتوي دائماً على ID؛ استخدم اسم الصنف كمفتاح ثابت لا يتغير بتغير ترتيب الصفوف.
+                        copy.id = key === 'pricelist'
+                            ? `price_${String(copy.item || i).trim().toLocaleLowerCase()}`
+                            : `${key}_${i}_${String(copy.name || copy.item || 'row').replace(/\s+/g,'_')}`;
+                    }
+                    return copy;
+                }) : [];
+            });
+            return out;
+        }
+        function stableKey(item) { return String(item?.id ?? item?.name ?? item?.item ?? ''); }
+        function mergeArrayChanges(baseArray, localArray, remoteArray) {
+            const base = new Map((baseArray || []).map(x => [stableKey(x), x]));
+            const local = new Map((localArray || []).map(x => [stableKey(x), x]));
+            const remote = new Map((remoteArray || []).map(x => [stableKey(x), x]));
+            const result = new Map(remote);
+            for (const [id, oldValue] of base) {
+                if (!local.has(id)) result.delete(id); // local deletion
+                else if (JSON.stringify(local.get(id)) !== JSON.stringify(oldValue)) result.set(id, local.get(id));
+            }
+            for (const [id, value] of local) {
+                if (!base.has(id)) result.set(id, value); // local addition
+            }
+            return [...result.values()];
+        }
+        function showCloudStatus(message, kind = 'ok') {
+            const el = document.getElementById('cloudSyncStatus');
+            if (!el) return;
+            const ok = kind === 'ok';
+            el.innerHTML = ok
+                ? `<i class="fa-solid fa-cloud-check text-emerald-400"></i> <span>${message}</span>`
+                : `<i class="fa-solid fa-triangle-exclamation text-amber-300"></i> <span>${message}</span>`;
+            el.className = `${ok ? 'bg-emerald-900/90 border-emerald-700' : 'bg-amber-900/90 border-amber-700'} text-white text-[11px] font-bold px-4 py-1.5 text-center flex items-center justify-center gap-2 border-b`;
+        }
 
         async function initFirebaseConnection() {
             try {
                 await signInAnonymously(auth);
+                setupFirestoreListener();
             } catch (authErr) {
-                console.log("Anonymous auth fallback mode");
+                console.error('Firebase Authentication failed:', authErr);
+                showCloudStatus('فشل تسجيل الدخول إلى Firebase. تحقق من تفعيل Anonymous Authentication', 'error');
             }
-            setupFirestoreListener();
         }
 
         function setupFirestoreListener() {
-            onSnapshot(docRef, (docSnap) => {
-                if (window.isFirebaseSaving) {
-                    window.isFirebaseSaving = false;
-                    return;
-                }
+            onSnapshot(docRef, { includeMetadataChanges: true }, (docSnap) => {
+                // تجاهل نسخة الكتابة المحلية فقط، وليس كل تحديث أثناء وجود عملية حفظ.
+                if (docSnap.metadata?.hasPendingWrites) return;
 
                 if (docSnap.exists()) {
-                    const remoteData = docSnap.data();
-                    if (remoteData && remoteData.meals && remoteData.meals.length > 0) {
-                        window.db = {
-                            pricelist: remoteData.pricelist || [],
-                            meals: remoteData.meals || [],
-                            pendingMeals: remoteData.pendingMeals || [],
-                            pendingItems: remoteData.pendingItems || [],
-                            cancelledMeals: remoteData.cancelledMeals || [],
-                            auditLogs: remoteData.auditLogs || []
-                        };
-                        localStorage.setItem(window.STORAGE_KEY, JSON.stringify(window.db));
-                        
-                        if (typeof window.refreshAllUI === 'function') {
-                            window.refreshAllUI();
-                        }
-
-                        const statusEl = document.getElementById('cloudSyncStatus');
-                        if (statusEl) {
-                            statusEl.innerHTML = `<i class="fa-solid fa-cloud-check text-emerald-400"></i> <span>المزامنة السحابية متصلة وشغالة بنجاح 100%</span>`;
-                            statusEl.className = "bg-emerald-900/90 text-white text-[11px] font-bold px-4 py-1.5 text-center flex items-center justify-center gap-2 border-b border-emerald-700";
-                        }
-                    }
+                    const remote = normalizeCloudData(docSnap.data());
+                    lastRemoteState = cloneData(remote);
+                    window.db = cloneData(remote);
+                    localStorage.setItem(window.STORAGE_KEY || 'NAIF_FOODS_RECIPES_DB_V2026_MOBILE', JSON.stringify(window.db));
+                    firebaseReady = true;
+                    firebaseFirstSnapshot = false;
+                    if (typeof window.refreshAllUI === 'function') window.refreshAllUI();
+                    showCloudStatus('تم تحميل أحدث البيانات من السحابة');
                 } else {
+                    firebaseReady = true;
+                    firebaseFirstSnapshot = false;
+                    lastRemoteState = normalizeCloudData({});
                     window.syncToFirebase();
                 }
             }, (error) => {
-                console.warn("Firestore Rules Notice:", error);
-                const statusEl = document.getElementById('cloudSyncStatus');
-                if (statusEl) {
-                    statusEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-amber-300"></i> <span>تنبيه: قم بلصق قواعد القراءة والكتابة في Rules بـ Firebase واضغط Publish</span>`;
-                    statusEl.className = "bg-amber-900/90 text-white text-[11px] font-bold px-4 py-1.5 text-center flex items-center justify-center gap-2 border-b border-amber-700";
-                }
+                console.error('Firestore listener error:', error);
+                showCloudStatus(`تعذر قراءة البيانات السحابية: ${error.code || error.message}`, 'error');
             });
         }
 
         initFirebaseConnection();
 
-        window.syncToFirebase = async function() {
-            try {
-                window.isFirebaseSaving = true;
-                const statusEl = document.getElementById('cloudSyncStatus');
-                if (statusEl) {
-                    statusEl.innerHTML = `<i class="fa-solid fa-rotate text-red-300 animate-spin"></i> <span>جاري إرسال التعديل للسحابة...</span>`;
+        window.syncToFirebase = function() {
+            if (!firebaseReady) return Promise.resolve();
+            const localSnapshot = normalizeCloudData(window.db || {});
+            const baseSnapshot = cloneData(lastRemoteState || normalizeCloudData({}));
+            syncQueue = syncQueue.then(async () => {
+                try {
+                    showCloudStatus('جاري حفظ التعديلات ومزامنتها...');
+                    await runTransaction(dbFirestore, async (transaction) => {
+                        const snap = await transaction.get(docRef);
+                        const remote = normalizeCloudData(snap.exists() ? snap.data() : {});
+                        const merged = {};
+                        DB_ARRAY_KEYS.forEach(key => {
+                            merged[key] = mergeArrayChanges(baseSnapshot[key], localSnapshot[key], remote[key]);
+                        });
+                        merged.lastUpdatedBy = window.currentUser || 'النظام';
+                        merged.updatedAt = new Date().toISOString();
+                        transaction.set(docRef, merged, { merge: true });
+                        lastRemoteState = cloneData(merged);
+                    });
+                    window.db = cloneData(lastRemoteState);
+                    localStorage.setItem(window.STORAGE_KEY || 'NAIF_FOODS_RECIPES_DB_V2026_MOBILE', JSON.stringify(window.db));
+                    showCloudStatus('تم الحفظ والمزامنة السحابية بنجاح');
+                    if (typeof window.refreshAllUI === 'function') window.refreshAllUI();
+                } catch (err) {
+                    console.error('Error saving to Firebase:', err);
+                    showCloudStatus(`فشل الحفظ السحابي: ${err.code || err.message}`, 'error');
+                    throw err;
                 }
-                
-                await setDoc(docRef, {
-                    pricelist: window.db.pricelist || [],
-                    meals: window.db.meals || [],
-                    pendingMeals: window.db.pendingMeals || [],
-                    pendingItems: window.db.pendingItems || [],
-                    cancelledMeals: window.db.cancelledMeals || [],
-                    auditLogs: window.db.auditLogs || [],
-                    lastUpdatedBy: window.currentUser || 'النظام',
-                    updatedAt: new Date().toISOString()
-                }, { merge: true });
-
-                setTimeout(() => {
-                    if (statusEl) {
-                        statusEl.innerHTML = `<i class="fa-solid fa-cloud-check text-emerald-400"></i> <span>تم الحفظ والمزامنة السحابية بنجاح</span>`;
-                        statusEl.className = "bg-emerald-900/90 text-white text-[11px] font-bold px-4 py-1.5 text-center flex items-center justify-center gap-2 border-b border-emerald-700";
-                    }
-                }, 400);
-            } catch (err) {
-                console.warn("Error saving to Firebase:", err);
-                window.isFirebaseSaving = false;
-                const statusEl = document.getElementById('cloudSyncStatus');
-                if (statusEl) {
-                    statusEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-amber-300"></i> <span>تنبيه: اضغط Publish على Rules بـ Firebase لتأكيد تفعيل الحفظ السحابي</span>`;
-                    statusEl.className = "bg-amber-900/90 text-white text-[11px] font-bold px-4 py-1.5 text-center flex items-center justify-center gap-2 border-b border-amber-700";
-                }
-            }
+            }).catch(err => {
+                console.error('Queued Firebase save failed:', err);
+            });
+            return syncQueue;
         };
     </script>
 
     <script>
         const STORAGE_KEY = 'NAIF_FOODS_RECIPES_DB_V2026_MOBILE';
+        window.STORAGE_KEY = STORAGE_KEY;
         const SESSION_USER_KEY = 'NAIF_FOODS_ACTIVE_SESSION_USER';
         
         // رابط ملف الـ Raw المباشر من GitHub لجلب النسخة الاحتياطية عند الحاجة
@@ -622,6 +652,7 @@
         window.addEventListener('DOMContentLoaded', async () => {
             await loadDatabase();
             restoreActiveSession();
+            refreshAllUI();
             switchTab('recipes');
         });
 
@@ -714,6 +745,8 @@
         window.switchTab = switchTab;
         window.openNewRecipeModal = openNewRecipeModal;
         window.openRecipeEditModal = openRecipeEditModal;
+        window.openUserMealEditModal = openUserMealEditModal;
+        window.openDuplicateRecipeModal = openDuplicateRecipeModal;
         window.saveModalRecipeChanges = saveModalRecipeChanges;
         window.addIngredientRowToModal = addIngredientRowToModal;
         window.onItemInputChanged = onItemInputChanged;
@@ -785,11 +818,16 @@
             }
         }
 
+        let cloudSaveTimer = null;
         function saveDatabase() {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(window.db));
             updateBadges();
+            // تجميع عمليات الحفظ المتتالية (مثل حفظ الحركة ثم حفظ الوجبة) في دفعة واحدة.
             if (typeof window.syncToFirebase === 'function') {
-                window.syncToFirebase();
+                clearTimeout(cloudSaveTimer);
+                cloudSaveTimer = setTimeout(() => {
+                    window.syncToFirebase().catch(err => console.error('Cloud sync pending/retry:', err));
+                }, 250);
             }
         }
 
@@ -1022,9 +1060,10 @@
                             <div>
                                 <h3 class="font-extrabold text-base sm:text-lg text-white flex items-center gap-2">
                                     <span>${meal.name || 'وجبة بدون اسم'}</span>
-                                    <button onclick="editMealNameDirect('${meal.name || ''}', ${realMealIndex})" class="text-[11px] bg-naifRed-800 hover:bg-naifRed-950 px-2 py-0.5 rounded text-red-200 no-print active:scale-95">
+                                    ${canEditAll ? `
+                                    <button onclick="editMealNameDirect('${String(meal.name || '').replace(/'/g, '&#39;')}', ${realMealIndex})" class="text-[11px] bg-naifRed-800 hover:bg-naifRed-950 px-2 py-0.5 rounded text-red-200 no-print active:scale-95">
                                         <i class="fa-solid fa-pen"></i> <span class="hidden sm:inline">تعديل الاسم</span>
-                                    </button>
+                                    </button>` : ''}
                                 </h3>
                             </div>
                         </div>
@@ -1138,7 +1177,14 @@
                             <button onclick="openRecipeEditModal(${realMealIndex})" class="bg-naifRed-900 hover:bg-naifRed-800 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1 shadow active:scale-95">
                                 <i class="fa-solid fa-pen-to-square"></i> تعديل المكونات
                             </button>
-                        ` : '<span class="text-xs text-slate-400 font-bold">عرض فقط</span>'}
+                        ` : `
+                            <button onclick="openUserMealEditModal(${realMealIndex})" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1 shadow active:scale-95">
+                                <i class="fa-solid fa-pen-to-square"></i> طلب تعديل الوجبة
+                            </button>
+                        `}
+                        <button onclick="openDuplicateRecipeModal(${realMealIndex})" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1 shadow active:scale-95">
+                            <i class="fa-solid fa-copy"></i> تكرار الوجبة
+                        </button>
 
                         <div class="flex items-center gap-2 mr-auto">
                             <button onclick="requestCancelMeal(${realMealIndex})" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1 shadow active:scale-95">
@@ -1165,13 +1211,23 @@
         }
 
         function editMealNameDirect(currentName, index) {
+            if (currentUser !== 'Yasser' && currentUser !== 'الادارة') {
+                alert('تعديل الاسم المباشر متاح للإدارة فقط. يمكنك إرسال طلب تعديل من بطاقة الوجبة.');
+                return;
+            }
             const newName = prompt('أدخل اسم الوجبة الجديد:', currentName);
             if (!newName || !newName.trim()) return;
             const trimmed = newName.trim();
-            db.meals[index].name = trimmed;
+            const meal = db.meals[index];
+            if (!meal) return;
+            if (mealNameExists(trimmed, meal.id)) {
+                alert('اسم الوجبة مستخدم بالفعل. يرجى اختيار اسم مختلف.');
+                return;
+            }
+            meal.name = trimmed;
             saveDatabase();
             addAuditLog('تعديل مسمى وجبة', `تغير الاسم من [${currentName}] إلى [${trimmed}] بواسطة ${currentUser}`);
-            renderRecipeCards();
+            refreshAllUI();
         }
 
         function openNewRecipeModal() {
@@ -1194,34 +1250,58 @@
         }
 
         function openRecipeEditModal(index) {
-            if (currentUser === 'مستخدم') {
-                alert('عذراً! لا تمتلك صلاحية تعديل مكونات الوجبة');
+            if (currentUser !== 'Yasser' && currentUser !== 'الادارة') {
+                alert('لا تمتلك صلاحية تعديل الوجبات المعتمدة مباشرة');
                 return;
             }
             const meal = db.meals[index];
             if (!meal) return;
+            prepareMealModal('edit', meal, index, false);
+        }
 
-            document.getElementById('modalTitle').innerText = 'تعديل مكونات الوجبة والتكاليف';
-            document.getElementById('modalMode').value = 'edit';
+        function openUserMealEditModal(index) {
+            if (currentUser !== 'مستخدم') return;
+            const meal = db.meals[index];
+            if (!meal) return;
+            prepareMealModal('userEdit', meal, index, true);
+        }
+
+        function openDuplicateRecipeModal(index) {
+            const meal = db.meals[index];
+            if (!meal) return;
+            const copy = {
+                ...JSON.parse(JSON.stringify(meal)),
+                id: null,
+                name: '',
+                sellingPrice: 0,
+                ingredients: (meal.ingredients || []).map(x => ({...x}))
+            };
+            prepareMealModal('duplicate', copy, '', currentUser === 'مستخدم');
+            document.getElementById('modalTitle').innerText = 'تكرار الوجبة - أدخل اسماً وسعر بيع جديداً';
+        }
+
+        function prepareMealModal(mode, meal, index, hidePrice) {
+            document.getElementById('modalTitle').innerText =
+                mode === 'userEdit' ? 'طلب تعديل وجبة معتمدة' :
+                mode === 'duplicate' ? 'تكرار وجبة جديدة' :
+                mode === 'edit' ? 'تعديل مكونات الوجبة والتكاليف' : 'إضافة وجبة جديدة';
+            document.getElementById('modalMode').value = mode;
             document.getElementById('editMealIndex').value = index;
-            document.getElementById('editMealName').value = meal.name;
-            document.getElementById('editMealPrice').value = meal.sellingPrice || 0;
+            document.getElementById('editMealName').value = meal.name || '';
+            document.getElementById('editMealPrice').value = mode === 'duplicate' ? '' : (meal.sellingPrice ?? '');
+            document.getElementById('editMealPrice').readOnly = hidePrice;
+            document.getElementById('editMealPrice').classList.toggle('bg-slate-200', hidePrice);
+            document.getElementById('editMealPrice').title = hidePrice ? 'سعر البيع لا يمكن للمستخدم تغييره' : '';
 
             const priceHeader = document.querySelector('.col-price-header');
-            if (priceHeader) {
-                if (currentUser === 'مستخدم') priceHeader.classList.add('hidden');
-                else priceHeader.classList.remove('hidden');
-            }
+            if (priceHeader) priceHeader.classList.toggle('hidden', hidePrice);
 
             const tbody = document.getElementById('modalIngredientsTableBody');
             tbody.innerHTML = '';
-
-            if (meal.ingredients && Array.isArray(meal.ingredients)) {
-                meal.ingredients.forEach((ing) => {
-                    addIngredientRowToModal(ing.item, ing.location, ing.unit, ing.qty, ing.price);
-                });
-            }
-
+            (meal.ingredients || []).forEach(ing =>
+                addIngredientRowToModal(ing.item, ing.location, ing.unit, ing.qty, ing.price)
+            );
+            if (!meal.ingredients?.length) addIngredientRowToModal();
             document.getElementById('recipeEditModal').classList.remove('hidden');
         }
 
@@ -1311,81 +1391,99 @@
             }
         }
 
+        function mealNameExists(name, excludeId = null) {
+            const key = String(name || '').trim().toLocaleLowerCase();
+            return [...(db.meals || []), ...(db.pendingMeals || [])].some(m =>
+                String(m.name || '').trim().toLocaleLowerCase() === key &&
+                String(m.id) !== String(excludeId) &&
+                String(m.targetMealId || '') !== String(excludeId)
+            );
+        }
+
         function saveModalRecipeChanges() {
             const mode = document.getElementById('modalMode').value;
             const newName = document.getElementById('editMealName').value.trim();
-            const newPrice = parseFloat(document.getElementById('editMealPrice').value) || 0;
+            const indexValue = document.getElementById('editMealIndex').value;
+            const original = (mode === 'edit' || mode === 'userEdit') ? db.meals[Number(indexValue)] : null;
+            const newPriceInput = document.getElementById('editMealPrice');
+            const newPrice = (mode === 'userEdit' || (mode === 'edit' && currentUser === 'مستخدم'))
+                ? Number(original?.sellingPrice || 0)
+                : (parseFloat(newPriceInput.value) || 0);
 
-            if (!newName) {
-                alert('يرجى إدخال اسم الوجبة');
+            if (!newName) { alert('يرجى إدخال اسم الوجبة'); return; }
+            const excludedId = original?.id ?? null;
+            if (mealNameExists(newName, excludedId)) {
+                alert('اسم الوجبة مستخدم بالفعل. يرجى اختيار اسم مختلف.');
                 return;
             }
 
             const rows = document.querySelectorAll('#modalIngredientsTableBody tr');
             const newIngredients = [];
             const newPendingItems = [];
-
             rows.forEach(tr => {
-                const item = tr.querySelector('.ing-item').value.trim();
+                const itemEl = tr.querySelector('.ing-item');
+                if (!itemEl) return;
+                const item = itemEl.value.trim();
                 const location = tr.querySelector('.ing-location').value;
                 const unit = tr.querySelector('.ing-unit').value.trim();
                 const qty = parseFloat(tr.querySelector('.ing-qty').value) || 0;
                 const priceEl = tr.querySelector('.ing-price');
                 const price = priceEl ? (parseFloat(priceEl.value) || 0) : 0;
-
-                if (item) {
-                    newIngredients.push({ item, location, unit, qty, price, total: qty * price });
-                    
-                    const existsInPriceList = db.pricelist.some(p => p.item === item);
-                    const existsInPending = db.pendingItems.some(pi => pi.item === item);
-                    if (!existsInPriceList && !existsInPending) {
-                        newPendingItems.push({
-                            id: Date.now() + Math.random(),
-                            item: item,
-                            unit: unit,
-                            createdBy: currentUser,
-                            date: new Date().toLocaleDateString('en-GB')
-                        });
-                    }
+                if (!item) return;
+                newIngredients.push({ item, location, unit, qty, price, total: qty * price });
+                const existsInPriceList = (db.pricelist || []).some(p => p.item === item);
+                const existsInPending = (db.pendingItems || []).some(pi => pi.item === item);
+                if (!existsInPriceList && !existsInPending) {
+                    newPendingItems.push({
+                        id: `pi_${Date.now()}_${Math.random().toString(36).slice(2,8)}`,
+                        item, unit, createdBy: currentUser,
+                        date: new Date().toLocaleDateString('en-GB')
+                    });
                 }
             });
 
-            if (newIngredients.length === 0) {
-                alert('يرجى إضافة مكون واحد على الأقل للوجبة');
-                return;
-            }
+            if (!newIngredients.length) { alert('يرجى إضافة مكون واحد على الأقل للوجبة'); return; }
+            if (!db.pendingItems) db.pendingItems = [];
+            const pendingIds = new Set(db.pendingItems.map(x => x.item));
+            db.pendingItems.push(...newPendingItems.filter(x => !pendingIds.has(x.item)));
 
-            if (newPendingItems.length > 0) {
-                if (!db.pendingItems) db.pendingItems = [];
-                db.pendingItems.push(...newPendingItems);
-            }
-
+            const isUser = currentUser === 'مستخدم';
             const mealData = {
-                id: Date.now(),
+                id: (mode === 'edit' && original?.id) ? original.id : `meal_${Date.now()}_${Math.random().toString(36).slice(2,8)}`,
                 name: newName,
                 sellingPrice: newPrice,
                 ingredients: newIngredients,
-                createdBy: currentUser
+                createdBy: currentUser,
+                updatedAt: new Date().toISOString()
             };
 
-            if (currentUser === 'Yasser' || currentUser === 'الادارة') {
-                if (mode === 'add') {
-                    db.meals.unshift(mealData);
-                    addAuditLog('إضافة وجبة', `تمت إضافة وجبة جديدة [${newName}] بواسطة ${currentUser}`);
-                } else {
-                    const index = document.getElementById('editMealIndex').value;
-                    db.meals[index] = mealData;
-                    addAuditLog('تعديل وجبة', `تم تعديل وجبة [${newName}] بواسطة ${currentUser}`);
-                }
-                renderRecipeCards();
-            } else {
+            if (mode === 'userEdit') {
+                mealData.requestType = 'update';
+                mealData.targetMealId = original.id;
+                mealData.originalMealName = original.name;
+                mealData.createdBy = currentUser;
                 db.pendingMeals.unshift(mealData);
-                addAuditLog('طلب إضافة/تعديل وجبة', `قام ${currentUser} بإضافة وجبة [${newName}] بانتظار الاعتماد`);
-                alert('تم إرسال الوجبة بنجاح إلى قائمة (وجبات قيد الاعتماد).');
-                renderPendingMeals();
+                addAuditLog('طلب تعديل وجبة معتمدة', `أرسل ${currentUser} تعديلات على الوجبة [${original.name}]`);
+                alert('تم إرسال تعديل الوجبة إلى صفحة الاعتماد، وستبقى النسخة الحالية معتمدة حتى الموافقة.');
+            } else if (isUser) {
+                mealData.requestType = 'add';
+                db.pendingMeals.unshift(mealData);
+                addAuditLog('طلب إضافة وجبة', `قام ${currentUser} بإضافة وجبة [${newName}] بانتظار الاعتماد`);
+                alert('تم إرسال الوجبة بنجاح إلى قائمة وجبات قيد الاعتماد.');
+            } else if (mode === 'edit') {
+                const targetIndex = db.meals.findIndex(m => String(m.id) === String(original.id));
+                if (targetIndex < 0) { alert('تعذر العثور على الوجبة الأصلية؛ حدّث الصفحة وحاول مجدداً.'); return; }
+                db.meals[targetIndex] = { ...original, ...mealData };
+                addAuditLog('تعديل وجبة', `تم تعديل وجبة [${newName}] بواسطة ${currentUser}`);
+            } else {
+                mealData.requestType = 'add';
+                db.meals.unshift(mealData);
+                addAuditLog(mode === 'duplicate' ? 'تكرار وجبة' : 'إضافة وجبة',
+                    `${mode === 'duplicate' ? 'تم تكرار' : 'تمت إضافة'} وجبة [${newName}] بواسطة ${currentUser}`);
             }
 
             saveDatabase();
+            refreshAllUI();
             closeModal('recipeEditModal');
         }
 
@@ -1425,7 +1523,7 @@
                         <div>
                             <h3 class="font-black text-base sm:text-lg text-naifRed-900 flex items-center gap-2">
                                 <span>${meal.name}</span>
-                                <span class="text-[10px] bg-amber-100 text-amber-900 px-2.5 py-0.5 rounded-full font-bold">بانتظار الموافقة</span>
+                                <span class="text-[10px] bg-amber-100 text-amber-900 px-2.5 py-0.5 rounded-full font-bold">${meal.requestType === 'update' ? 'طلب تعديل وجبة' : 'وجبة جديدة'}</span>
                             </h3>
                             <p class="text-xs text-slate-500 mt-1">أُضيف بواسطة: <strong class="text-amber-800">${meal.createdBy}</strong> | سعر البيع: <strong class="text-emerald-700 font-mono text-sm">${formatPrice(meal.sellingPrice, 3)}</strong> ${hidePrices ? '' : `| التكلفة التقديرية: <strong class="text-rose-700 font-mono text-sm">${formatPrice(mainCost, 3)}</strong>`}</p>
                         </div>
@@ -1435,9 +1533,11 @@
                                     <i class="fa-solid fa-check"></i> اعتماد الوجبة
                                 </button>
                             ` : '<span class="text-xs font-bold text-amber-600 bg-amber-50 px-3 py-1 rounded-lg">قيد الانتظار</span>'}
-                            <button onclick="rejectPendingMeal(${idx})" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-3 py-2 rounded-xl shadow active:scale-95 flex items-center gap-1">
-                                <i class="fa-solid fa-xmark"></i> رفض وحذف
-                            </button>
+                            ${currentUser === 'Yasser' || currentUser === 'الادارة' ? `
+                                <button onclick="rejectPendingMeal(${idx})" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-3 py-2 rounded-xl shadow active:scale-95 flex items-center gap-1">
+                                    <i class="fa-solid fa-xmark"></i> رفض وحذف
+                                </button>
+                            ` : ''}
                         </div>
                     </div>
 
@@ -1509,7 +1609,7 @@
 
             if (db.meals) {
                 db.meals.forEach(m => {
-                    m.ingredients.forEach(i => {
+                    (m.ingredients || []).forEach(i => {
                         if (i.item === itemObj.item) {
                             i.price = priceVal;
                             i.total = i.qty * priceVal;
@@ -1528,21 +1628,50 @@
 
         function approvePendingMeal(idx) {
             if (currentUser !== 'Yasser' && currentUser !== 'الادارة') return;
-            const meal = db.pendingMeals.splice(idx, 1)[0];
-            db.meals.unshift(meal);
+            const meal = db.pendingMeals[idx];
+            if (!meal) return;
+            if (meal.requestType === 'update' && meal.targetMealId) {
+                const targetIndex = db.meals.findIndex(m => String(m.id) === String(meal.targetMealId));
+                if (targetIndex < 0) {
+                    alert('لم يتم العثور على الوجبة الأصلية. لم يتم حذف طلب التعديل.');
+                    return;
+                }
+                const old = db.meals[targetIndex];
+                db.meals[targetIndex] = {
+                    ...old, ...meal, id: old.id,
+                    createdBy: old.createdBy,
+                    approvedBy: currentUser,
+                    approvedAt: new Date().toISOString()
+                };
+                delete db.meals[targetIndex].requestType;
+                delete db.meals[targetIndex].targetMealId;
+                delete db.meals[targetIndex].originalMealName;
+                db.pendingMeals.splice(idx, 1);
+                addAuditLog('اعتماد تعديل وجبة', `تم اعتماد تعديل الوجبة [${meal.name}] بواسطة ${currentUser}`);
+                saveDatabase(); refreshAllUI();
+                alert('تم اعتماد التعديلات وتحديث الوجبة الأصلية.');
+                return;
+            }
+            db.pendingMeals.splice(idx, 1);
+            const approvedMeal = { ...meal, approvedBy: currentUser, approvedAt: new Date().toISOString() };
+            delete approvedMeal.requestType;
+            db.meals.unshift(approvedMeal);
             saveDatabase();
             addAuditLog('اعتماد وجبة', `تم اعتماد وجبة [${meal.name}] رسمياً بواسطة ${currentUser}`);
-            renderPendingMeals();
-            renderRecipeCards();
+            refreshAllUI();
             alert('تم اعتماد الوجبة وإضافتها للرئيسية بنجاح!');
         }
 
         function rejectPendingMeal(idx) {
-            const meal = db.pendingMeals.splice(idx, 1)[0];
+            if (currentUser !== 'Yasser' && currentUser !== 'الادارة') return;
+            const meal = db.pendingMeals[idx];
+            if (!meal) return;
+            if (!confirm(`هل تريد رفض ${meal.requestType === 'update' ? 'تعديل' : 'الوجبة'} [${meal.name}]؟`)) return;
+            db.pendingMeals.splice(idx, 1);
             saveDatabase();
-            addAuditLog('رفض وجبة', `تم رفض وجبة [${meal.name}] بواسطة ${currentUser}`);
-            renderPendingMeals();
-            alert('تم رفض وحذف الوجبة.');
+            addAuditLog('رفض وجبة/تعديل', `تم رفض الطلب [${meal.name}] بواسطة ${currentUser}`);
+            refreshAllUI();
+            alert('تم رفض الطلب.');
         }
 
         function requestCancelMeal(index) {
