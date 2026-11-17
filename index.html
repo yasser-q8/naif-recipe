@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>شركة نايف للأغذية - نظام إدارة الوجبات والريسبي</title>
 
    <!-- أيقونة الموقع العادية والآيفون -->
@@ -50,10 +50,29 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
+        html { min-height: 100%; }
         body { 
             font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif; 
             background-color: #fff5f2;
             -webkit-tap-highlight-color: transparent;
+            -webkit-text-size-adjust: 100%;
+            overscroll-behavior-y: contain;
+        }
+        .mobile-bottom-nav { display:none; }
+        .pending-user-new { border-color:#60a5fa !important; background:linear-gradient(135deg,#eff6ff,#fff 65%); box-shadow:0 0 0 2px rgba(59,130,246,.12),0 8px 24px rgba(37,99,235,.12); }
+        .pending-user-update { border-color:#f59e0b !important; background:linear-gradient(135deg,#fffbeb,#fff 65%); box-shadow:0 0 0 2px rgba(245,158,11,.16),0 8px 24px rgba(217,119,6,.14); animation:pendingPulse 2.4s ease-in-out infinite; }
+        @keyframes pendingPulse { 0%,100% { box-shadow:0 0 0 2px rgba(245,158,11,.14),0 8px 24px rgba(217,119,6,.12); } 50% { box-shadow:0 0 0 5px rgba(245,158,11,.22),0 10px 28px rgba(217,119,6,.20); } }
+        .pending-change-summary { background:#fff7ed; border:1px dashed #f59e0b; color:#92400e; border-radius:12px; padding:10px 12px; font-size:12px; line-height:1.8; }
+        @media (max-width: 767px) {
+            body { padding-bottom: calc(78px + env(safe-area-inset-bottom)); min-height:100dvh; }
+            .mobile-bottom-nav { display:flex; position:fixed; left:0; right:0; bottom:0; z-index:45; padding:7px 8px calc(7px + env(safe-area-inset-bottom)); background:rgba(255,255,255,.97); border-top:1px solid #fecaca; box-shadow:0 -5px 22px rgba(15,23,42,.12); backdrop-filter:blur(14px); justify-content:space-around; gap:4px; }
+            .mobile-bottom-nav button { min-width:0; min-height:48px; flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; border-radius:12px; color:#475569; font-size:10px; font-weight:800; }
+            .mobile-bottom-nav button i { font-size:17px; }
+            .mobile-bottom-nav button.active { background:#fee2e2; color:#991b1b; }
+            main { min-width:0; }
+            .tab-view { min-width:0; }
+            .tab-view table { -webkit-overflow-scrolling:touch; }
+            .signature-card { bottom:calc(84px + env(safe-area-inset-bottom)); }
         }
 
         ::-webkit-scrollbar { width: 5px; height: 5px; }
@@ -193,7 +212,7 @@
     <div id="mobileSidebarOverlay" onclick="toggleMobileSidebar()" class="fixed inset-0 bg-black/50 z-20 hidden md:hidden transition-opacity"></div>
 
     <!-- الحاوية الرئيسية -->
-    <div class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 flex flex-col md:flex-row gap-4 sm:gap-6">
+    <div class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 pb-24 md:pb-6 flex flex-col md:flex-row gap-4 sm:gap-6">
 
         <!-- القائمة الجانبية -->
         <aside id="mainSidebar" class="w-full md:w-64 bg-white rounded-2xl shadow-lg border border-red-100 p-3 shrink-0 self-start sticky top-20 hidden md:block z-30 transition-all duration-300">
@@ -385,7 +404,7 @@
 
                 <div class="bg-white rounded-2xl border border-red-100 shadow-sm overflow-hidden">
                     <div class="overflow-x-auto">
-                        <table class="w-full text-right text-xs min-w-[550px]">
+                        <table class="w-full text-right text-xs min-w-[900px]">
                             <thead class="bg-naifRed-950 text-white font-bold">
                                 <tr>
                                     <th class="p-3 text-center" id="thLogSelect"><input type="checkbox" onchange="toggleSelectAllLogs(this)"></th>
@@ -393,6 +412,7 @@
                                     <th class="p-3">المستخدم</th>
                                     <th class="p-3">نوع الحركة</th>
                                     <th class="p-3">تفاصيل الإجراء</th>
+                                    <th class="p-3">الجهاز والمتصفح والموقع التقريبي</th>
                                 </tr>
                             </thead>
                             <tbody id="auditLogTableBody" class="divide-y divide-slate-100"></tbody>
@@ -403,6 +423,14 @@
 
         </main>
     </div>
+
+    <!-- شريط تنقل سفلي ثابت للموبايل والآيفون -->
+    <nav id="mobileBottomNav" class="mobile-bottom-nav no-print" aria-label="التنقل الرئيسي">
+        <button id="bottomNavRecipes" onclick="switchTab('recipes')" type="button"><i class="fa-solid fa-utensils"></i><span>الوجبات</span></button>
+        <button id="bottomNavPending" onclick="switchTab('pending')" type="button"><i class="fa-solid fa-hourglass-half"></i><span>الاعتماد</span><span id="bottomPendingBadge" class="text-[9px] bg-amber-100 text-amber-800 rounded-full px-1.5">0</span></button>
+        <button id="bottomNavReports" onclick="switchTab('reports')" type="button"><i class="fa-solid fa-chart-line"></i><span>التقارير</span></button>
+        <button id="bottomNavMenu" onclick="toggleMobileSidebar()" type="button"><i class="fa-solid fa-bars"></i><span>المزيد</span></button>
+    </nav>
 
     <!-- مودال إضافة / تعديل الوجبة -->
     <div id="recipeEditModal" class="fixed inset-0 bg-naifRed-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4 hidden">
@@ -854,6 +882,7 @@
                 if (userDisplay) userDisplay.innerText = currentUser;
 
                 applyPermissions();
+                addAuditLog('فتح الموقع / استئناف جلسة', `فتح ${currentUser} الموقع أو استأنف جلسته على هذا الجهاز`);
             } else {
                 const loginScreen = document.getElementById('loginScreen');
                 if (loginScreen) loginScreen.classList.remove('hidden');
@@ -1037,6 +1066,8 @@
             const piBadge = document.getElementById('pendingItemsBadge');
             const cBadge = document.getElementById('cancelledBadge');
             if (pBadge) pBadge.innerText = window.db.pendingMeals ? window.db.pendingMeals.length : 0;
+            const bottomPending = document.getElementById('bottomPendingBadge');
+            if (bottomPending) bottomPending.innerText = window.db.pendingMeals ? window.db.pendingMeals.length : 0;
             if (piBadge) piBadge.innerText = window.db.pendingItems ? window.db.pendingItems.length : 0;
             if (cBadge) cBadge.innerText = window.db.cancelledMeals ? window.db.cancelledMeals.length : 0;
         }
@@ -1062,6 +1093,8 @@
             const navAudit = document.getElementById('nav-auditlog');
             const navPendingItems = document.getElementById('nav-pendingItems');
 
+            const bottomReports = document.getElementById('bottomNavReports');
+            if (bottomReports) bottomReports.style.display = currentUser === 'مستخدم' ? 'none' : 'flex';
             if (currentUser === 'Yasser') {
                 if (navPricelist) navPricelist.style.display = 'flex';
                 if (navReports) navReports.style.display = 'flex';
@@ -1072,7 +1105,7 @@
             } else if (currentUser === 'الادارة') {
                 if (navPricelist) navPricelist.style.display = 'none';
                 if (navReports) navReports.style.display = 'flex';
-                if (navAudit) navAudit.style.display = 'flex';
+                if (navAudit) navAudit.style.display = 'none';
                 if (navPendingItems) navPendingItems.classList.add('hidden');
                 btnImport.classList.add('hidden');
                 btnRestore.classList.add('hidden');
@@ -1096,24 +1129,83 @@
             }
         }
 
-        function addAuditLog(actionType, details) {
+        function escapeAuditHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+        }
+
+        function getDeviceAuditInfo() {
+            const ua = navigator.userAgent || '';
+            const platform = navigator.userAgentData?.platform || navigator.platform || 'غير محدد';
+            const isIPad = /iPad/i.test(ua) || (navigator.platform === 'MacIntel' && Number(navigator.maxTouchPoints || 0) > 1);
+            let deviceType = isIPad || /Tablet/i.test(ua) ? 'جهاز لوحي' : (/iPhone|iPod|Android.*Mobile/i.test(ua) ? 'هاتف' : (/Android/i.test(ua) ? 'جهاز لوحي/هاتف Android' : 'كمبيوتر'));
+            let os = /iPhone|iPad|iPod/i.test(ua) ? 'iOS / iPadOS' : (/Android/i.test(ua) ? 'Android' : (/Windows/i.test(ua) ? 'Windows' : (/Mac OS X|Macintosh/i.test(ua) ? 'macOS' : (/Linux/i.test(ua) ? 'Linux' : platform))));
+            let browser = /Edg(e|A|iOS)?\//i.test(ua) ? 'Microsoft Edge' : (/CriOS|Chrome\//i.test(ua) ? 'Google Chrome' : (/FxiOS|Firefox\//i.test(ua) ? 'Firefox' : (/Safari\//i.test(ua) ? 'Safari' : 'متصفح غير محدد')));
+            let timeZone = 'غير متاح';
+            try { timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || timeZone; } catch (_) {}
+            const locale = navigator.language || 'غير محدد';
+            const screenSize = (window.screen?.width && window.screen?.height) ? `${screen.width}×${screen.height}` : 'غير متاح';
+            const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+            const network = connection?.effectiveType || connection?.type || 'غير محدد';
+            // لا يتم طلب GPS أو صلاحية الموقع. المنطقة هنا تقدير واسع من إعداد المنطقة الزمنية فقط.
+            let approximateLocation = `غير متاح بدقة؛ المنطقة الزمنية: ${timeZone}`;
+            if (/^Asia\/Kuwait$/i.test(timeZone)) approximateLocation = 'تقدير المنطقة: الكويت (من إعداد المنطقة الزمنية، وليس GPS)';
+            else if (/^Asia\//i.test(timeZone)) approximateLocation = `تقدير إقليمي: آسيا (${timeZone})؛ لا تتوفر مدينة دقيقة`;
+            else if (/^Europe\//i.test(timeZone)) approximateLocation = `تقدير إقليمي: أوروبا (${timeZone})؛ لا تتوفر مدينة دقيقة`;
+            else if (/^America\//i.test(timeZone)) approximateLocation = `تقدير إقليمي: الأمريكتان (${timeZone})؛ لا تتوفر مدينة دقيقة`;
+            return { deviceType, os, browser, platform, timeZone, locale, screenSize, network, approximateLocation, userAgent: ua.slice(0, 180) };
+        }
+
+        function ingredientKey(ing) {
+            return [ing?.item || '', ing?.location || 'ALL', ing?.unit || ''].join('|');
+        }
+
+        function describeMealChanges(oldMeal, newMeal) {
+            if (!oldMeal) {
+                const lines = (newMeal?.ingredients || []).map(i => `${i.item} (${formatQty(i.qty)} ${i.unit || ''}، ${i.location || 'ALL'}، سعر الوحدة ${formatPrice(i.price,5)})`);
+                return `إنشاء وجبة [${newMeal?.name || ''}]؛ سعر البيع: ${formatPrice(newMeal?.sellingPrice,3)}؛ المكونات (${lines.length}): ${lines.join('؛ ')}`;
+            }
+            const changes = [];
+            if ((oldMeal.name || '') !== (newMeal.name || '')) changes.push(`اسم الوجبة: [${oldMeal.name || ''}] ← [${newMeal.name || ''}]`);
+            if (Number(oldMeal.sellingPrice || 0) !== Number(newMeal.sellingPrice || 0)) changes.push(`سعر البيع: ${formatPrice(oldMeal.sellingPrice,3)} ← ${formatPrice(newMeal.sellingPrice,3)}`);
+            const oldMap = new Map((oldMeal.ingredients || []).map(i => [ingredientKey(i), i]));
+            const newMap = new Map((newMeal.ingredients || []).map(i => [ingredientKey(i), i]));
+            for (const [key, item] of newMap) {
+                const before = oldMap.get(key);
+                if (!before) changes.push(`إضافة مكون: ${item.item}، كمية ${formatQty(item.qty)} ${item.unit || ''}، موقع ${item.location || 'ALL'}، سعر ${formatPrice(item.price,5)}`);
+                else {
+                    if (Number(before.qty || 0) !== Number(item.qty || 0)) changes.push(`تعديل كمية ${item.item}: ${formatQty(before.qty)} ← ${formatQty(item.qty)} ${item.unit || ''}`);
+                    if (Number(before.price || 0) !== Number(item.price || 0)) changes.push(`تعديل سعر مكون ${item.item}: ${formatPrice(before.price,5)} ← ${formatPrice(item.price,5)}`);
+                }
+            }
+            for (const [key, item] of oldMap) if (!newMap.has(key)) changes.push(`حذف مكون: ${item.item} (الكمية السابقة ${formatQty(item.qty)} ${item.unit || ''})`);
+            return changes.length ? changes.join('؛ ') : 'تم حفظ تعديل دون اختلاف ظاهر في الاسم أو السعر أو المكونات';
+        }
+
+        function addAuditLog(actionType, details, extra = {}) {
+            if (!db.auditLogs) db.auditLogs = [];
             const now = new Date();
             const dateStr = now.toLocaleDateString('en-GB') + ' ' + now.toLocaleTimeString('en-GB');
+            const device = getDeviceAuditInfo();
             db.auditLogs.unshift({
-                id: Date.now() + Math.random(),
+                id: `log_${Date.now()}_${Math.random().toString(36).slice(2,9)}`,
                 date: dateStr,
+                timestamp: now.toISOString(),
                 user: currentUser || 'النظام',
                 type: actionType,
-                details: details
+                details: String(details || ''),
+                device,
+                approximateLocation: device.approximateLocation,
+                ...extra
             });
-
-            if (db.auditLogs.length > 1000) {
-                db.auditLogs = db.auditLogs.slice(0, 1000);
-            }
+            if (db.auditLogs.length > 1000) db.auditLogs = db.auditLogs.slice(0, 1000);
             saveDatabase();
         }
 
         function switchTab(tabId) {
+            if (tabId === 'auditlog' && currentUser !== 'Yasser') {
+                alert('سجل الحركات متاح لحساب Yasser فقط.');
+                return;
+            }
             if ((currentUser === 'ادمن' || currentUser === 'مستخدم') && tabId === 'pricelist') {
                 alert('عذراً! لا تمتلك صلاحية الدخول لشاشة دليل الأسعار والأصناف');
                 return;
@@ -1133,6 +1225,10 @@
             document.getElementById(`view-${tabId}`).classList.remove('hidden');
             const activeNav = document.getElementById(`nav-${tabId}`);
             if (activeNav) activeNav.classList.add('bg-red-100', 'text-naifRed-900');
+            document.querySelectorAll('.mobile-bottom-nav button').forEach(b => b.classList.remove('active'));
+            const bottomMap = { recipes:'bottomNavRecipes', pending:'bottomNavPending', reports:'bottomNavReports' };
+            const bottomActive = document.getElementById(bottomMap[tabId]);
+            if (bottomActive) bottomActive.classList.add('active');
 
             if (tabId === 'reports') renderReportsTable();
             if (tabId === 'pending') renderPendingMeals();
@@ -1436,9 +1532,11 @@
                 alert('اسم الوجبة مستخدم بالفعل. يرجى اختيار اسم مختلف.');
                 return;
             }
+            const oldName = meal.name;
             meal.name = trimmed;
+            meal.updatedAt = new Date().toISOString();
+            addAuditLog('تعديل مسمى وجبة', `قام ${currentUser} بتغيير اسم الوجبة من [${oldName}] إلى [${trimmed}]`);
             saveDatabase();
-            addAuditLog('تعديل مسمى وجبة', `تغير الاسم من [${currentName}] إلى [${trimmed}] بواسطة ${currentUser}`);
             refreshAllUI();
         }
 
@@ -1675,28 +1773,30 @@
                 mealData.requestType = 'update';
                 mealData.targetMealId = original.id;
                 mealData.originalMealName = original.name;
+                mealData.previousVersion = { name: original.name, sellingPrice: original.sellingPrice || 0, ingredients: JSON.parse(JSON.stringify(original.ingredients || [])) };
+                mealData.changeSummary = describeMealChanges(original, mealData);
                 mealData.createdBy = currentUser;
                 db.pendingMeals.unshift(mealData);
                 currentPage = 1;
-                addAuditLog('طلب تعديل وجبة معتمدة', `أرسل ${currentUser} تعديلات على الوجبة [${original.name}]`);
+                addAuditLog('طلب تعديل وجبة معتمدة', `طلب ${currentUser} تعديل الوجبة [${original.name}] إلى [${newName}]. التفاصيل: ${mealData.changeSummary}`);
                 alert('تم إرسال تعديل الوجبة إلى صفحة الاعتماد، وستبقى النسخة الحالية معتمدة حتى الموافقة.');
             } else if (isUser) {
                 mealData.requestType = 'add';
                 db.pendingMeals.unshift(mealData);
                 currentPage = 1;
-                addAuditLog('طلب إضافة وجبة', `قام ${currentUser} بإضافة وجبة [${newName}] بانتظار الاعتماد`);
+                addAuditLog('طلب إضافة وجبة', `قام ${currentUser} بإضافة وجبة [${newName}] بانتظار الاعتماد. ${describeMealChanges(null, mealData)}`);
                 alert('تم إرسال الوجبة بنجاح إلى قائمة وجبات قيد الاعتماد.');
             } else if (mode === 'edit') {
                 const targetIndex = db.meals.findIndex(m => String(m.id) === String(original.id));
                 if (targetIndex < 0) { alert('تعذر العثور على الوجبة الأصلية؛ حدّث الصفحة وحاول مجدداً.'); return; }
                 db.meals[targetIndex] = { ...original, ...mealData };
-                addAuditLog('تعديل وجبة', `تم تعديل وجبة [${newName}] بواسطة ${currentUser}`);
+                addAuditLog('تعديل وجبة', `قام ${currentUser} بتعديل الوجبة. ${describeMealChanges(original, mealData)}`);
             } else {
                 mealData.requestType = 'add';
                 db.meals.unshift(mealData);
                 currentPage = 1;
                 addAuditLog(mode === 'duplicate' ? 'تكرار وجبة' : 'إضافة وجبة',
-                    `${mode === 'duplicate' ? 'تم تكرار' : 'تمت إضافة'} وجبة [${newName}] بواسطة ${currentUser}`);
+                    `${mode === 'duplicate' ? 'قام ' + currentUser + ' بتكرار وجبة' : 'قام ' + currentUser + ' بإنشاء وجبة'}. ${describeMealChanges(null, mealData)}`);
             }
 
             saveDatabase();
@@ -1732,26 +1832,36 @@
                     });
                 }
 
-                const rowsHtml = meal.ingredients && Array.isArray(meal.ingredients) ? meal.ingredients.map(ing => `
-                    <tr class="hover:bg-amber-50/50 border-b border-amber-100 text-xs">
-                        <td class="py-1.5 px-2 font-bold text-slate-800">${ing.item || ''}</td>
+                const isUpdateRequest = meal.requestType === 'update';
+                const priorIngredients = meal.previousVersion?.ingredients || [];
+                const rowsHtml = meal.ingredients && Array.isArray(meal.ingredients) ? meal.ingredients.map(ing => {
+                    const previousIng = priorIngredients.find(oldIng => ingredientKey(oldIng) === ingredientKey(ing));
+                    const isAdded = isUpdateRequest && !previousIng;
+                    const isChanged = isUpdateRequest && previousIng && (Number(previousIng.qty || 0) !== Number(ing.qty || 0) || Number(previousIng.price || 0) !== Number(ing.price || 0));
+                    const rowClass = isAdded ? 'bg-emerald-100 border-b border-emerald-200' : (isChanged ? 'bg-amber-100 border-b border-amber-200' : 'hover:bg-amber-50/50 border-b border-amber-100');
+                    const statusLabel = isAdded ? '<span class="text-[9px] bg-emerald-200 text-emerald-900 rounded px-1">مضاف</span>' : (isChanged ? '<span class="text-[9px] bg-amber-200 text-amber-900 rounded px-1">معدل</span>' : '');
+                    return `
+                    <tr class="${rowClass} text-xs">
+                        <td class="py-1.5 px-2 font-bold text-slate-800">${escapeAuditHtml(ing.item || '')} ${statusLabel}</td>
                         <td class="py-1.5 px-2 text-center font-bold text-amber-900">${ing.location || 'ALL'}</td>
                         <td class="py-1.5 px-2 text-center text-slate-600">${ing.unit || ''}</td>
                         <td class="py-1.5 px-2 text-center font-mono font-bold">${formatQty(ing.qty)}</td>
                         <td class="py-1.5 px-2 text-center font-mono">${hidePrices ? '***' : formatPrice(ing.price, 5)}</td>
                         <td class="py-1.5 px-2 text-center font-mono font-bold text-naifRed-900">${hidePrices ? '***' : formatPrice(ing.qty * ing.price, 3)}</td>
                     </tr>
-                `).join('') : '';
+                `;
+                }).join('') : '';
 
+                const summary = meal.changeSummary || (isUpdateRequest && meal.previousVersion ? describeMealChanges(meal.previousVersion, meal) : 'طلب جديد مقدم من المستخدم');
                 return `
-                <div class="bg-white p-4 rounded-2xl border-2 border-amber-300 shadow-md space-y-3">
+                <div class="${isUpdateRequest ? 'pending-user-update' : 'pending-user-new'} p-4 rounded-2xl border-2 shadow-md space-y-3">
                     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-amber-100 pb-3">
                         <div>
                             <h3 class="font-black text-base sm:text-lg text-naifRed-900 flex items-center gap-2">
                                 <span>${meal.name}</span>
-                                <span class="text-[10px] bg-amber-100 text-amber-900 px-2.5 py-0.5 rounded-full font-bold">${meal.requestType === 'update' ? 'طلب تعديل وجبة' : 'وجبة جديدة'}</span>
+                                <span class="text-[10px] ${isUpdateRequest ? 'bg-amber-200 text-amber-950' : 'bg-blue-100 text-blue-900'} px-2.5 py-0.5 rounded-full font-bold">${isUpdateRequest ? 'تعديل مطلوب — يحتاج مراجعة' : 'وجبة جديدة — تحتاج اعتماد'}</span>
                             </h3>
-                            <p class="text-xs text-slate-500 mt-1">أُضيف بواسطة: <strong class="text-amber-800">${meal.createdBy}</strong> | سعر البيع: <strong class="text-emerald-700 font-mono text-sm">${formatPrice(meal.sellingPrice, 3)}</strong> ${hidePrices ? '' : `| التكلفة التقديرية: <strong class="text-rose-700 font-mono text-sm">${formatPrice(mainCost, 3)}</strong>`}</p>
+                            <p class="text-xs text-slate-500 mt-1">أُضيف بواسطة: <strong class="text-amber-800">${escapeAuditHtml(meal.createdBy || 'غير محدد')}</strong> | سعر البيع: <strong class="text-emerald-700 font-mono text-sm">${formatPrice(meal.sellingPrice, 3)}</strong> ${hidePrices ? '' : `| التكلفة التقديرية: <strong class="text-rose-700 font-mono text-sm">${formatPrice(mainCost, 3)}</strong>`}</p>
                         </div>
                         <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
                             ${currentUser === 'Yasser' || currentUser === 'الادارة' ? `
@@ -1767,6 +1877,7 @@
                         </div>
                     </div>
 
+                    ${isUpdateRequest ? `<div class="pending-change-summary"><strong>ملخص التغييرات المطلوب مراجعتها:</strong><br>${escapeAuditHtml(summary)}</div>` : `<div class="pending-change-summary" style="background:#eff6ff;border-color:#93c5fd;color:#1e40af"><strong>تفاصيل الوجبة الجديدة:</strong><br>${escapeAuditHtml(summary)}</div>`}
                     <div class="overflow-x-auto bg-amber-50/20 rounded-xl p-2 border border-amber-100">
                         <table class="w-full text-right border-collapse min-w-[500px]">
                             <thead>
@@ -1873,8 +1984,10 @@
                 delete db.meals[targetIndex].requestType;
                 delete db.meals[targetIndex].targetMealId;
                 delete db.meals[targetIndex].originalMealName;
+                delete db.meals[targetIndex].previousVersion;
+                delete db.meals[targetIndex].changeSummary;
                 db.pendingMeals.splice(idx, 1);
-                addAuditLog('اعتماد تعديل وجبة', `تم اعتماد تعديل الوجبة [${meal.name}] بواسطة ${currentUser}`);
+                addAuditLog('اعتماد تعديل وجبة', `اعتمد ${currentUser} تعديلات الوجبة [${meal.originalMealName || old.name}] إلى [${meal.name}]. ${meal.changeSummary || describeMealChanges(old, meal)}`);
                 saveDatabase(); refreshAllUI();
                 alert('تم اعتماد التعديلات وتحديث الوجبة الأصلية.');
                 return;
@@ -1882,10 +1995,12 @@
             db.pendingMeals.splice(idx, 1);
             const approvedMeal = { ...meal, approvedBy: currentUser, approvedAt: new Date().toISOString() };
             delete approvedMeal.requestType;
+            delete approvedMeal.previousVersion;
+            delete approvedMeal.changeSummary;
             db.meals.unshift(approvedMeal);
             currentPage = 1;
             saveDatabase();
-            addAuditLog('اعتماد وجبة', `تم اعتماد وجبة [${meal.name}] رسمياً بواسطة ${currentUser}`);
+            addAuditLog('اعتماد وجبة', `اعتمد ${currentUser} الوجبة [${meal.name}] رسمياً. ${describeMealChanges(null, meal)}`);
             refreshAllUI();
             alert('تم اعتماد الوجبة وإضافتها للرئيسية بنجاح!');
         }
@@ -1914,7 +2029,7 @@
             });
 
             saveDatabase();
-            addAuditLog('طلب إلغاء وجبة', `قام ${currentUser} بطلب إلغاء وجبة [${meal.name}] وترحيلها لقائمة الملغية`);
+            addAuditLog('طلب إلغاء وجبة', `قام ${currentUser} بإلغاء وترحيل الوجبة [${meal.name}]؛ سعر البيع ${formatPrice(meal.sellingPrice,3)}؛ المكونات: ${(meal.ingredients || []).map(i => `${i.item} × ${formatQty(i.qty)} ${i.unit || ''}`).join('؛ ')}`);
             renderRecipeCards();
             renderCancelledMeals();
             alert('تم ترحيل الوجبة إلى شاشة (الوجبات الملغية).');
@@ -2025,6 +2140,7 @@
 
             const item = db.pricelist ? db.pricelist.find(p => p.item === itemName) : null;
             if (item) {
+                const oldPrice = item.price || item.unitPrices?.[item.unit || 'حبة'] || 0;
                 item.price = newPrice;
                 if (!item.unitPrices) item.unitPrices = {};
                 item.unitPrices[item.unit || 'حبة'] = newPrice;
@@ -2041,7 +2157,7 @@
                 }
 
                 saveDatabase();
-                addAuditLog('تعديل سعر صنف', `تم تعديل سعر الصنف [${itemName}] إلى [${newPrice}] بواسطة ${currentUser}`);
+                addAuditLog('تعديل سعر صنف', `قام ${currentUser} بتعديل سعر الصنف [${itemName}] من [${oldPrice}] إلى [${newPrice}]`);
                 closeModal('priceEditModal');
                 renderPricelistTable();
                 renderRecipeCards();
@@ -2409,22 +2525,29 @@
 
         function renderAuditLogs() {
             const tbody = document.getElementById('auditLogTableBody');
+            if (currentUser !== 'Yasser') {
+                if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-rose-600 font-bold">هذه الشاشة مخصصة لحساب Yasser فقط</td></tr>';
+                return;
+            }
             if (!db.auditLogs || db.auditLogs.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 font-bold">لا توجد حركات مسجلة حتى الآن</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400 font-bold">لا توجد حركات مسجلة حتى الآن</td></tr>`;
                 return;
             }
 
-            const isYasser = currentUser === 'Yasser' || currentUser === 'الادارة';
-
-            tbody.innerHTML = db.auditLogs.map(log => `
-                <tr class="hover:bg-slate-50 border-b border-slate-100">
-                    <td class="p-3 text-center ${isYasser ? '' : 'hidden'}"><input type="checkbox" class="log-checkbox" data-id="${log.id}"></td>
-                    <td class="p-3 font-mono text-slate-500 font-bold">${log.date || ''}</td>
-                    <td class="p-3 font-bold text-naifRed-900">${log.user || ''}</td>
-                    <td class="p-3 font-bold text-slate-700">${log.type || ''}</td>
-                    <td class="p-3 text-slate-600">${log.details || ''}</td>
-                </tr>
-            `).join('');
+            tbody.innerHTML = db.auditLogs.map(log => {
+                const d = log.device || {};
+                const deviceText = [d.deviceType, d.os, d.browser].filter(Boolean).join(' / ') || 'بيانات الجهاز غير متوفرة (سجل قديم)';
+                const locationText = log.approximateLocation || d.approximateLocation || `المنطقة الزمنية: ${d.timeZone || 'غير متوفرة'}`;
+                return `
+                <tr class="hover:bg-slate-50 border-b border-slate-100 align-top">
+                    <td class="p-3 text-center"><input type="checkbox" class="log-checkbox" data-id="${escapeAuditHtml(log.id)}"></td>
+                    <td class="p-3 font-mono text-slate-500 font-bold whitespace-nowrap">${escapeAuditHtml(log.date || '')}</td>
+                    <td class="p-3 font-bold text-naifRed-900 whitespace-nowrap">${escapeAuditHtml(log.user || '')}</td>
+                    <td class="p-3 font-bold text-slate-700 whitespace-nowrap">${escapeAuditHtml(log.type || '')}</td>
+                    <td class="p-3 text-slate-600 min-w-[300px] whitespace-normal leading-7">${escapeAuditHtml(log.details || '')}</td>
+                    <td class="p-3 text-slate-600 min-w-[220px]"><strong>${escapeAuditHtml(deviceText)}</strong><br><span class="text-[10px] text-slate-500">${escapeAuditHtml(locationText)}</span><details class="mt-1 text-[10px]"><summary class="cursor-pointer text-naifRed-900 font-bold">تفاصيل تقنية</summary><div class="mt-1 leading-6 break-all">المنصة: ${escapeAuditHtml(d.platform || 'غير متاح')}<br>اللغة: ${escapeAuditHtml(d.locale || 'غير متاح')}<br>دقة الشاشة: ${escapeAuditHtml(d.screenSize || 'غير متاح')}<br>الشبكة: ${escapeAuditHtml(d.network || 'غير متاح')}<br>المنطقة الزمنية: ${escapeAuditHtml(d.timeZone || 'غير متاح')}<br>User-Agent: ${escapeAuditHtml(d.userAgent || 'غير متاح')}</div></details></td>
+                </tr>`;
+            }).join('');
         }
 
         function toggleSelectAllLogs(master) {
@@ -2432,7 +2555,7 @@
         }
 
         function deleteSelectedLogs() {
-            if (currentUser !== 'Yasser' && currentUser !== 'الادارة') return;
+            if (currentUser !== 'Yasser') return;
             const checked = document.querySelectorAll('.log-checkbox:checked');
             if (checked.length === 0) {
                 alert('يرجى تحديد حركات لمسحها');
@@ -2441,9 +2564,9 @@
 
             if (!confirm(`هل أنت متأكد من مسح ${checked.length} حركة محددة؟`)) return;
 
-            const idsToDelete = Array.from(checked).map(cb => parseFloat(cb.getAttribute('data-id')));
-            db.auditLogs = db.auditLogs.filter(log => !idsToDelete.includes(log.id));
-
+            const idsToDelete = Array.from(checked).map(cb => String(cb.getAttribute('data-id')));
+            db.auditLogs = db.auditLogs.filter(log => !idsToDelete.includes(String(log.id)));
+            addAuditLog('حذف سجلات', `قام Yasser بحذف ${idsToDelete.length} حركة من سجل الحركات`);
             saveDatabase();
             renderAuditLogs();
         }
