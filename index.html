@@ -489,7 +489,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot, runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, onSnapshot, runTransaction, getDocFromServer } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBqHC3lSZgvqYvdYg5TwIPqGVCXNaXbhD8",
@@ -503,15 +503,16 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const dbFirestore = getFirestore(app);
-
         const docRef = doc(dbFirestore, 'artifacts', 'n-rcp-39b7c', 'public', 'data', 'naif_main_db', 'main_doc');
 
-        window.isFirebaseSaving = false;
         let firebaseReady = false;
-        let firebaseFirstSnapshot = true;
         let lastRemoteState = null;
         let syncQueue = Promise.resolve();
+        let serverRefreshInProgress = false;
+        let firstServerSnapshotHandled = false;
         const DB_ARRAY_KEYS = ['pricelist','meals','pendingMeals','pendingItems','cancelledMeals','auditLogs'];
+        const CLOUD_BASE_STORAGE_KEY = 'NAIF_FOODS_RECIPES_DB_V2026_MOBILE_CLOUD_BASE';
+        const CLOUD_DIRTY_STORAGE_KEY = 'NAIF_FOODS_RECIPES_DB_V2026_MOBILE_CLOUD_DIRTY';
 
         const cloneData = value => JSON.parse(JSON.stringify(value ?? null));
         function normalizeCloudData(data = {}) {
@@ -520,10 +521,13 @@
                 out[key] = Array.isArray(data[key]) ? data[key].map((item, i) => {
                     const copy = { ...item };
                     if (copy.id === undefined || copy.id === null || copy.id === '') {
-                        // دليل الأسعار لا يحتوي دائماً على ID؛ استخدم اسم الصنف كمفتاح ثابت لا يتغير بتغير ترتيب الصفوف.
-                        copy.id = key === 'pricelist'
-                            ? `price_${String(copy.item || i).trim().toLocaleLowerCase()}`
-                            : `${key}_${i}_${String(copy.name || copy.item || 'row').replace(/\s+/g,'_')}`;
+                        // IDs ثابتة للبيانات القديمة حتى لا يتغير مفتاح العنصر عند اختلاف ترتيب المصفوفة.
+                        const rawKey = key === 'pricelist' ? copy.item :
+                            key === 'pendingItems' ? copy.item :
+                            key === 'auditLogs' ? `${copy.date || ''}_${copy.user || ''}_${copy.type || ''}_${copy.details || ''}` :
+                            `${copy.name || copy.item || 'row'}_${copy.targetMealId || copy.cancelDate || ''}`;
+                        const slug = String(rawKey || `row_${i}`).trim().toLocaleLowerCase().replace(/[^\p{L}\p{N}_-]+/gu, '_').slice(0, 90);
+                        copy.id = `${key}_legacy_${slug || i}`;
                     }
                     return copy;
                 }) : [];
@@ -531,19 +535,77 @@
             return out;
         }
         function stableKey(item) { return String(item?.id ?? item?.name ?? item?.item ?? ''); }
-        function mergeArrayChanges(baseArray, localArray, remoteArray) {
+        function creationTime(item) {
+            const value = item?.createdAt || item?.submittedAt || item?.requestedAt || item?.approvedAt || item?.updatedAt || null;
+            if (!value) return null;
+            const parsed = typeof value === 'number' ? value : Date.parse(value);
+            return Number.isFinite(parsed) ? parsed : null;
+        }
+        function sortNewestFirst(items) {
+            return (items || []).map((item, index) => ({ item, index, time: creationTime(item) }))
+                .sort((a, b) => {
+                    if (a.time !== null && b.time !== null) return b.time - a.time || a.index - b.index;
+                    if (a.time !== null) return -1;
+                    if (b.time !== null) return 1;
+                    return a.index - b.index;
+                }).map(x => x.item);
+        }
+        function mergeArrayChanges(baseArray, localArray, remoteArray, newestFirst = false) {
             const base = new Map((baseArray || []).map(x => [stableKey(x), x]));
             const local = new Map((localArray || []).map(x => [stableKey(x), x]));
             const remote = new Map((remoteArray || []).map(x => [stableKey(x), x]));
             const result = new Map(remote);
+
+            // تطبيق الحذف والتعديل المحلي فوق أحدث نسخة موجودة على الخادم.
             for (const [id, oldValue] of base) {
-                if (!local.has(id)) result.delete(id); // local deletion
+                if (!local.has(id)) result.delete(id);
                 else if (JSON.stringify(local.get(id)) !== JSON.stringify(oldValue)) result.set(id, local.get(id));
             }
+            // إضافة السجلات التي أنشأها هذا الجهاز ولم تكن موجودة في النسخة الأساسية.
             for (const [id, value] of local) {
-                if (!base.has(id)) result.set(id, value); // local addition
+                if (!base.has(id)) result.set(id, value);
             }
-            return [...result.values()];
+
+            const merged = [...result.values()];
+            // الوجبات الجديدة وطلبات الاعتماد ترتب حسب وقت الإنشاء، وليس ترتيب Map الذي قد يضعها في النهاية.
+            return newestFirst ? sortNewestFirst(merged) : merged;
+        }
+        function mergeDatabase(base, local, remote) {
+            const merged = {};
+            DB_ARRAY_KEYS.forEach(key => {
+                merged[key] = mergeArrayChanges(base?.[key] || [], local?.[key] || [], remote?.[key] || [], key === 'meals' || key === 'pendingMeals');
+            });
+            return merged;
+        }
+        function hasNewApprovedMeals(previousMeals, nextMeals) {
+            const previousIds = new Set((previousMeals || []).map(stableKey));
+            return (nextMeals || []).some(meal => !previousIds.has(stableKey(meal)));
+        }
+        function saveLocalCache() {
+            try {
+                localStorage.setItem(window.STORAGE_KEY || 'NAIF_FOODS_RECIPES_DB_V2026_MOBILE', JSON.stringify(window.db || {}));
+            } catch (err) {
+                console.error('Local cache write failed:', err);
+            }
+        }
+        function persistCloudBaseline(data, keepDirty = false) {
+            const normalized = normalizeCloudData(data || {});
+            try {
+                localStorage.setItem(CLOUD_BASE_STORAGE_KEY, JSON.stringify(normalized));
+                window.dbLastSyncedSnapshot = cloneData(normalized);
+                if (keepDirty) {
+                    localStorage.setItem(CLOUD_DIRTY_STORAGE_KEY, '1');
+                    window.dbHadUnsyncedChanges = true;
+                } else {
+                    localStorage.removeItem(CLOUD_DIRTY_STORAGE_KEY);
+                    window.dbHadUnsyncedChanges = false;
+                }
+            } catch (err) {
+                console.warn('Could not persist Firebase sync baseline:', err);
+            }
+        }
+        function hasPersistedUnsyncedChanges() {
+            return window.dbHadUnsyncedChanges === true || localStorage.getItem(CLOUD_DIRTY_STORAGE_KEY) === '1';
         }
         function showCloudStatus(message, kind = 'ok') {
             const el = document.getElementById('cloudSyncStatus');
@@ -554,71 +616,127 @@
                 : `<i class="fa-solid fa-triangle-exclamation text-amber-300"></i> <span>${message}</span>`;
             el.className = `${ok ? 'bg-emerald-900/90 border-emerald-700' : 'bg-amber-900/90 border-amber-700'} text-white text-[11px] font-bold px-4 py-1.5 text-center flex items-center justify-center gap-2 border-b`;
         }
+        function applyAuthoritativeServerData(remoteData, isFirstSnapshot = false) {
+            const remote = normalizeCloudData(remoteData || {});
+            const local = normalizeCloudData(window.db || {});
+            const previousMeals = local.meals || [];
+            const revision = Number(window.dbRevision || 0);
+            const lastSyncedRevision = Number(window.lastSyncedDbRevision || 0);
+            const persistedDirty = hasPersistedUnsyncedChanges();
+            const hasLocalChanges = revision > lastSyncedRevision || persistedDirty;
+            let nextData = remote;
+
+            if (isFirstSnapshot && hasLocalChanges) {
+                // عند إغلاق المتصفح قبل اكتمال الرفع، نقارن بالنسخة التي تم تأكيد حفظها سابقاً.
+                // إذا لم توجد نسخة أساس محفوظة، نحتفظ بالبيانات المحلية بدلاً من حذفها.
+                const startupBaseRaw = window.dbLastSyncedSnapshot || (persistedDirty ? {} : (window.dbLoadedSnapshot || {}));
+                const startupBase = normalizeCloudData(startupBaseRaw);
+                nextData = mergeDatabase(startupBase, local, remote);
+            } else if (!isFirstSnapshot && hasLocalChanges && lastRemoteState) {
+                // دمج التغييرات الواردة من جهاز آخر مع التغييرات المحلية التي لم تكتمل مزامنتها بعد.
+                nextData = mergeDatabase(lastRemoteState, local, remote);
+            }
+
+            lastRemoteState = cloneData(remote);
+            window.db = cloneData(nextData);
+            saveLocalCache();
+            firebaseReady = true;
+            firstServerSnapshotHandled = true;
+
+            if (hasNewApprovedMeals(previousMeals, nextData.meals) && typeof window.setRecipePageToFirst === 'function') {
+                window.setRecipePageToFirst();
+            }
+            if (typeof window.refreshAllUI === 'function') window.refreshAllUI();
+
+            const needsUpload = JSON.stringify(nextData) !== JSON.stringify(remote);
+            if (needsUpload) {
+                // نحتفظ بعلامة التعديلات غير المرفوعة إذا أُغلق المتصفح قبل اكتمال العملية.
+                localStorage.setItem(CLOUD_DIRTY_STORAGE_KEY, '1');
+                window.dbHadUnsyncedChanges = true;
+                window.syncToFirebase();
+                showCloudStatus('تم دمج البيانات؛ جارٍ رفع التعديلات إلى السحابة');
+            } else {
+                window.lastSyncedDbRevision = revision;
+                persistCloudBaseline(remote, false);
+                showCloudStatus('تم التحقق من أحدث البيانات من خادم Firebase');
+            }
+        }
 
         async function initFirebaseConnection() {
             try {
+                // انتظر تحميل قاعدة الجهاز أولاً حتى لا تسبق لقطة Firestore تحميل localStorage وتُستبدل بعدها.
+                if (window.dbLoadReady && typeof window.dbLoadReady.then === 'function') await window.dbLoadReady;
                 await signInAnonymously(auth);
                 setupFirestoreListener();
             } catch (authErr) {
                 console.error('Firebase Authentication failed:', authErr);
-                showCloudStatus('فشل تسجيل الدخول إلى Firebase. تحقق من تفعيل Anonymous Authentication', 'error');
+                const detail = authErr?.code || authErr?.message || 'unknown-auth-error';
+                showCloudStatus(`فشل تسجيل الدخول إلى Firebase (${detail})`, 'error');
             }
         }
 
         function setupFirestoreListener() {
             onSnapshot(docRef, { includeMetadataChanges: true }, (docSnap) => {
-                // تجاهل نسخة الكتابة المحلية فقط، وليس كل تحديث أثناء وجود عملية حفظ.
+                // لا نعامل نسخة الذاكرة المؤقتة على أنها نسخة الخادم؛ ننتظر تأكيد server.
+                if (docSnap.metadata?.fromCache) {
+                    showCloudStatus('يتم عرض البيانات المحفوظة مؤقتاً؛ جارٍ التحقق من خادم Firebase', 'error');
+                    return;
+                }
                 if (docSnap.metadata?.hasPendingWrites) return;
 
                 if (docSnap.exists()) {
-                    const remote = normalizeCloudData(docSnap.data());
-                    lastRemoteState = cloneData(remote);
-                    window.db = cloneData(remote);
-                    localStorage.setItem(window.STORAGE_KEY || 'NAIF_FOODS_RECIPES_DB_V2026_MOBILE', JSON.stringify(window.db));
-                    firebaseReady = true;
-                    firebaseFirstSnapshot = false;
-                    if (typeof window.refreshAllUI === 'function') window.refreshAllUI();
-                    showCloudStatus('تم تحميل أحدث البيانات من السحابة');
+                    const isFirst = !firstServerSnapshotHandled;
+                    applyAuthoritativeServerData(docSnap.data(), isFirst);
                 } else {
-                    firebaseReady = true;
-                    firebaseFirstSnapshot = false;
+                    // المستند غير موجود على الخادم: ننشئه من البيانات المحلية الحالية بدلاً من مسحها.
                     lastRemoteState = normalizeCloudData({});
+                    firebaseReady = true;
+                    firstServerSnapshotHandled = true;
                     window.syncToFirebase();
                 }
             }, (error) => {
                 console.error('Firestore listener error:', error);
-                showCloudStatus(`تعذر قراءة البيانات السحابية: ${error.code || error.message}`, 'error');
+                showCloudStatus(`تعذر قراءة بيانات Firebase (${error.code || error.message})`, 'error');
             });
         }
 
-        initFirebaseConnection();
-
         window.syncToFirebase = function() {
             if (!firebaseReady) return Promise.resolve();
-            const localSnapshot = normalizeCloudData(window.db || {});
-            const baseSnapshot = cloneData(lastRemoteState || normalizeCloudData({}));
             syncQueue = syncQueue.then(async () => {
+                const localRevision = Number(window.dbRevision || 0);
+                const localSnapshot = normalizeCloudData(window.db || {});
+                const baseSnapshot = cloneData(lastRemoteState || normalizeCloudData({}));
                 try {
                     showCloudStatus('جاري حفظ التعديلات ومزامنتها...');
+                    let committedData = null;
                     await runTransaction(dbFirestore, async (transaction) => {
                         const snap = await transaction.get(docRef);
                         const remote = normalizeCloudData(snap.exists() ? snap.data() : {});
-                        const merged = {};
-                        DB_ARRAY_KEYS.forEach(key => {
-                            merged[key] = mergeArrayChanges(baseSnapshot[key], localSnapshot[key], remote[key]);
-                        });
-                        merged.lastUpdatedBy = window.currentUser || 'النظام';
-                        merged.updatedAt = new Date().toISOString();
-                        transaction.set(docRef, merged, { merge: true });
-                        lastRemoteState = cloneData(merged);
+                        const merged = mergeDatabase(baseSnapshot, localSnapshot, remote);
+                        committedData = {
+                            ...merged,
+                            lastUpdatedBy: window.currentUser || 'النظام',
+                            updatedAt: new Date().toISOString()
+                        };
+                        transaction.set(docRef, committedData);
                     });
-                    window.db = cloneData(lastRemoteState);
-                    localStorage.setItem(window.STORAGE_KEY || 'NAIF_FOODS_RECIPES_DB_V2026_MOBILE', JSON.stringify(window.db));
-                    showCloudStatus('تم الحفظ والمزامنة السحابية بنجاح');
-                    if (typeof window.refreshAllUI === 'function') window.refreshAllUI();
+
+                    lastRemoteState = normalizeCloudData(committedData);
+                    const hasNewerLocalEdit = Number(window.dbRevision || 0) !== localRevision;
+                    persistCloudBaseline(lastRemoteState, hasNewerLocalEdit);
+                    if (!hasNewerLocalEdit) {
+                        window.db = cloneData(lastRemoteState);
+                        window.lastSyncedDbRevision = localRevision;
+                        saveLocalCache();
+                        if (typeof window.refreshAllUI === 'function') window.refreshAllUI();
+                    } else {
+                        // حدث تعديل جديد أثناء عملية الكتابة؛ لا نستبدل ذاكرة المستخدم، ونرسلها في دورة تالية.
+                        setTimeout(() => window.syncToFirebase(), 50);
+                    }
+                    showCloudStatus('تم حفظ التعديلات ومزامنتها مع جميع الأجهزة');
                 } catch (err) {
                     console.error('Error saving to Firebase:', err);
-                    showCloudStatus(`فشل الحفظ السحابي: ${err.code || err.message}`, 'error');
+                    showCloudStatus(`فشل الحفظ السحابي (${err.code || err.message})`, 'error');
                     throw err;
                 }
             }).catch(err => {
@@ -626,12 +744,73 @@
             });
             return syncQueue;
         };
+
+        async function refreshFromServer() {
+            if (!firebaseReady || serverRefreshInProgress || !navigator.onLine) return;
+            serverRefreshInProgress = true;
+            try {
+                const snap = await getDocFromServer(docRef);
+                if (snap.exists()) {
+                    // تمرير نسخة الخادم عبر نفس منطق الدمج المستخدم في المستمع الفوري.
+                    const data = snap.data();
+                    const local = normalizeCloudData(window.db || {});
+                    const previousMeals = local.meals || [];
+                    const remote = normalizeCloudData(data);
+                    const revision = Number(window.dbRevision || 0);
+                    const lastSyncedRevision = Number(window.lastSyncedDbRevision || 0);
+                    let nextData = remote;
+                    if ((revision > lastSyncedRevision || hasPersistedUnsyncedChanges()) && lastRemoteState) {
+                        nextData = mergeDatabase(lastRemoteState, local, remote);
+                    }
+                    lastRemoteState = cloneData(remote);
+                    window.db = cloneData(nextData);
+                    saveLocalCache();
+                    if (hasNewApprovedMeals(previousMeals, nextData.meals) && typeof window.setRecipePageToFirst === 'function') {
+                        window.setRecipePageToFirst();
+                    }
+                    if (typeof window.refreshAllUI === 'function') window.refreshAllUI();
+                    if (JSON.stringify(nextData) !== JSON.stringify(remote)) {
+                        localStorage.setItem(CLOUD_DIRTY_STORAGE_KEY, '1');
+                        window.dbHadUnsyncedChanges = true;
+                        window.syncToFirebase();
+                    } else {
+                        window.lastSyncedDbRevision = revision;
+                        persistCloudBaseline(remote, false);
+                    }
+                    showCloudStatus('تم تحديث البيانات من خادم Firebase');
+                }
+            } catch (err) {
+                // فشل الجلب المباشر لا يلغي البيانات المعروضة ولا يعني بالضرورة فشل تسجيل الدخول.
+                console.warn('Firebase server refresh:', err?.code || err?.message || err);
+            } finally {
+                serverRefreshInProgress = false;
+            }
+        }
+
+        window.addEventListener('online', refreshFromServer);
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') refreshFromServer();
+        });
+        initFirebaseConnection();
     </script>
 
     <script>
         const STORAGE_KEY = 'NAIF_FOODS_RECIPES_DB_V2026_MOBILE';
         window.STORAGE_KEY = STORAGE_KEY;
+        const CLOUD_BASE_STORAGE_KEY = 'NAIF_FOODS_RECIPES_DB_V2026_MOBILE_CLOUD_BASE';
+        const CLOUD_DIRTY_STORAGE_KEY = 'NAIF_FOODS_RECIPES_DB_V2026_MOBILE_CLOUD_DIRTY';
+        window.dbRevision = Number(window.dbRevision || 0);
+        window.lastSyncedDbRevision = Number(window.lastSyncedDbRevision || 0);
+        window.dbHadUnsyncedChanges = localStorage.getItem(CLOUD_DIRTY_STORAGE_KEY) === '1';
+        try {
+            const storedCloudBase = localStorage.getItem(CLOUD_BASE_STORAGE_KEY);
+            window.dbLastSyncedSnapshot = storedCloudBase ? JSON.parse(storedCloudBase) : null;
+        } catch (e) {
+            window.dbLastSyncedSnapshot = null;
+        }
         const SESSION_USER_KEY = 'NAIF_FOODS_ACTIVE_SESSION_USER';
+        let resolveDbLoadReady;
+        window.dbLoadReady = new Promise(resolve => { resolveDbLoadReady = resolve; });
         
         // رابط ملف الـ Raw المباشر من GitHub لجلب النسخة الاحتياطية عند الحاجة
         const GITHUB_DATA_URL = 'https://raw.githubusercontent.com/yasser-q8/n_rcp_data/refs/heads/main/n_rcp_data.json';
@@ -650,7 +829,13 @@
         };
 
         window.addEventListener('DOMContentLoaded', async () => {
-            await loadDatabase();
+            try {
+                await loadDatabase();
+            } catch (loadError) {
+                console.error('Database initial load failed:', loadError);
+            } finally {
+                if (typeof resolveDbLoadReady === 'function') resolveDbLoadReady();
+            }
             restoreActiveSession();
             refreshAllUI();
             switchTab('recipes');
@@ -816,11 +1001,15 @@
                     auditLogs: parsed.auditLogs || []
                 };
             }
+            window.dbLoadedSnapshot = JSON.parse(JSON.stringify(window.db));
         }
 
         let cloudSaveTimer = null;
         function saveDatabase() {
+            window.dbRevision = Number(window.dbRevision || 0) + 1;
             localStorage.setItem(STORAGE_KEY, JSON.stringify(window.db));
+            localStorage.setItem(CLOUD_DIRTY_STORAGE_KEY, '1');
+            window.dbHadUnsyncedChanges = true;
             updateBadges();
             // تجميع عمليات الحفظ المتتالية (مثل حفظ الحركة ثم حفظ الوجبة) في دفعة واحدة.
             if (typeof window.syncToFirebase === 'function') {
@@ -861,6 +1050,7 @@
                 cancelledMeals: [],
                 auditLogs: []
             };
+            window.dbLoadedSnapshot = JSON.parse(JSON.stringify(window.db));
             saveDatabase();
         }
 
@@ -969,6 +1159,28 @@
             return parseFloat(val).toFixed(decimals);
         }
 
+        function getMealSortTimestamp(meal) {
+            const value = meal?.createdAt || meal?.submittedAt || meal?.requestedAt || meal?.approvedAt || meal?.updatedAt;
+            if (!value) return null;
+            const parsed = typeof value === 'number' ? value : Date.parse(value);
+            return Number.isFinite(parsed) ? parsed : null;
+        }
+
+        function sortMealsNewestFirst(items) {
+            return (items || []).map((meal, index) => ({ meal, index, time: getMealSortTimestamp(meal) }))
+                .sort((a, b) => {
+                    if (a.time !== null && b.time !== null) return b.time - a.time || a.index - b.index;
+                    if (a.time !== null) return -1;
+                    if (b.time !== null) return 1;
+                    return a.index - b.index;
+                }).map(x => x.meal);
+        }
+
+        function setRecipePageToFirst() {
+            currentPage = 1;
+        }
+        window.setRecipePageToFirst = setRecipePageToFirst;
+
         function onRecipeSearchInput() {
             currentPage = 1;
             renderRecipeCards();
@@ -985,9 +1197,9 @@
             const paginationContainer = document.getElementById('paginationControls');
             const q = (document.getElementById('recipeSearchInput').value || '').trim().toLowerCase();
             
-            let filtered = db.meals || [];
+            let filtered = sortMealsNewestFirst(db.meals || []);
             if (q) {
-                filtered = db.meals.filter(m => m.name && m.name.toLowerCase().includes(q));
+                filtered = filtered.filter(m => m.name && m.name.toLowerCase().includes(q));
             }
 
             document.getElementById('recipesCountBadge').innerText = filtered.length;
@@ -1448,13 +1660,15 @@
             db.pendingItems.push(...newPendingItems.filter(x => !pendingIds.has(x.item)));
 
             const isUser = currentUser === 'مستخدم';
+            const operationTime = new Date().toISOString();
             const mealData = {
                 id: (mode === 'edit' && original?.id) ? original.id : `meal_${Date.now()}_${Math.random().toString(36).slice(2,8)}`,
                 name: newName,
                 sellingPrice: newPrice,
                 ingredients: newIngredients,
                 createdBy: currentUser,
-                updatedAt: new Date().toISOString()
+                createdAt: (mode === 'edit' && original?.createdAt) ? original.createdAt : operationTime,
+                updatedAt: operationTime
             };
 
             if (mode === 'userEdit') {
@@ -1463,11 +1677,13 @@
                 mealData.originalMealName = original.name;
                 mealData.createdBy = currentUser;
                 db.pendingMeals.unshift(mealData);
+                currentPage = 1;
                 addAuditLog('طلب تعديل وجبة معتمدة', `أرسل ${currentUser} تعديلات على الوجبة [${original.name}]`);
                 alert('تم إرسال تعديل الوجبة إلى صفحة الاعتماد، وستبقى النسخة الحالية معتمدة حتى الموافقة.');
             } else if (isUser) {
                 mealData.requestType = 'add';
                 db.pendingMeals.unshift(mealData);
+                currentPage = 1;
                 addAuditLog('طلب إضافة وجبة', `قام ${currentUser} بإضافة وجبة [${newName}] بانتظار الاعتماد`);
                 alert('تم إرسال الوجبة بنجاح إلى قائمة وجبات قيد الاعتماد.');
             } else if (mode === 'edit') {
@@ -1478,6 +1694,7 @@
             } else {
                 mealData.requestType = 'add';
                 db.meals.unshift(mealData);
+                currentPage = 1;
                 addAuditLog(mode === 'duplicate' ? 'تكرار وجبة' : 'إضافة وجبة',
                     `${mode === 'duplicate' ? 'تم تكرار' : 'تمت إضافة'} وجبة [${newName}] بواسطة ${currentUser}`);
             }
@@ -1498,7 +1715,16 @@
 
             const hidePrices = currentUser === 'مستخدم';
 
-            container.innerHTML = db.pendingMeals.map((meal, idx) => {
+            const pendingToRender = (db.pendingMeals || []).map((meal, idx) => ({ meal, idx }))
+                .sort((a, b) => {
+                    const aTime = getMealSortTimestamp(a.meal);
+                    const bTime = getMealSortTimestamp(b.meal);
+                    if (aTime !== null && bTime !== null) return bTime - aTime || a.idx - b.idx;
+                    if (aTime !== null) return -1;
+                    if (bTime !== null) return 1;
+                    return a.idx - b.idx;
+                });
+            container.innerHTML = pendingToRender.map(({ meal, idx }) => {
                 let mainCost = 0;
                 if (meal.ingredients && Array.isArray(meal.ingredients)) {
                     meal.ingredients.forEach(i => {
@@ -1640,6 +1866,7 @@
                 db.meals[targetIndex] = {
                     ...old, ...meal, id: old.id,
                     createdBy: old.createdBy,
+                    createdAt: old.createdAt || meal.createdAt || new Date().toISOString(),
                     approvedBy: currentUser,
                     approvedAt: new Date().toISOString()
                 };
@@ -1656,6 +1883,7 @@
             const approvedMeal = { ...meal, approvedBy: currentUser, approvedAt: new Date().toISOString() };
             delete approvedMeal.requestType;
             db.meals.unshift(approvedMeal);
+            currentPage = 1;
             saveDatabase();
             addAuditLog('اعتماد وجبة', `تم اعتماد وجبة [${meal.name}] رسمياً بواسطة ${currentUser}`);
             refreshAllUI();
