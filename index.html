@@ -282,8 +282,11 @@
                         <h2 class="text-base font-extrabold text-naifRed-900">دليل الأصناف والأسعار (pricelist)</h2>
                         <p class="text-xs text-slate-500">قائمة تكاليف الأصناف بجميع الوحدات المعتمدة</p>
                     </div>
-                    <div class="w-full sm:w-auto">
+                    <div class="w-full sm:w-auto flex flex-col sm:flex-row gap-2">
                         <input type="text" id="priceSearchInput" onkeyup="renderPricelistTable()" placeholder="ابحث برمز أو اسم الصنف..." class="w-full sm:w-auto bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-bold outline-none">
+                        <button onclick="openPriceEditModal()" class="bg-naifRed-900 hover:bg-naifRed-800 text-white px-4 py-2 rounded-xl text-xs font-black shadow flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-plus"></i> إضافة صنف جديد
+                        </button>
                     </div>
                 </div>
 
@@ -488,22 +491,56 @@
         </div>
     </div>
 
-    <!-- مودال تعديل سعر الصنف المباشر -->
-    <div id="priceEditModal" class="fixed inset-0 bg-naifRed-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden p-5 space-y-4">
-            <h3 class="font-extrabold text-sm text-naifRed-900 border-b pb-2">تعديل أسعار الصنف</h3>
-            <input type="hidden" id="editPriceItemName">
-            <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1" id="lblEditItemName">الصنف</label>
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">سعر التكلفة (الوحدة الرئيسية)</label>
-                <input type="number" step="0.00001" id="editItemPriceValue" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs font-mono font-bold">
-            </div>
-            <div class="flex justify-end gap-2 pt-2">
-                <button onclick="closeModal('priceEditModal')" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-200">إلغاء</button>
-                <button onclick="saveItemPriceChange()" class="px-4 py-1.5 rounded-xl text-xs font-bold bg-naifRed-900 text-white">حفظ</button>
-            </div>
+    <!-- شاشة كاملة لإضافة وتعديل الصنف وأسعاره حسب الوحدات -->
+    <div id="priceEditModal" class="fixed inset-0 z-[80] hidden bg-slate-100 overflow-y-auto" style="overscroll-behavior:contain;">
+        <div class="min-h-screen w-full flex flex-col">
+            <header class="bg-naifRed-900 text-white shadow-lg sticky top-0 z-10">
+                <div class="max-w-5xl mx-auto w-full px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-11 h-11 rounded-xl bg-white/15 flex items-center justify-center"><i class="fa-solid fa-boxes-stacked text-xl"></i></div>
+                        <div>
+                            <h2 id="priceEditorTitle" class="font-black text-base sm:text-xl">إضافة صنف جديد</h2>
+                            <p class="text-red-100 text-[11px] sm:text-xs mt-1">حدد وحدة واحدة أو أكثر، وأدخل سعر كل وحدة على حدة</p>
+                        </div>
+                    </div>
+                    <button onclick="closeModal('priceEditModal')" class="bg-white/15 hover:bg-white/25 rounded-xl px-3 py-2 text-sm font-bold flex items-center gap-2">
+                        <i class="fa-solid fa-xmark"></i><span class="hidden sm:inline">إغلاق</span>
+                    </button>
+                </div>
+            </header>
+            <main class="flex-1 w-full max-w-5xl mx-auto px-3 sm:px-6 py-5 sm:py-8 space-y-5">
+                <input type="hidden" id="editPriceItemIndex" value="-1">
+                <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-6">
+                    <label for="editPriceItemName" class="block text-sm font-black text-slate-800 mb-2">اسم الصنف</label>
+                    <input type="text" id="editPriceItemName" placeholder="اكتب اسم الصنف" class="w-full border-2 border-slate-200 focus:border-naifRed-900 focus:ring-2 focus:ring-red-100 rounded-xl px-4 py-3 text-base font-bold outline-none">
+                    <p class="text-xs text-slate-500 mt-2">يجب أن يكون اسم الصنف واضحاً وغير مكرر في دليل الأصناف.</p>
+                </section>
+                <section class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                            <h3 class="font-black text-slate-800">أسعار الوحدات</h3>
+                            <p class="text-xs text-slate-500 mt-1">يمكنك إضافة عدة وحدات للصنف نفسه، ولكل وحدة سعر مستقل.</p>
+                        </div>
+                        <button onclick="addUnitPriceRow()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-black shadow flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-plus"></i> إضافة وحدة وسعر
+                        </button>
+                    </div>
+                    <div class="p-3 sm:p-5">
+                        <div id="unitPriceRows" class="space-y-3"></div>
+                        <div id="unitPriceEmpty" class="hidden text-center text-slate-400 text-sm font-bold py-8">لم تتم إضافة وحدات بعد. اضغط «إضافة وحدة وسعر».</div>
+                    </div>
+                    <div class="bg-blue-50 border-t border-blue-100 p-3 sm:p-4 text-xs text-blue-900 leading-6">
+                        <i class="fa-solid fa-circle-info ml-1"></i>
+                        مثال: حبة = 0.25000، كرتون = 3.50000، كيلو = 1.75000. يمكنك تحديد الوحدات التي تستخدمها فقط.
+                    </div>
+                </section>
+            </main>
+            <footer class="sticky bottom-0 bg-white border-t border-slate-200 shadow-[0_-4px_18px_rgba(15,23,42,.08)]">
+                <div class="max-w-5xl mx-auto w-full px-3 sm:px-6 py-3 flex flex-col-reverse sm:flex-row gap-2 sm:justify-end">
+                    <button onclick="closeModal('priceEditModal')" class="px-5 py-3 rounded-xl text-sm font-bold bg-slate-100 hover:bg-slate-200 text-slate-700">إلغاء</button>
+                    <button onclick="saveItemPriceChange()" class="px-6 py-3 rounded-xl text-sm font-black bg-naifRed-900 hover:bg-naifRed-800 text-white shadow-md"><i class="fa-solid fa-floppy-disk ml-1"></i> حفظ الصنف والأسعار</button>
+                </div>
+            </footer>
         </div>
     </div>
 
@@ -972,6 +1009,9 @@
         window.restoreCancelledMeal = restoreCancelledMeal;
         window.permanentDeleteCancelledMeal = permanentDeleteCancelledMeal;
         window.openPriceEditModal = openPriceEditModal;
+        window.openPriceEditModalByIndex = openPriceEditModalByIndex;
+        window.addUnitPriceRow = addUnitPriceRow;
+        window.updateUnitPriceEmptyState = updateUnitPriceEmptyState;
         window.saveItemPriceChange = saveItemPriceChange;
         window.exportReportPDF = exportReportPDF;
         window.exportReportExcel = exportReportExcel;
@@ -2084,85 +2124,180 @@
             alert('تم حذف الوجبة نهائياً من النظام.');
         }
 
+        const PRICE_UNITS = ['حبة','جرام','علبة','شريحة','جالون','ماعون','باكت','بطل','قطعة','اونس','مل لتر','الشد'];
+
         function renderPricelistTable() {
             const tbody = document.getElementById('pricelistTableBody');
-            const q = (document.getElementById('priceSearchInput').value || '').trim().toLowerCase();
+            if (!tbody) return;
+            const q = (document.getElementById('priceSearchInput')?.value || '').trim().toLowerCase();
+            const allItems = db.pricelist || [];
+            const filtered = allItems.map((p, originalIndex) => ({p, originalIndex}))
+                .filter(x => !q || String(x.p.item || '').toLowerCase().includes(q));
 
-            let filtered = db.pricelist || [];
-            if (q) {
-                filtered = db.pricelist.filter(p => p.item && p.item.toLowerCase().includes(q));
-            }
-
-            if (filtered.length === 0) {
+            if (!filtered.length) {
                 tbody.innerHTML = `<tr><td colspan="14" class="p-6 text-center text-slate-400 font-bold">لا توجد أصناف مسجلة في دليل الأسعار</td></tr>`;
                 return;
             }
 
-            tbody.innerHTML = filtered.map((p) => {
+            tbody.innerHTML = filtered.map(({p, originalIndex}) => {
                 const up = p.unitPrices || {};
+                const getPrice = unit => up[unit] !== undefined ? up[unit] :
+                    ((p.unit || 'حبة') === unit ? p.price : undefined);
                 return `
                 <tr class="hover:bg-red-50 border-b border-slate-100">
-                    <td class="p-3 font-bold text-slate-800">${p.item}</td>
-                    <td class="p-3 text-center font-mono font-bold">${up['حبة'] !== undefined ? formatPrice(up['حبة'], 5) : '--'}</td>
-                    <td class="p-3 text-center font-mono font-bold">${up['جرام'] !== undefined ? formatPrice(up['جرام'], 5) : '--'}</td>
-                    <td class="p-3 text-center font-mono font-bold">${up['علبة'] !== undefined ? formatPrice(up['علبة'], 5) : '--'}</td>
-                    <td class="p-3 text-center font-mono font-bold">${up['شريحة'] !== undefined ? formatPrice(up['شريحة'], 5) : '--'}</td>
-                    <td class="p-3 text-center font-mono font-bold">${up['جالون'] !== undefined ? formatPrice(up['جالون'], 5) : '--'}</td>
-                    <td class="p-3 text-center font-mono font-bold">${up['ماعون'] !== undefined ? formatPrice(up['ماعون'], 5) : '--'}</td>
-                    <td class="p-3 text-center font-mono font-bold">${up['باكت'] !== undefined ? formatPrice(up['باكت'], 5) : '--'}</td>
-                    <td class="p-3 text-center font-mono font-bold">${up['بطل'] !== undefined ? formatPrice(up['بطل'], 5) : '--'}</td>
-                    <td class="p-3 text-center font-mono font-bold">${up['قطعة'] !== undefined ? formatPrice(up['قطعة'], 5) : '--'}</td>
-                    <td class="p-3 text-center font-mono font-bold">${up['اونس'] !== undefined ? formatPrice(up['اونس'], 5) : '--'}</td>
-                    <td class="p-3 text-center font-mono font-bold">${up['مل لتر'] !== undefined ? formatPrice(up['مل لتر'], 5) : '--'}</td>
-                    <td class="p-3 text-center font-mono font-bold">${up['الشد'] !== undefined ? formatPrice(up['الشد'], 5) : '--'}</td>
+                    <td class="p-3 font-bold text-slate-800">${escapeAuditHtml(p.item || '')}</td>
+                    ${PRICE_UNITS.map(unit => `<td class="p-3 text-center font-mono font-bold">${getPrice(unit) !== undefined ? formatPrice(getPrice(unit), 5) : '--'}</td>`).join('')}
                     <td class="p-3 text-center no-print">
-                        <button onclick="openPriceEditModal('${p.item}', ${p.price})" class="text-naifRed-900 hover:text-black font-bold p-1"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="openPriceEditModalByIndex(${originalIndex})" title="تعديل الصنف وأسعار وحداته" class="text-naifRed-900 hover:text-black font-bold p-2 rounded-lg hover:bg-red-100"><i class="fa-solid fa-pen"></i></button>
                     </td>
-                </tr>
-            `;
+                </tr>`;
             }).join('');
         }
 
-        function openPriceEditModal(itemName, currentPrice) {
+        function addUnitPriceRow(unit = '', price = '') {
+            const host = document.getElementById('unitPriceRows');
+            if (!host) return;
+            const row = document.createElement('div');
+            row.className = 'unit-price-row grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-2 sm:gap-3 items-end bg-slate-50 border border-slate-200 rounded-xl p-3';
+            const options = PRICE_UNITS.map(u => `<option value="${u}" ${u === unit ? 'selected' : ''}>${u}</option>`).join('');
+            row.innerHTML = `
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">الوحدة</label>
+                    <select class="unit-price-unit w-full bg-white border border-slate-300 rounded-lg px-3 py-3 text-sm font-bold">
+                        <option value="">اختر الوحدة</option>${options}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">سعر التكلفة</label>
+                    <input type="number" min="0" step="0.00001" value="${price === '' ? '' : Number(price)}" placeholder="0.00000" class="unit-price-value w-full bg-white border border-slate-300 rounded-lg px-3 py-3 text-sm font-mono font-bold text-left" inputmode="decimal">
+                </div>
+                <button type="button" onclick="this.closest('.unit-price-row').remove(); updateUnitPriceEmptyState();" class="h-11 px-4 rounded-lg bg-rose-100 text-rose-700 hover:bg-rose-200 font-bold text-sm"><i class="fa-solid fa-trash"></i><span class="sm:hidden mr-2">حذف الوحدة</span></button>`;
+            host.appendChild(row);
+            updateUnitPriceEmptyState();
+        }
+
+        function updateUnitPriceEmptyState() {
+            const host = document.getElementById('unitPriceRows');
+            const empty = document.getElementById('unitPriceEmpty');
+            if (empty && host) empty.classList.toggle('hidden', host.querySelectorAll('.unit-price-row').length > 0);
+        }
+
+        function openPriceEditModal() {
+            if (currentUser !== 'Yasser' && currentUser !== 'الادارة') {
+                alert('لا تمتلك صلاحية إضافة أو تعديل الأصناف والأسعار');
+                return;
+            }
+            document.getElementById('editPriceItemIndex').value = '-1';
+            document.getElementById('editPriceItemName').value = '';
+            document.getElementById('priceEditorTitle').innerText = 'إضافة صنف جديد إلى الدليل';
+            document.getElementById('unitPriceRows').innerHTML = '';
+            addUnitPriceRow('حبة', '');
+            document.getElementById('priceEditModal').classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+            setTimeout(() => document.getElementById('editPriceItemName')?.focus(), 50);
+        }
+
+        function openPriceEditModalByIndex(index) {
             if (currentUser !== 'Yasser' && currentUser !== 'الادارة') {
                 alert('لا تمتلك صلاحية تعديل الأسعار');
                 return;
             }
-            document.getElementById('editPriceItemName').value = itemName;
-            document.getElementById('lblEditItemName').innerText = `الصنف: ${itemName}`;
-            document.getElementById('editItemPriceValue').value = currentPrice;
+            const item = (db.pricelist || [])[Number(index)];
+            if (!item) return;
+            document.getElementById('editPriceItemIndex').value = String(index);
+            document.getElementById('editPriceItemName').value = item.item || '';
+            document.getElementById('priceEditorTitle').innerText = `تعديل الصنف: ${item.item || ''}`;
+            const host = document.getElementById('unitPriceRows');
+            host.innerHTML = '';
+            const prices = {...(item.unitPrices || {})};
+            if (item.unit && item.price !== undefined && prices[item.unit] === undefined) prices[item.unit] = item.price;
+            if (!Object.keys(prices).length && item.price !== undefined) prices['حبة'] = item.price;
+            Object.entries(prices).forEach(([unit, price]) => addUnitPriceRow(PRICE_UNITS.includes(unit) ? unit : '', price));
+            if (!host.children.length) addUnitPriceRow('حبة', item.price ?? '');
             document.getElementById('priceEditModal').classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
         }
 
         function saveItemPriceChange() {
-            const itemName = document.getElementById('editPriceItemName').value;
-            const newPrice = parseFloat(document.getElementById('editItemPriceValue').value) || 0;
-
-            const item = db.pricelist ? db.pricelist.find(p => p.item === itemName) : null;
-            if (item) {
-                const oldPrice = item.price || item.unitPrices?.[item.unit || 'حبة'] || 0;
-                item.price = newPrice;
-                if (!item.unitPrices) item.unitPrices = {};
-                item.unitPrices[item.unit || 'حبة'] = newPrice;
-                
-                if (db.meals) {
-                    db.meals.forEach(m => {
-                        m.ingredients.forEach(ing => {
-                            if (ing.item === itemName) {
-                                ing.price = newPrice;
-                                ing.total = ing.qty * newPrice;
-                            }
-                        });
-                    });
-                }
-
-                saveDatabase();
-                addAuditLog('تعديل سعر صنف', `قام ${currentUser} بتعديل سعر الصنف [${itemName}] من [${oldPrice}] إلى [${newPrice}]`);
-                closeModal('priceEditModal');
-                renderPricelistTable();
-                renderRecipeCards();
-                renderReportsTable();
+            if (currentUser !== 'Yasser' && currentUser !== 'الادارة') {
+                alert('لا تمتلك صلاحية إضافة أو تعديل الأصناف والأسعار');
+                return;
             }
+            const index = Number(document.getElementById('editPriceItemIndex').value);
+            const oldItem = index >= 0 ? db.pricelist[index] : null;
+            const itemName = document.getElementById('editPriceItemName').value.trim();
+            if (!itemName) { alert('يرجى إدخال اسم الصنف'); return; }
+            const duplicate = (db.pricelist || []).some((x, i) => i !== index && String(x.item || '').trim().toLocaleLowerCase() === itemName.toLocaleLowerCase());
+            if (duplicate) { alert('اسم الصنف موجود بالفعل في دليل الأصناف.'); return; }
+
+            const rows = [...document.querySelectorAll('#unitPriceRows .unit-price-row')];
+            const unitPrices = {};
+            for (const row of rows) {
+                const unit = row.querySelector('.unit-price-unit')?.value || '';
+                const raw = row.querySelector('.unit-price-value')?.value ?? '';
+                if (!unit) { alert('يرجى اختيار الوحدة لكل سطر سعر.'); return; }
+                if (raw === '' || !Number.isFinite(Number(raw)) || Number(raw) < 0) { alert(`يرجى إدخال سعر صحيح لوحدة ${unit}.`); return; }
+                if (Object.prototype.hasOwnProperty.call(unitPrices, unit)) { alert(`تم اختيار الوحدة ${unit} أكثر من مرة.`); return; }
+                unitPrices[unit] = Number(raw);
+            }
+            if (!Object.keys(unitPrices).length) { alert('أضف وحدة واحدة على الأقل وحدد سعرها.'); return; }
+
+            const primaryUnit = Object.keys(unitPrices)[0];
+            const primaryPrice = unitPrices[primaryUnit];
+            const beforeName = oldItem?.item || '';
+            const beforePrices = {...(oldItem?.unitPrices || {})};
+            if (oldItem && oldItem.unit && oldItem.price !== undefined && beforePrices[oldItem.unit] === undefined) beforePrices[oldItem.unit] = oldItem.price;
+            const newItem = {
+                ...(oldItem || {}),
+                id: oldItem?.id || `item_${Date.now()}_${Math.random().toString(36).slice(2,8)}`,
+                item: itemName,
+                unit: primaryUnit,
+                price: primaryPrice,
+                unitPrices
+            };
+
+            if (oldItem) db.pricelist[index] = newItem;
+            else {
+                if (!db.pricelist) db.pricelist = [];
+                db.pricelist.unshift(newItem);
+            }
+
+            // تحديث أسعار المكونات المرتبطة حسب الوحدة المحددة، دون فرض سعر وحدة على وحدة أخرى.
+            (db.meals || []).forEach(meal => (meal.ingredients || []).forEach(ing => {
+                if (ing.item !== itemName && ing.item !== beforeName) return;
+                const matchingPrice = unitPrices[ing.unit || 'حبة'];
+                if (matchingPrice !== undefined) {
+                    ing.item = itemName;
+                    ing.price = matchingPrice;
+                    ing.total = Number(ing.qty || 0) * matchingPrice;
+                } else if (beforeName && ing.item === beforeName) {
+                    ing.item = itemName;
+                }
+            }));
+            (db.pendingMeals || []).forEach(meal => (meal.ingredients || []).forEach(ing => {
+                if (ing.item === beforeName && beforeName) ing.item = itemName;
+            }));
+
+            const changes = [];
+            if (!oldItem) {
+                changes.push(`إضافة صنف جديد [${itemName}] بأسعار الوحدات: ${Object.entries(unitPrices).map(([u,v]) => `${u}=${formatPrice(v,5)}`).join('، ')}`);
+            } else {
+                if (beforeName !== itemName) changes.push(`تغيير اسم الصنف من [${beforeName}] إلى [${itemName}]`);
+                for (const unit of new Set([...Object.keys(beforePrices), ...Object.keys(unitPrices)])) {
+                    const before = beforePrices[unit];
+                    const after = unitPrices[unit];
+                    if (before !== after) changes.push(after === undefined ? `حذف سعر وحدة [${unit}] (السعر السابق ${formatPrice(before,5)})` : before === undefined ? `إضافة سعر وحدة [${unit}] بقيمة ${formatPrice(after,5)}` : `تعديل سعر وحدة [${unit}] من ${formatPrice(before,5)} إلى ${formatPrice(after,5)}`);
+                }
+            }
+
+            saveDatabase();
+            addAuditLog(oldItem ? 'تعديل صنف في دليل الأصناف' : 'إضافة صنف إلى دليل الأصناف', `${currentUser}: ${changes.join('؛ ')}`);
+            closeModal('priceEditModal');
+            renderPricelistTable();
+            renderRecipeCards();
+            renderReportsTable();
+            refreshAllUI();
+            alert(oldItem ? 'تم حفظ تعديلات الصنف وأسعار وحداته.' : 'تمت إضافة الصنف الجديد إلى دليل الأصناف.');
         }
 
         function renderReportsTable() {
@@ -2534,7 +2669,15 @@
                 return;
             }
 
-            tbody.innerHTML = db.auditLogs.map(log => {
+            const parseAuditTimestamp = log => {
+                const parsed = Date.parse(log.timestamp || '');
+                if (Number.isFinite(parsed)) return parsed;
+                const legacy = String(log.date || '');
+                const match = legacy.match(/(\d{2})\/(\d{2})\/(\d{4})\s+(\d{2}):(\d{2}):(\d{2})/);
+                return match ? new Date(Number(match[3]), Number(match[2])-1, Number(match[1]), Number(match[4]), Number(match[5]), Number(match[6])).getTime() : 0;
+            };
+            const newestFirstLogs = [...db.auditLogs].sort((a,b) => parseAuditTimestamp(b) - parseAuditTimestamp(a));
+            tbody.innerHTML = newestFirstLogs.map(log => {
                 const d = log.device || {};
                 const deviceText = [d.deviceType, d.os, d.browser].filter(Boolean).join(' / ') || 'بيانات الجهاز غير متوفرة (سجل قديم)';
                 const locationText = log.approximateLocation || d.approximateLocation || `المنطقة الزمنية: ${d.timeZone || 'غير متوفرة'}`;
@@ -2778,7 +2921,9 @@
         }
 
         function closeModal(modalId) {
-            document.getElementById(modalId).classList.add('hidden');
+            const modal = document.getElementById(modalId);
+            if (modal) modal.classList.add('hidden');
+            if (modalId === 'priceEditModal') document.body.classList.remove('overflow-hidden');
         }
     </script>
 </body>
