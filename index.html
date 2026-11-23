@@ -123,6 +123,55 @@
             .sticky-search-holder { top: 64px; }
             input, select, button { font-size: 14px !important; }
         }
+
+        /* نافذة تعديل الوجبة: تمرير مستقل يعمل على الكمبيوتر والهواتف */
+        #recipeEditModal {
+            box-sizing: border-box;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            overscroll-behavior: contain;
+            padding: max(8px, env(safe-area-inset-top))
+                     max(8px, env(safe-area-inset-right))
+                     max(8px, env(safe-area-inset-bottom))
+                     max(8px, env(safe-area-inset-left));
+        }
+        #recipeEditModal .recipe-modal-dialog {
+            height: min(92vh, 900px);
+            height: min(92dvh, 900px);
+            max-height: 100%;
+            min-height: 0;
+            overflow: hidden;
+        }
+        #recipeEditModal .recipe-modal-scroll {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-y: contain;
+            touch-action: pan-y;
+            scrollbar-gutter: stable;
+        }
+        #recipeEditModal .recipe-modal-footer {
+            flex: 0 0 auto;
+            padding-bottom: max(0.875rem, env(safe-area-inset-bottom));
+        }
+        @media (max-width: 767px) {
+            #recipeEditModal .recipe-modal-dialog {
+                width: 100%;
+                border-radius: 16px;
+                height: 96%;
+                max-height: 100%;
+            }
+            #recipeEditModal .recipe-modal-scroll {
+                padding: 12px;
+            }
+            #recipeEditModal .recipe-modal-footer {
+                gap: 8px;
+                flex-wrap: wrap;
+            }
+        }
     </style>
 </head>
 <body class="bg-red-50 text-slate-800 antialiased min-h-screen flex flex-col selection:bg-red-200">
@@ -202,10 +251,10 @@
         </div>
     </header>
 
-    <!-- مؤشر حالة المزامنة السحابية Firebase -->
+    <!-- مؤشر حالة المزامنة السحابية -->
     <div id="cloudSyncStatus" class="bg-naifRed-900/90 text-white text-[11px] font-bold px-4 py-1.5 text-center flex items-center justify-center gap-2 border-b border-red-700">
         <i class="fa-solid fa-cloud-arrow-up text-emerald-400 animate-pulse"></i>
-        <span>جاري المزامنة مع السحابة (Firebase)...</span>
+        <span>جاري المزامنة مع السحابة ()...</span>
     </div>
 
     <!-- خلفية معتمة لإغلاق القائمة الجانبية على الموبايل -->
@@ -436,14 +485,14 @@
     </nav>
 
     <!-- مودال إضافة / تعديل الوجبة -->
-    <div id="recipeEditModal" class="fixed inset-0 bg-naifRed-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4 hidden">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[92vh]">
+    <div id="recipeEditModal" class="fixed inset-0 bg-naifRed-950/70 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+        <div class="recipe-modal-dialog bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col">
             <div class="bg-naifRed-900 text-white p-3.5 sm:p-4 flex items-center justify-between shrink-0">
                 <h3 class="font-extrabold text-xs sm:text-sm" id="modalTitle">إضافة / تعديل الوجبة</h3>
                 <button onclick="closeModal('recipeEditModal')" class="text-red-200 hover:text-white p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             
-            <div class="p-4 sm:p-6 overflow-y-auto space-y-4 flex-1">
+            <div class="recipe-modal-scroll p-4 sm:p-6 space-y-4">
                 <input type="hidden" id="editMealIndex">
                 <input type="hidden" id="modalMode" value="add">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
@@ -479,7 +528,7 @@
                 </div>
             </div>
 
-            <div class="p-3.5 sm:p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-2 shrink-0">
+            <div class="recipe-modal-footer p-3.5 sm:p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-2 shrink-0">
                 <button onclick="addIngredientRowToModal()" class="bg-naifRed-900 hover:bg-naifRed-800 text-white text-xs font-bold px-4 py-2 rounded-xl shadow active:scale-95 flex items-center gap-1.5">
                     <i class="fa-solid fa-plus"></i> إضافة خامة جديدة
                 </button>
@@ -1085,7 +1134,7 @@
                 clearTimeout(cloudSaveTimer);
                 cloudSaveTimer = setTimeout(() => {
                     window.syncToFirebase().catch(err => console.error('Cloud sync pending/retry:', err));
-                }, 250);
+                }, 80);
             }
         }
 
@@ -1402,23 +1451,32 @@
                 return `
                 <div class="bg-white rounded-2xl border-2 border-red-200 shadow-md overflow-hidden flex flex-col recipe-card-box">
                     
-                    <div class="bg-naifRed-900 text-white p-3.5 sm:p-4 flex flex-wrap items-center justify-between gap-2.5">
-                        <div class="flex items-center gap-2.5">
+                    <div class="bg-naifRed-900 text-white p-3.5 sm:p-4 flex flex-wrap items-center justify-between gap-3">
+                        <div class="flex flex-wrap items-center gap-2.5 min-w-0 flex-1">
                             <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" onError="this.onerror=null;this.src='https://via.placeholder.com/40?text=NAIF';" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-white object-cover">
-                            <div>
-                                <h3 class="font-extrabold text-base sm:text-lg text-white flex items-center gap-2">
+                            <div class="min-w-0">
+                                <h3 class="font-extrabold text-lg sm:text-xl text-white flex flex-wrap items-center gap-2">
                                     <span>${meal.name || 'وجبة بدون اسم'}</span>
                                     ${canEditAll ? `
-                                    <button onclick="editMealNameDirect('${String(meal.name || '').replace(/'/g, '&#39;')}', ${realMealIndex})" class="text-[11px] bg-naifRed-800 hover:bg-naifRed-950 px-2 py-0.5 rounded text-red-200 no-print active:scale-95">
-                                        <i class="fa-solid fa-pen"></i> <span class="hidden sm:inline">تعديل الاسم</span>
+                                    <button onclick="editMealNameDirect('${String(meal.name || '').replace(/'/g, '&#39;')}', ${realMealIndex})" class="text-xs bg-naifRed-800 hover:bg-naifRed-950 px-2.5 py-1 rounded-lg text-red-100 no-print active:scale-95">
+                                        <i class="fa-solid fa-pen"></i> <span>تعديل الاسم</span>
                                     </button>` : ''}
                                 </h3>
                             </div>
+                            <div class="flex flex-wrap items-center gap-1.5 no-print">
+                                ${canEditAll ? `
+                                    <button onclick="openRecipeEditModal(${realMealIndex})" class="bg-white text-naifRed-900 hover:bg-red-100 text-xs font-bold px-2.5 py-2 rounded-lg flex items-center gap-1 shadow active:scale-95"><i class="fa-solid fa-pen-to-square"></i> تعديل</button>
+                                ` : `
+                                    <button onclick="openUserMealEditModal(${realMealIndex})" class="bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-2.5 py-2 rounded-lg flex items-center gap-1 shadow active:scale-95"><i class="fa-solid fa-pen-to-square"></i> طلب تعديل</button>
+                                `}
+                                <button onclick="openDuplicateRecipeModal(${realMealIndex})" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-2.5 py-2 rounded-lg flex items-center gap-1 shadow active:scale-95"><i class="fa-solid fa-copy"></i> تكرار</button>
+                                <button onclick="requestCancelMeal(${realMealIndex})" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-2.5 py-2 rounded-lg flex items-center gap-1 shadow active:scale-95"><i class="fa-solid fa-ban"></i> إلغاء</button>
+                                <button onclick="exportSingleRecipePDF(${realMealIndex})" class="bg-slate-700 hover:bg-slate-800 text-white text-xs font-bold px-2.5 py-2 rounded-lg flex items-center gap-1 shadow active:scale-95"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+                            </div>
                         </div>
-
-                        <div class="bg-naifRed-950/80 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl border border-red-600/50 text-left mr-auto sm:mr-0">
-                            <span class="text-[9px] sm:text-[10px] text-red-200 block font-bold">سعر البيع</span>
-                            <span class="text-lg sm:text-xl font-black font-mono text-white">${formatPrice(sp, 3)}</span>
+                        <div class="bg-naifRed-950/80 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-red-600/50 text-left">
+                            <span class="text-[10px] sm:text-xs text-red-200 block font-bold">سعر البيع</span>
+                            <span class="text-xl sm:text-2xl font-black font-mono text-white">${formatPrice(sp, 3)}</span>
                         </div>
                     </div>
 
@@ -1520,29 +1578,7 @@
                     </div>
                     `}
 
-                    <div class="p-3 bg-red-50 border-t border-red-200 flex flex-wrap items-center justify-between gap-2 no-print">
-                        ${canEditAll ? `
-                            <button onclick="openRecipeEditModal(${realMealIndex})" class="bg-naifRed-900 hover:bg-naifRed-800 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1 shadow active:scale-95">
-                                <i class="fa-solid fa-pen-to-square"></i> تعديل المكونات
-                            </button>
-                        ` : `
-                            <button onclick="openUserMealEditModal(${realMealIndex})" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1 shadow active:scale-95">
-                                <i class="fa-solid fa-pen-to-square"></i> طلب تعديل الوجبة
-                            </button>
-                        `}
-                        <button onclick="openDuplicateRecipeModal(${realMealIndex})" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1 shadow active:scale-95">
-                            <i class="fa-solid fa-copy"></i> تكرار الوجبة
-                        </button>
 
-                        <div class="flex items-center gap-2 mr-auto">
-                            <button onclick="requestCancelMeal(${realMealIndex})" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1 shadow active:scale-95">
-                                <i class="fa-solid fa-ban"></i> إلغاء الوجبة
-                            </button>
-                            <button onclick="exportSingleRecipePDF(${realMealIndex})" class="bg-slate-700 hover:bg-slate-800 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1 shadow active:scale-95">
-                                <i class="fa-solid fa-file-pdf"></i> PDF
-                            </button>
-                        </div>
-                    </div>
 
                 </div>
                 `;
@@ -1580,6 +1616,15 @@
             refreshAllUI();
         }
 
+        function revealRecipeEditModal() {
+            const modal = document.getElementById('recipeEditModal');
+            if (!modal) return;
+            modal.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+            const scrollArea = modal.querySelector('.recipe-modal-scroll');
+            if (scrollArea) scrollArea.scrollTop = 0;
+        }
+
         function openNewRecipeModal() {
             document.getElementById('modalTitle').innerText = 'إضافة وجبة جديدة';
             document.getElementById('modalMode').value = 'add';
@@ -1596,7 +1641,7 @@
             const tbody = document.getElementById('modalIngredientsTableBody');
             tbody.innerHTML = '';
             addIngredientRowToModal();
-            document.getElementById('recipeEditModal').classList.remove('hidden');
+            revealRecipeEditModal();
         }
 
         function openRecipeEditModal(index) {
@@ -1652,7 +1697,7 @@
                 addIngredientRowToModal(ing.item, ing.location, ing.unit, ing.qty, ing.price)
             );
             if (!meal.ingredients?.length) addIngredientRowToModal();
-            document.getElementById('recipeEditModal').classList.remove('hidden');
+            revealRecipeEditModal();
         }
 
         function addIngredientRowToModal(item = '', location = 'ALL', unit = 'حبة', qty = 1, price = 0) {
@@ -2356,111 +2401,95 @@
             }).join('');
         }
 
-        function exportReportPDF() {
-            const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF('p', 'pt', 'a4');
-            const rowsPerPage = 26;
-
-            const q = (document.getElementById('reportSearchInput')?.value || '').trim().toLowerCase();
-            let sortedMeals = [...(db.meals || [])].sort((a, b) => {
-                const aP = (a.sellingPrice || 0) > 0 ? 1 : 0;
-                const bP = (b.sellingPrice || 0) > 0 ? 1 : 0;
-                return bP - aP;
-            });
-
-            if (q) {
-                sortedMeals = sortedMeals.filter(m => m.name && m.name.toLowerCase().includes(q));
+        let reportPdfExportInProgress = false;
+        async function exportReportPDF() {
+            if (reportPdfExportInProgress) return;
+            if (!window.jspdf?.jsPDF || typeof window.html2canvas !== 'function') {
+                alert('مكتبة تصدير PDF لم تكتمل. يرجى تحديث الصفحة والمحاولة مرة أخرى.');
+                return;
             }
+            reportPdfExportInProgress = true;
+            const exportButton = document.querySelector('[onclick="exportReportPDF()"]');
+            const originalButtonHtml = exportButton?.innerHTML;
+            if (exportButton) {
+                exportButton.disabled = true;
+                exportButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جارٍ تجهيز PDF...';
+            }
+            let printWrapper = null;
+            try {
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'pt', 'a4');
+                const rowsPerPage = 26;
+                const q = (document.getElementById('reportSearchInput')?.value || '').trim().toLowerCase();
+                let sortedMeals = [...(db.meals || [])].sort((a, b) => {
+                    const aP = (a.sellingPrice || 0) > 0 ? 1 : 0;
+                    const bP = (b.sellingPrice || 0) > 0 ? 1 : 0;
+                    return bP - aP;
+                });
+                if (q) sortedMeals = sortedMeals.filter(m => m.name && m.name.toLowerCase().includes(q));
+                const totalPages = Math.ceil(sortedMeals.length / rowsPerPage) || 1;
 
-            const totalPages = Math.ceil(sortedMeals.length / rowsPerPage) || 1;
+                // انتظر الخطوط مرة واحدة قبل إنشاء صفحات التقرير لتجنب إعادة التخطيط أثناء التصوير.
+                if (document.fonts?.ready) await document.fonts.ready;
 
-            let currentPageIndex = 0;
-
-            function processNextPage() {
-                if (currentPageIndex >= totalPages) {
-                    pdf.save(q ? `تقرير_وجبات_مفلتر_${q}.pdf` : 'تقرير_ربحية_الوجبات_الشامل.pdf');
-                    return;
-                }
-
-                if (currentPageIndex > 0) pdf.addPage();
-
-                const printWrapper = document.createElement('div');
-                printWrapper.style.position = 'fixed';
-                printWrapper.style.top = '0';
-                printWrapper.style.left = '-9999px';
-                printWrapper.style.width = '794px';
-                printWrapper.style.background = '#ffffff';
-                printWrapper.style.direction = 'rtl';
-                printWrapper.style.padding = '20px';
-                printWrapper.style.fontFamily = "'Cairo', sans-serif";
-
-                const slicedMeals = sortedMeals.slice(currentPageIndex * rowsPerPage, (currentPageIndex + 1) * rowsPerPage);
-
-                let rowsHtml = slicedMeals.map(meal => {
-                    let mainCost = 0;
-                    if (meal.ingredients && Array.isArray(meal.ingredients)) {
-                        meal.ingredients.forEach(ing => {
+                for (let pageIndex = 0; pageIndex < totalPages; pageIndex++) {
+                    if (pageIndex > 0) pdf.addPage();
+                    printWrapper = document.createElement('div');
+                    printWrapper.style.position = 'fixed';
+                    printWrapper.style.top = '0';
+                    printWrapper.style.left = '-9999px';
+                    printWrapper.style.width = '794px';
+                    printWrapper.style.background = '#ffffff';
+                    printWrapper.style.direction = 'rtl';
+                    printWrapper.style.padding = '20px';
+                    printWrapper.style.fontFamily = "'Cairo', sans-serif";
+                    printWrapper.style.boxSizing = 'border-box';
+                    const slicedMeals = sortedMeals.slice(pageIndex * rowsPerPage, (pageIndex + 1) * rowsPerPage);
+                    const rowsHtml = slicedMeals.map(meal => {
+                        let mainCost = 0;
+                        if (Array.isArray(meal.ingredients)) meal.ingredients.forEach(ing => {
                             if (!ing.location || ing.location === 'ALL') mainCost += (ing.qty || 0) * (ing.price || 0);
                         });
-                    }
-                    const sp = meal.sellingPrice || 0;
-                    const profit = sp > 0 ? sp - mainCost : 0;
-                    const profitStr = sp > 0 ? formatPrice(profit, 3) : '-';
-                    const profitPct = sp > 0 ? (profit / sp * 100).toFixed(2) + '%' : '-';
-                    const costPct = sp > 0 ? (mainCost / sp * 100).toFixed(2) + '%' : '-';
-
-                    return `
-                        <tr style="border-bottom:1px solid #ddd; font-size:10px;">
-                            <td style="padding:5px; font-weight:bold;">${meal.name || ''}</td>
-                            <td style="padding:5px; text-align:center;">${formatPrice(sp, 3)}</td>
-                            <td style="padding:5px; text-align:center;">${formatPrice(mainCost, 3)}</td>
-                            <td style="padding:5px; text-align:center;">${profitStr}</td>
-                            <td style="padding:5px; text-align:center;">${profitPct}</td>
-                            <td style="padding:5px; text-align:center;">${costPct}</td>
-                        </tr>
-                    `;
-                }).join('');
-
-                printWrapper.innerHTML = `
-                    <div style="text-align:center; border-bottom:3px solid #05668D; padding-bottom:8px; margin-bottom:10px;">
-                        <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid #05668D;display:inline-block;">
-                        <h2 style="color:#05668D; font-weight:900; margin:2px 0 1px 0; font-size:14px;">شركة نايف للأغذية</h2>
-                        <p style="font-size:10px; color:#555; margin:0;">تقرير ربحية وتكاليف الوجبات الشامل ${q ? `(نتيجة بحث: ${q})` : ''} - صفحة ${currentPageIndex + 1} من ${totalPages}</p>
-                    </div>
-                    <table style="width:100%; border-collapse:collapse; text-align:right;">
-                        <thead>
-                            <tr style="background:#05668D; color:#fff; font-size:10px;">
-                                <th style="padding:6px;">اسم الوجبة</th>
-                                <th style="padding:6px; text-align:center;">سعر البيع</th>
-                                <th style="padding:6px; text-align:center;">التكلفة الرئيسية</th>
-                                <th style="padding:6px; text-align:center;">الربح المالي</th>
-                                <th style="padding:6px; text-align:center;">نسبة الربح %</th>
-                                <th style="padding:6px; text-align:center;">نسبة التكلفة %</th>
-                            </tr>
-                        </thead>
-                        <tbody>${rowsHtml}</tbody>
-                    </table>
-                    <div style="margin-top:12px; padding-top:6px; border-top:2px solid #05668D; display:flex; justify-content:space-between; font-size:8px; color:#05668D; font-weight:bold;">
-                        <div>تاريخ التصدير: ${new Date().toLocaleDateString('en-GB')}</div>
-                        <div>Yasser Elkhateeb - 67011143</div>
-                    </div>
-                `;
-
-                document.body.appendChild(printWrapper);
-
-                html2canvas(printWrapper, { scale: 1.2, useCORS: true }).then(canvas => {
+                        const sp = meal.sellingPrice || 0;
+                        const profit = sp > 0 ? sp - mainCost : 0;
+                        const profitStr = sp > 0 ? formatPrice(profit, 3) : '-';
+                        const profitPct = sp > 0 ? (profit / sp * 100).toFixed(2) + '%' : '-';
+                        const costPct = sp > 0 ? (mainCost / sp * 100).toFixed(2) + '%' : '-';
+                        return `<tr style="border-bottom:1px solid #ddd; font-size:10px;"><td style="padding:5px; font-weight:bold;">${escapeAuditHtml(meal.name || '')}</td><td style="padding:5px; text-align:center;">${formatPrice(sp, 3)}</td><td style="padding:5px; text-align:center;">${formatPrice(mainCost, 3)}</td><td style="padding:5px; text-align:center;">${profitStr}</td><td style="padding:5px; text-align:center;">${profitPct}</td><td style="padding:5px; text-align:center;">${costPct}</td></tr>`;
+                    }).join('');
+                    printWrapper.innerHTML = `
+                        <div style="text-align:center; border-bottom:3px solid #05668D; padding-bottom:8px; margin-bottom:10px;">
+                            <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid #05668D;display:inline-block;">
+                            <h2 style="color:#05668D; font-weight:900; margin:2px 0 1px 0; font-size:14px;">شركة نايف للأغذية</h2>
+                            <p style="font-size:10px; color:#555; margin:0;">تقرير ربحية وتكاليف الوجبات الشامل ${q ? `(نتيجة بحث: ${escapeAuditHtml(q)})` : ''} - صفحة ${pageIndex + 1} من ${totalPages}</p>
+                        </div>
+                        <table style="width:100%; border-collapse:collapse; text-align:right;"><thead><tr style="background:#05668D; color:#fff; font-size:10px;"><th style="padding:6px;">اسم الوجبة</th><th style="padding:6px; text-align:center;">سعر البيع</th><th style="padding:6px; text-align:center;">التكلفة الرئيسية</th><th style="padding:6px; text-align:center;">الربح المالي</th><th style="padding:6px; text-align:center;">نسبة الربح %</th><th style="padding:6px; text-align:center;">نسبة التكلفة %</th></tr></thead><tbody>${rowsHtml}</tbody></table>
+                        <div style="margin-top:12px; padding-top:6px; border-top:2px solid #05668D; display:flex; justify-content:space-between; font-size:8px; color:#05668D; font-weight:bold;"><div>تاريخ التصدير: ${new Date().toLocaleDateString('en-GB')}</div><div>Yasser Elkhateeb - 67011143</div></div>`;
+                    document.body.appendChild(printWrapper);
+                    // إتاحة إطار رسم واحد للمتصفح بعد إدراج الصفحة؛ يقلل اللقطات الفارغة الناتجة عن التصوير المبكر.
+                    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+                    // إعدادات المكتبة لم تتغير عن النسخة السابقة لتفادي اختلاف جودة/سلامة التصدير.
+                    const canvas = await html2canvas(printWrapper, { scale: 1.2, useCORS: true });
+                    if (!canvas.width || !canvas.height) throw new Error('PDF canvas is empty');
                     const imgData = canvas.toDataURL('image/jpeg', 0.85);
                     const imgWidth = pdf.internal.pageSize.getWidth();
                     const imgHeight = (canvas.height * imgWidth) / canvas.width;
                     pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
-
-                    document.body.removeChild(printWrapper);
-                    currentPageIndex++;
-                    setTimeout(processNextPage, 50);
-                });
+                    printWrapper.remove();
+                    printWrapper = null;
+                }
+                pdf.save(q ? `تقرير_وجبات_مفلتر_${q}.pdf` : 'تقرير_ربحية_الوجبات_الشامل.pdf');
+            } catch (err) {
+                console.error('PDF export error:', err);
+                alert('تعذر إكمال تصدير PDF. لم يتم تغيير إعدادات مكتبة التصدير؛ يرجى المحاولة مرة أخرى بعد اكتمال تحميل الصفحة.');
+            } finally {
+                if (printWrapper?.parentNode) printWrapper.remove();
+                reportPdfExportInProgress = false;
+                if (exportButton) {
+                    exportButton.disabled = false;
+                    exportButton.innerHTML = originalButtonHtml || '<i class="fa-solid fa-file-pdf"></i> تصدير التقرير PDF';
+                }
             }
-
-            processNextPage();
         }
 
         function exportReportExcel() {
@@ -2901,6 +2930,8 @@
 
             try {
                 const { jsPDF } = window.jspdf;
+                if (document.fonts?.ready) await document.fonts.ready;
+                await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
                 const canvas = await html2canvas(printWrapper, { scale: 1.5, useCORS: true });
                 const imgData = canvas.toDataURL('image/jpeg', 0.9);
 
@@ -2923,7 +2954,13 @@
         function closeModal(modalId) {
             const modal = document.getElementById(modalId);
             if (modal) modal.classList.add('hidden');
-            if (modalId === 'priceEditModal') document.body.classList.remove('overflow-hidden');
+            if (modalId === 'priceEditModal' || modalId === 'recipeEditModal') {
+                const anotherModalIsOpen = ['priceEditModal', 'recipeEditModal'].some(id => {
+                    const el = document.getElementById(id);
+                    return el && !el.classList.contains('hidden');
+                });
+                if (!anotherModalIsOpen) document.body.classList.remove('overflow-hidden');
+            }
         }
     </script>
 </body>
