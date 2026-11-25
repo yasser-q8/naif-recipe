@@ -172,6 +172,54 @@
                 flex-wrap: wrap;
             }
         }
+
+        /* لوحة ألوان فاتحة للبرنامج مع الإبقاء على الأحمر الخاص بشاشة الدخول كما هو */
+        body { background: #f2f8fc !important; color: #26384a; }
+        body > header { background:linear-gradient(110deg,#a91f16,#c52b20) !important; color:#ffffff !important; border-bottom:3px solid #7f1712 !important; box-shadow:0 5px 18px rgba(120,25,20,.18) !important; }
+        body > header h1, body > header strong, body > header .text-white, body > header p { color:#ffffff !important; }
+        body > header .bg-naifRed-950\/60 { background:rgba(90,12,10,.35) !important; border-color:rgba(255,255,255,.25) !important; }
+        body > header .text-red-200, body > header .text-red-300 { color:#ffe1dc !important; }
+        /* أزرار إجراءات الوجبة: ألوان واضحة ونص أبيض عالي التباين */
+        .recipe-card-box button[onclick^="openDuplicateRecipeModal"] { background:#28659a !important; color:#fff !important; }
+        .recipe-card-box button[onclick^="requestCancelMeal"] { background:#b83232 !important; color:#fff !important; }
+        .recipe-card-box button[onclick^="exportSingleRecipePDF"] { background:#36566b !important; color:#fff !important; }
+        .recipe-card-box button[onclick^="openDuplicateRecipeModal"] *, .recipe-card-box button[onclick^="requestCancelMeal"] *, .recipe-card-box button[onclick^="exportSingleRecipePDF"] * { color:#fff !important; }
+        .recipe-card-box button[onclick^="openDuplicateRecipeModal"], .recipe-card-box button[onclick^="requestCancelMeal"], .recipe-card-box button[onclick^="exportSingleRecipePDF"] { color:#ffffff !important; -webkit-text-fill-color:#ffffff !important; }
+        .recipe-card-box button[onclick^="openDuplicateRecipeModal"] *, .recipe-card-box button[onclick^="requestCancelMeal"] *, .recipe-card-box button[onclick^="exportSingleRecipePDF"] * { color:#ffffff !important; -webkit-text-fill-color:#ffffff !important; }
+        .recipe-card-box button[onclick^="openDuplicateRecipeModal"]:hover { background:#1e527f !important; }
+        .recipe-card-box button[onclick^="requestCancelMeal"]:hover { background:#982626 !important; }
+        .recipe-card-box button[onclick^="exportSingleRecipePDF"]:hover { background:#294354 !important; }
+        #cloudSyncStatus { background:#e5f4fa !important; color:#24566d !important; border-color:#c6e5f0 !important; }
+        #mainSidebar, .tab-view > div, #paginationControls { border-color:#d7e9f1 !important; box-shadow:0 4px 16px rgba(62,111,137,.07) !important; }
+        #mainSidebar { background:#ffffff !important; }
+        .sticky-search-holder { background:rgba(242,248,252,.96) !important; border-color:#c9e5f0 !important; }
+        .recipe-card-box { border-color:#cfe5ef !important; box-shadow:0 5px 16px rgba(57,112,140,.09) !important; }
+        .recipe-card-box > div:first-child { background:linear-gradient(110deg,#9fc8da,#b8d9e6) !important; color:#173f56 !important; border-bottom:1px solid #8fb8ca; }
+        .recipe-card-box > div:first-child h3, .recipe-card-box > div:first-child .text-white { color:#173f56 !important; }
+        .recipe-card-box > div:first-child .text-red-200 { color:#365b70 !important; }
+        .recipe-card-box > div:first-child .bg-naifRed-950\/80 { background:#f4fbfe !important; border-color:#c8e4ef !important; }
+        .recipe-card-box > div:first-child .bg-naifRed-950\/80 .text-white { color:#17445a !important; }
+        .recipe-ingredients-table { border:1px solid #d5e8f0; }
+        .recipe-ingredients-table thead tr { background:#c9e7f3 !important; color:#173f56 !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+        .recipe-ingredients-table th { padding:5px 4px !important; }
+        .recipe-ingredient-row { border-bottom:1px solid #e1edf2; }
+        .recipe-ingredient-row:nth-child(odd) { background:#eaf6fb !important; }
+        .recipe-ingredient-row:nth-child(even) { background:#ffffff !important; }
+        .recipe-ingredient-row:hover { background:#dff0f7 !important; }
+        .recipe-ingredient-row td { padding-top:3px !important; padding-bottom:3px !important; line-height:1.25 !important; }
+        .recipe-number-cell { font-size:15px !important; font-weight:800 !important; color:#173f56 !important; }
+        .recipe-ratios-panel { background:#f0f8fc !important; border-color:#d7eaf2 !important; color:#294b5c !important; }
+        .recipe-ratio-card { background:#ffffff !important; border-color:#cfe4ee !important; box-shadow:0 2px 8px rgba(60,110,135,.06) !important; }
+        .recipe-ratio-card h4 { color:#1d5872 !important; border-color:#d7eaf2 !important; }
+        .recipe-ratio-card span, .recipe-ratio-card .text-white, .recipe-ratio-card h4 { color:#294b5c !important; }
+        .recipe-ratio-card .bg-sky-50 { background:#eaf5fa !important; }
+        #recipeEditModal .recipe-modal-dialog { border:1px solid #d5e8f0; }
+        #recipeEditModal .recipe-modal-dialog > div:first-child { background:#d9edf6 !important; color:#17445a !important; }
+        #recipeEditModal .recipe-modal-dialog > div:first-child h3 { color:#17445a !important; }
+        @media print {
+            .recipe-ingredient-row:nth-child(odd) { background:#eaf6fb !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+            .recipe-ingredient-row:nth-child(even) { background:#fff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+        }
     </style>
 </head>
 <body class="bg-red-50 text-slate-800 antialiased min-h-screen flex flex-col selection:bg-red-200">
@@ -603,7 +651,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, onSnapshot, runTransaction, getDocFromServer } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, onSnapshot, runTransaction, getDoc, getDocFromServer } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBqHC3lSZgvqYvdYg5TwIPqGVCXNaXbhD8",
@@ -627,8 +675,73 @@
         const DB_ARRAY_KEYS = ['pricelist','meals','pendingMeals','pendingItems','cancelledMeals','auditLogs'];
         const CLOUD_BASE_STORAGE_KEY = 'NAIF_FOODS_RECIPES_DB_V2026_MOBILE_CLOUD_BASE';
         const CLOUD_DIRTY_STORAGE_KEY = 'NAIF_FOODS_RECIPES_DB_V2026_MOBILE_CLOUD_DIRTY';
+        // حد داخلي أقل من حد Firestore (1 MiB) لتجنب تجاوز حجم المستند بسبب بياناته الوصفية.
+        const FIRESTORE_CHUNK_LIMIT = 700 * 1024;
+        const cloudChunksRef = doc(dbFirestore, 'artifacts', 'n-rcp-39b7c', 'public', 'data', 'naif_main_db', 'main_doc');
+        function cloudChunkDoc(key, index) {
+            return doc(dbFirestore, 'artifacts', 'n-rcp-39b7c', 'public', 'data', 'naif_main_db', 'main_doc', 'chunks', `${key}_${String(index).padStart(4, '0')}`);
+        }
+        function utf8Size(value) { return new TextEncoder().encode(JSON.stringify(value)).length; }
+        function splitArrayIntoCloudChunks(items, key) {
+            const chunks = [];
+            let current = [];
+            for (const item of (Array.isArray(items) ? items : [])) {
+                const candidate = [...current, item];
+                if (utf8Size({ items: candidate }) > FIRESTORE_CHUNK_LIMIT) {
+                    if (!current.length) throw new Error(`السجل داخل ${key} أكبر من الحد الآمن لمستند Firestore؛ لم يتم حفظه لتجنب فقد البيانات.`);
+                    chunks.push(current);
+                    current = [item];
+                    if (utf8Size({ items: current }) > FIRESTORE_CHUNK_LIMIT) throw new Error(`يوجد سجل منفرد كبير جداً داخل ${key} ولا يمكن حفظه كمستند واحد.`);
+                } else current = candidate;
+            }
+            if (current.length || !chunks.length) chunks.push(current);
+            return chunks;
+        }
+        async function readCloudDocument(parentSnap) {
+            if (!parentSnap?.exists()) return normalizeCloudData({});
+            const parent = parentSnap.data() || {};
+            if (!parent.__chunked) return normalizeCloudData(parent); // دعم المستندات القديمة عند الترحيل لأول مرة.
+            const data = {};
+            for (const key of DB_ARRAY_KEYS) {
+                const count = Number(parent.chunkCounts?.[key] || 0);
+                const values = [];
+                for (let i = 0; i < count; i++) {
+                    const partSnap = await getDoc(cloudChunkDoc(key, i));
+                    if (!partSnap.exists()) throw new Error(`البيانات السحابية غير مكتملة: الجزء ${key}_${i} غير موجود.`);
+                    values.push(...(Array.isArray(partSnap.data()?.items) ? partSnap.data().items : []));
+                }
+                data[key] = values;
+            }
+            return normalizeCloudData(data);
+        }
 
         const cloneData = value => JSON.parse(JSON.stringify(value ?? null));
+
+        // Firestore يرفض undefined داخل أي مستوى من الكائنات، وهو سبب شائع لخطأ invalid-argument.
+        // ننظف البيانات قبل إرسالها، مع تسجيل المسار الذي تم تنظيفه لتسهيل تشخيص أي سجل قديم.
+        function sanitizeForFirestore(value, path = 'root', diagnostics = []) {
+            if (value === undefined || typeof value === 'function' || typeof value === 'symbol') {
+                diagnostics.push(path);
+                return undefined;
+            }
+            if (typeof value === 'bigint') return value.toString();
+            if (typeof value === 'number' && !Number.isFinite(value)) return null;
+            if (value === null || typeof value !== 'object') return value;
+            if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value;
+            if (Array.isArray(value)) {
+                return value.map((item, index) => {
+                    const clean = sanitizeForFirestore(item, `${path}[${index}]`, diagnostics);
+                    return clean === undefined ? null : clean;
+                });
+            }
+            const output = {};
+            Object.keys(value).forEach(key => {
+                const clean = sanitizeForFirestore(value[key], `${path}.${key}`, diagnostics);
+                if (clean !== undefined) output[key] = clean;
+            });
+            return output;
+        }
+
         function normalizeCloudData(data = {}) {
             const out = {};
             DB_ARRAY_KEYS.forEach(key => {
@@ -800,7 +913,10 @@
 
                 if (docSnap.exists()) {
                     const isFirst = !firstServerSnapshotHandled;
-                    applyAuthoritativeServerData(docSnap.data(), isFirst);
+                    readCloudDocument(docSnap).then(data => applyAuthoritativeServerData(data, isFirst)).catch(error => {
+                        console.error('Firestore chunk read failed:', error);
+                        showCloudStatus(`تعذر تجميع أجزاء البيانات السحابية (${error.code || error.message})`, 'error');
+                    });
                 } else {
                     // المستند غير موجود على الخادم: ننشئه من البيانات المحلية الحالية بدلاً من مسحها.
                     lastRemoteState = normalizeCloudData({});
@@ -823,19 +939,50 @@
                 try {
                     showCloudStatus('جاري حفظ التعديلات ومزامنتها...');
                     let committedData = null;
+                    let committedArrays = null;
                     await runTransaction(dbFirestore, async (transaction) => {
                         const snap = await transaction.get(docRef);
-                        const remote = normalizeCloudData(snap.exists() ? snap.data() : {});
+                        const parent = snap.exists() ? (snap.data() || {}) : {};
+                        const previousCounts = parent.__chunked ? (parent.chunkCounts || {}) : {};
+                        const existingChunks = {};
+                        // اقرأ كل الأجزاء الحالية قبل أي كتابة حتى تبقى عملية الدمج مبنية على أحدث نسخة.
+                        for (const key of DB_ARRAY_KEYS) {
+                            existingChunks[key] = [];
+                            const count = Number(previousCounts[key] || 0);
+                            for (let i = 0; i < count; i++) {
+                                const partSnap = await transaction.get(cloudChunkDoc(key, i));
+                                existingChunks[key].push(partSnap.exists() && Array.isArray(partSnap.data()?.items) ? partSnap.data().items : []);
+                            }
+                        }
+                        const remoteData = {};
+                        if (parent.__chunked) {
+                            for (const key of DB_ARRAY_KEYS) remoteData[key] = existingChunks[key].flat();
+                        } else Object.assign(remoteData, parent); // ترحيل تلقائي من شكل المستند القديم.
+                        const remote = normalizeCloudData(remoteData);
                         const merged = mergeDatabase(baseSnapshot, localSnapshot, remote);
+                        const removedFields = [];
+                        const cleanMerged = sanitizeForFirestore(merged, 'database', removedFields);
+                        committedArrays = cleanMerged;
+                        if (removedFields.length) console.warn('تم تنظيف قيم غير صالحة لـ Firestore:', removedFields.slice(0, 50));
+                        const chunkCounts = {};
+                        for (const key of DB_ARRAY_KEYS) {
+                            const chunks = splitArrayIntoCloudChunks(cleanMerged[key] || [], key);
+                            chunkCounts[key] = chunks.length;
+                            chunks.forEach((items, index) => transaction.set(cloudChunkDoc(key, index), { items }));
+                            for (let i = chunks.length; i < Number(previousCounts[key] || 0); i++) transaction.delete(cloudChunkDoc(key, i));
+                        }
                         committedData = {
-                            ...merged,
+                            __chunked: true,
+                            schemaVersion: 2,
+                            chunkCounts,
                             lastUpdatedBy: window.currentUser || 'النظام',
                             updatedAt: new Date().toISOString()
                         };
+                        // المستند الرئيسي أصبح فهرساً صغيراً فقط، والبيانات الفعلية موزعة على أجزاء.
                         transaction.set(docRef, committedData);
                     });
 
-                    lastRemoteState = normalizeCloudData(committedData);
+                    lastRemoteState = normalizeCloudData(committedArrays || {});
                     const hasNewerLocalEdit = Number(window.dbRevision || 0) !== localRevision;
                     persistCloudBaseline(lastRemoteState, hasNewerLocalEdit);
                     if (!hasNewerLocalEdit) {
@@ -849,8 +996,14 @@
                     }
                     showCloudStatus('تم حفظ التعديلات ومزامنتها مع جميع الأجهزة');
                 } catch (err) {
-                    console.error('Error saving to Firebase:', err);
-                    showCloudStatus(`فشل الحفظ السحابي (${err.code || err.message})`, 'error');
+                    console.error('Error saving to Firebase:', {
+                        code: err?.code || 'unknown', message: err?.message || String(err),
+                        name: err?.name, stack: err?.stack
+                    });
+                    const errorCode = err?.code || 'unknown-error';
+                    const errorMessage = String(err?.message || 'لم يرسل Firebase وصفاً إضافياً للخطأ').replace(/\s+/g, ' ').slice(0, 180);
+                    const detail = `${errorCode}: ${errorMessage}`;
+                    showCloudStatus(`فشل الحفظ السحابي (${detail})`, 'error');
                     throw err;
                 }
             }).catch(err => {
@@ -866,7 +1019,7 @@
                 const snap = await getDocFromServer(docRef);
                 if (snap.exists()) {
                     // تمرير نسخة الخادم عبر نفس منطق الدمج المستخدم في المستمع الفوري.
-                    const data = snap.data();
+                    const data = await readCloudDocument(snap);
                     const local = normalizeCloudData(window.db || {});
                     const previousMeals = local.meals || [];
                     const remote = normalizeCloudData(data);
@@ -1438,13 +1591,13 @@
                 const realMealIndex = db.meals.findIndex(m => (m.id && meal.id ? m.id === meal.id : m.name === meal.name));
 
                 const rowsHtml = meal.ingredients && Array.isArray(meal.ingredients) ? meal.ingredients.map((ing) => `
-                    <tr class="hover:bg-red-50/50 border-b border-slate-100 text-xs">
-                        <td class="py-2 px-1 font-bold text-slate-800 text-right text-[13px] sm:text-[13.5px]">${ing.item || ''}</td>
-                        <td class="py-2 px-1 text-center font-bold text-naifRed-900">${ing.location || 'ALL'}</td>
-                        <td class="py-2 px-1 text-center text-slate-600">${ing.unit || ''}</td>
-                        <td class="py-2 px-1 text-center font-bold font-mono text-slate-900">${formatQty(ing.qty)}</td>
-                        <td class="py-2 px-1 text-center font-mono">${hidePrices ? '***' : formatPrice(ing.price, 5)}</td>
-                        <td class="py-2 px-1 text-center font-mono font-black text-naifRed-900 text-xs sm:text-sm">${hidePrices ? '***' : formatPrice(ing.qty * ing.price, 3)}</td>
+                    <tr class="recipe-ingredient-row">
+                        <td class="py-1 px-1 font-bold text-slate-800 text-right text-[13px] sm:text-[13.5px]">${ing.item || ''}</td>
+                        <td class="py-1 px-1 text-center font-bold text-naifRed-900">${ing.location || 'ALL'}</td>
+                        <td class="py-1 px-1 text-center text-slate-600">${ing.unit || ''}</td>
+                        <td class="recipe-number-cell py-1 px-1 text-center font-bold font-mono text-slate-900">${formatQty(ing.qty)}</td>
+                        <td class="recipe-number-cell py-1 px-1 text-center font-mono">${hidePrices ? '***' : formatPrice(ing.price, 5)}</td>
+                        <td class="recipe-number-cell py-1 px-1 text-center font-mono font-black text-naifRed-900 text-sm">${hidePrices ? '***' : formatPrice(ing.qty * ing.price, 3)}</td>
                     </tr>
                 `).join('') : '';
 
@@ -1481,7 +1634,7 @@
                     </div>
 
                     <div class="p-3 sm:p-4 bg-red-50/20 overflow-x-auto">
-                        <table class="w-full text-right border-collapse min-w-[500px]">
+                        <table class="recipe-ingredients-table w-full text-right border-collapse min-w-[500px]">
                             <thead>
                                 <tr class="bg-naifRed-900 text-white text-xs">
                                     <th class="py-2 px-1">الصنف</th>
@@ -1499,16 +1652,16 @@
                     </div>
 
                     ${hidePrices ? '' : `
-                    <div class="p-3.5 sm:p-5 bg-naifOrange-600 text-white space-y-3 border-t-2 border-orange-300">
+                    <div class="recipe-ratios-panel p-3.5 sm:p-4 space-y-2 border-t border-sky-100">
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                             
-                            <div class="bg-black/20 p-4 rounded-xl border border-orange-400/50 space-y-2.5 shadow">
+                            <div class="recipe-ratio-card p-3 rounded-xl border space-y-2">
                                 <h4 class="text-sm font-black text-white border-b border-orange-400 pb-1.5">الوجبة الأصلية</h4>
                                 <div class="flex justify-between items-center text-sm font-bold">
                                     <span class="text-white text-sm">سعر البيع:</span>
                                     <span class="font-mono text-white text-lg font-black">${formatPrice(sp, 3)}</span>
                                 </div>
-                                <div class="flex justify-between items-center text-sm font-bold bg-black/25 p-2 rounded">
+                                <div class="flex justify-between items-center text-sm font-bold bg-sky-50 p-2 rounded">
                                     <span class="text-white text-sm">التكلفة:</span>
                                     <span class="font-mono text-white text-lg font-black">${formatPrice(mainCost, 3)}</span>
                                 </div>
@@ -1526,13 +1679,13 @@
                                 </div>
                             </div>
 
-                            <div class="bg-black/20 p-4 rounded-xl border border-orange-400/50 space-y-2.5 shadow">
+                            <div class="recipe-ratio-card p-3 rounded-xl border space-y-2">
                                 <h4 class="text-sm font-black text-white border-b border-orange-400 pb-1.5">توصيل خارجي</h4>
                                 <div class="flex justify-between items-center text-sm font-bold">
                                     <span class="text-white text-sm">سعر البيع:</span>
                                     <span class="font-mono text-white text-lg font-black">${formatPrice(sp, 3)}</span>
                                 </div>
-                                <div class="flex justify-between items-center text-sm font-bold bg-black/25 p-2 rounded">
+                                <div class="flex justify-between items-center text-sm font-bold bg-sky-50 p-2 rounded">
                                     <span class="text-white text-sm">التكلفة:</span>
                                     <span class="font-mono text-white text-lg font-black">${formatPrice(totalOutCost, 3)}</span>
                                 </div>
@@ -1550,13 +1703,13 @@
                                 </div>
                             </div>
 
-                            <div class="bg-black/20 p-4 rounded-xl border border-orange-400/50 space-y-2.5 shadow">
+                            <div class="recipe-ratio-card p-3 rounded-xl border space-y-2">
                                 <h4 class="text-sm font-black text-white border-b border-orange-400 pb-1.5">داخل المطعم (داين إن)</h4>
                                 <div class="flex justify-between items-center text-sm font-bold">
                                     <span class="text-white text-sm">سعر البيع:</span>
                                     <span class="font-mono text-white text-lg font-black">${formatPrice(sp, 3)}</span>
                                 </div>
-                                <div class="flex justify-between items-center text-sm font-bold bg-black/25 p-2 rounded">
+                                <div class="flex justify-between items-center text-sm font-bold bg-sky-50 p-2 rounded">
                                     <span class="text-white text-sm">التكلفة:</span>
                                     <span class="font-mono text-white text-lg font-black">${formatPrice(totalInCost, 3)}</span>
                                 </div>
@@ -2458,13 +2611,13 @@
                         return `<tr style="border-bottom:1px solid #ddd; font-size:10px;"><td style="padding:5px; font-weight:bold;">${escapeAuditHtml(meal.name || '')}</td><td style="padding:5px; text-align:center;">${formatPrice(sp, 3)}</td><td style="padding:5px; text-align:center;">${formatPrice(mainCost, 3)}</td><td style="padding:5px; text-align:center;">${profitStr}</td><td style="padding:5px; text-align:center;">${profitPct}</td><td style="padding:5px; text-align:center;">${costPct}</td></tr>`;
                     }).join('');
                     printWrapper.innerHTML = `
-                        <div style="text-align:center; border-bottom:3px solid #05668D; padding-bottom:8px; margin-bottom:10px;">
-                            <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid #05668D;display:inline-block;">
-                            <h2 style="color:#05668D; font-weight:900; margin:2px 0 1px 0; font-size:14px;">شركة نايف للأغذية</h2>
+                        <div style="text-align:center; border-bottom:3px solid #a91f16; padding-bottom:8px; margin-bottom:10px;">
+                            <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid #a91f16;display:inline-block;">
+                            <h2 style="color:#a91f16; font-weight:900; margin:2px 0 1px 0; font-size:14px;">شركة نايف للأغذية</h2>
                             <p style="font-size:10px; color:#555; margin:0;">تقرير ربحية وتكاليف الوجبات الشامل ${q ? `(نتيجة بحث: ${escapeAuditHtml(q)})` : ''} - صفحة ${pageIndex + 1} من ${totalPages}</p>
                         </div>
-                        <table style="width:100%; border-collapse:collapse; text-align:right;"><thead><tr style="background:#05668D; color:#fff; font-size:10px;"><th style="padding:6px;">اسم الوجبة</th><th style="padding:6px; text-align:center;">سعر البيع</th><th style="padding:6px; text-align:center;">التكلفة الرئيسية</th><th style="padding:6px; text-align:center;">الربح المالي</th><th style="padding:6px; text-align:center;">نسبة الربح %</th><th style="padding:6px; text-align:center;">نسبة التكلفة %</th></tr></thead><tbody>${rowsHtml}</tbody></table>
-                        <div style="margin-top:12px; padding-top:6px; border-top:2px solid #05668D; display:flex; justify-content:space-between; font-size:8px; color:#05668D; font-weight:bold;"><div>تاريخ التصدير: ${new Date().toLocaleDateString('en-GB')}</div><div>Yasser Elkhateeb - 67011143</div></div>`;
+                        <table style="width:100%; border-collapse:collapse; text-align:right;"><thead><tr style="background:#c9e7f3; color:#173f56; font-size:10px;"><th style="padding:6px;">اسم الوجبة</th><th style="padding:6px; text-align:center;">سعر البيع</th><th style="padding:6px; text-align:center;">التكلفة الرئيسية</th><th style="padding:6px; text-align:center;">الربح المالي</th><th style="padding:6px; text-align:center;">نسبة الربح %</th><th style="padding:6px; text-align:center;">نسبة التكلفة %</th></tr></thead><tbody>${rowsHtml}</tbody></table>
+                        <div style="margin-top:12px; padding-top:6px; border-top:2px solid #a91f16; display:flex; justify-content:space-between; font-size:8px; color:#a91f16; font-weight:bold;"><div>تاريخ التصدير: ${new Date().toLocaleDateString('en-GB')}</div><div>Yasser Elkhateeb - 67011143</div></div>`;
                     document.body.appendChild(printWrapper);
                     // إتاحة إطار رسم واحد للمتصفح بعد إدراج الصفحة؛ يقلل اللقطات الفارغة الناتجة عن التصوير المبكر.
                     await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
@@ -2839,13 +2992,13 @@
             const inCostPct = sp > 0 ? (totalInCost / sp * 100) : 0;
 
             const rowsHtml = meal.ingredients && Array.isArray(meal.ingredients) ? meal.ingredients.map(ing => `
-                <tr style="border-bottom: 1px solid #fee2e2; font-size: 11px;">
+                <tr style="border-bottom: 1px solid #e1edf2; font-size: 11px; background:#eaf6fb;">
                     <td style="padding: 6px; font-weight: bold; text-align: right;">${ing.item || ''}</td>
                     <td style="padding: 6px; text-align: center;">${ing.location || 'ALL'}</td>
                     <td style="padding: 6px; text-align: center;">${ing.unit || ''}</td>
                     <td style="padding: 6px; text-align: center; font-family: monospace; font-weight: bold;">${formatQty(ing.qty)}</td>
                     ${hidePrices ? '' : `<td style="padding: 6px; text-align: center; font-family: monospace;">${formatPrice(ing.price, 5)}</td>`}
-                    ${hidePrices ? '' : `<td style="padding: 6px; text-align: center; font-family: monospace; font-weight: bold; color: #05668D;">${formatPrice(ing.qty * ing.price, 3)}</td>`}
+                    ${hidePrices ? '' : `<td style="padding: 6px; text-align: center; font-family: monospace; font-weight: bold; color: #173f56;">${formatPrice(ing.qty * ing.price, 3)}</td>`}
                 </tr>
             `).join('') : '';
 
@@ -2860,23 +3013,23 @@
             printWrapper.style.fontFamily = "'Cairo', Tahoma, sans-serif";
 
             printWrapper.innerHTML = `
-                <div style="text-align:center; border-bottom:3px solid #05668D; padding-bottom:10px; margin-bottom:14px;">
-                    <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" style="width:50px;height:50px;border-radius:50%;object-fit:cover;border:2px solid #05668D; display:inline-block;">
-                    <h2 style="color:#05668D; font-weight:900; margin:4px 0 2px 0; font-size:16px;">شركة نايف للأغذية</h2>
+                <div style="text-align:center; border-bottom:3px solid #a9cbdc; padding-bottom:10px; margin-bottom:14px;">
+                    <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" style="width:50px;height:50px;border-radius:50%;object-fit:cover;border:2px solid #a9cbdc; display:inline-block;">
+                    <h2 style="color:#173f56; font-weight:900; margin:4px 0 2px 0; font-size:16px;">شركة نايف للأغذية</h2>
                     <p style="font-size:11px; color:#555; margin:0;">بطاقة ريسبي الوجبة: ${meal.name || ''}</p>
                 </div>
 
-                <div style="background:#05668D; color:#fff; padding:12px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                <div style="background:#b6d8e8; color:#173f56; padding:12px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
                     <h3 style="margin:0; font-size:16px; font-weight:bold;">${meal.name || ''}</h3>
-                    <div style="background:#B51C00; padding:6px 12px; border-radius:8px; text-align:left;">
-                        <span style="font-size:9px; color:#fca5a5; display:block;">سعر البيع</span>
-                        <span style="font-size:16px; font-weight:bold; font-family:monospace; color:#ffffff;">${formatPrice(sp, 3)}</span>
+                    <div style="background:#a91f16; padding:6px 12px; border-radius:8px; text-align:left;">
+                        <span style="font-size:13px; color:#ffffff; display:block; font-weight:900;">سعر البيع</span>
+                        <span style="font-size:19px; font-weight:900; font-family:monospace; color:#ffffff;">${formatPrice(sp, 3)}</span>
                     </div>
                 </div>
 
                 <table style="width:100%; border-collapse:collapse; text-align:right; margin-bottom:15px;">
                     <thead>
-                        <tr style="background:#05668D; color:#fff; font-size:11px;">
+                        <tr style="background:#b6d8e8; color:#173f56; font-size:11px;">
                             <th style="padding:6px;">الصنف</th>
                             <th style="padding:6px; text-align:center;">المكان</th>
                             <th style="padding:6px; text-align:center;">الوحدة</th>
@@ -2889,38 +3042,38 @@
                 </table>
 
                 ${hidePrices ? '' : `
-                <div style="background:#028090; color:#fff; padding:12px; border-radius:12px; margin-bottom:15px;">
+                <div style="background:#f0f8fc; color:#294b5c; border:1px solid #d7eaf2; padding:12px; border-radius:12px; margin-bottom:15px;">
                     <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
                         
-                        <div style="background:rgba(0,0,0,0.15); padding:10px; border-radius:8px; font-size:11px;">
-                            <h4 style="margin:0 0 6px 0; font-size:13px; border-bottom:1px solid rgba(255,255,255,0.4); padding-bottom:4px; color:#fff; font-weight:bold;">الوجبة الأصلية</h4>
-                            <div style="color:#fff;">التكلفة: <strong style="color:#fff; font-family:monospace; font-size:13px;">${formatPrice(mainCost, 3)}</strong></div>
-                            <div style="color:#fff;">الربح: <strong style="color:#fff; font-family:monospace; font-size:13px;">${formatPrice(mainProfit, 3)}</strong></div>
-                            <div style="color:#fff;">نسبة الربح: <strong style="color:#fff; font-family:monospace; font-size:13px;">${mainProfitPct.toFixed(2)}%</strong></div>
-                            <div style="color:#fff;">نسبة التكلفة: <strong style="color:#fff; font-family:monospace; font-size:13px;">${mainCostPct.toFixed(2)}%</strong></div>
+                        <div style="background:#ffffff; border:1px solid #cfe4ee; padding:10px; border-radius:8px; font-size:11px;">
+                            <h4 style="margin:0 0 6px 0; font-size:13px; border-bottom:1px solid #d7eaf2; padding-bottom:4px; color:#294b5c; font-weight:bold;">الوجبة الأصلية</h4>
+                            <div style="color:#294b5c;">التكلفة: <strong style="color:#294b5c; font-family:monospace; font-size:13px;">${formatPrice(mainCost, 3)}</strong></div>
+                            <div style="color:#294b5c;">الربح: <strong style="color:#294b5c; font-family:monospace; font-size:13px;">${formatPrice(mainProfit, 3)}</strong></div>
+                            <div style="color:#294b5c;">نسبة الربح: <strong style="color:#294b5c; font-family:monospace; font-size:13px;">${mainProfitPct.toFixed(2)}%</strong></div>
+                            <div style="color:#294b5c;">نسبة التكلفة: <strong style="color:#294b5c; font-family:monospace; font-size:13px;">${mainCostPct.toFixed(2)}%</strong></div>
                         </div>
 
-                        <div style="background:rgba(0,0,0,0.15); padding:10px; border-radius:8px; font-size:11px;">
-                            <h4 style="margin:0 0 6px 0; font-size:13px; border-bottom:1px solid rgba(255,255,255,0.4); padding-bottom:4px; color:#fff; font-weight:bold;">توصيل خارجي</h4>
-                            <div style="color:#fff;">التكلفة: <strong style="color:#fff; font-family:monospace; font-size:13px;">${formatPrice(totalOutCost, 3)}</strong></div>
-                            <div style="color:#fff;">الربح: <strong style="color:#fff; font-family:monospace; font-size:13px;">${formatPrice(outProfit, 3)}</strong></div>
-                            <div style="color:#fff;">نسبة الربح: <strong style="color:#fff; font-family:monospace; font-size:13px;">${outProfitPct.toFixed(2)}%</strong></div>
-                            <div style="color:#fff;">نسبة التكلفة: <strong style="color:#fff; font-family:monospace; font-size:13px;">${outCostPct.toFixed(2)}%</strong></div>
+                        <div style="background:#ffffff; border:1px solid #cfe4ee; padding:10px; border-radius:8px; font-size:11px;">
+                            <h4 style="margin:0 0 6px 0; font-size:13px; border-bottom:1px solid #d7eaf2; padding-bottom:4px; color:#294b5c; font-weight:bold;">توصيل خارجي</h4>
+                            <div style="color:#294b5c;">التكلفة: <strong style="color:#294b5c; font-family:monospace; font-size:13px;">${formatPrice(totalOutCost, 3)}</strong></div>
+                            <div style="color:#294b5c;">الربح: <strong style="color:#294b5c; font-family:monospace; font-size:13px;">${formatPrice(outProfit, 3)}</strong></div>
+                            <div style="color:#294b5c;">نسبة الربح: <strong style="color:#294b5c; font-family:monospace; font-size:13px;">${outProfitPct.toFixed(2)}%</strong></div>
+                            <div style="color:#294b5c;">نسبة التكلفة: <strong style="color:#294b5c; font-family:monospace; font-size:13px;">${outCostPct.toFixed(2)}%</strong></div>
                         </div>
 
-                        <div style="background:rgba(0,0,0,0.15); padding:10px; border-radius:8px; font-size:11px;">
-                            <h4 style="margin:0 0 6px 0; font-size:13px; border-bottom:1px solid rgba(255,255,255,0.4); padding-bottom:4px; color:#fff; font-weight:bold;">داخل المطعم</h4>
-                            <div style="color:#fff;">التكلفة: <strong style="color:#fff; font-family:monospace; font-size:13px;">${formatPrice(totalInCost, 3)}</strong></div>
-                            <div style="color:#fff;">الربح: <strong style="color:#fff; font-family:monospace; font-size:13px;">${formatPrice(inProfit, 3)}</strong></div>
-                            <div style="color:#fff;">نسبة الربح: <strong style="color:#fff; font-family:monospace; font-size:13px;">${inProfitPct.toFixed(2)}%</strong></div>
-                            <div style="color:#fff;">نسبة التكلفة: <strong style="color:#fff; font-family:monospace; font-size:13px;">${inCostPct.toFixed(2)}%</strong></div>
+                        <div style="background:#ffffff; border:1px solid #cfe4ee; padding:10px; border-radius:8px; font-size:11px;">
+                            <h4 style="margin:0 0 6px 0; font-size:13px; border-bottom:1px solid #d7eaf2; padding-bottom:4px; color:#294b5c; font-weight:bold;">داخل المطعم</h4>
+                            <div style="color:#294b5c;">التكلفة: <strong style="color:#294b5c; font-family:monospace; font-size:13px;">${formatPrice(totalInCost, 3)}</strong></div>
+                            <div style="color:#294b5c;">الربح: <strong style="color:#294b5c; font-family:monospace; font-size:13px;">${formatPrice(inProfit, 3)}</strong></div>
+                            <div style="color:#294b5c;">نسبة الربح: <strong style="color:#294b5c; font-family:monospace; font-size:13px;">${inProfitPct.toFixed(2)}%</strong></div>
+                            <div style="color:#294b5c;">نسبة التكلفة: <strong style="color:#294b5c; font-family:monospace; font-size:13px;">${inCostPct.toFixed(2)}%</strong></div>
                         </div>
 
                     </div>
                 </div>
                 `}
 
-                <div style="margin-top:15px; padding-top:8px; border-top:2px solid #05668D; display:flex; justify-content:space-between; align-items:center; font-size:9px; color:#05668D; font-weight:bold;">
+                <div style="margin-top:15px; padding-top:8px; border-top:2px solid #a9cbdc; display:flex; justify-content:space-between; align-items:center; font-size:9px; color:#173f56; font-weight:bold;">
                     <div>تاريخ ووقت التصدير: ${new Date().toLocaleDateString('en-GB')} ${new Date().toLocaleTimeString('en-GB')}</div>
                     <div>Yasser Elkhateeb - 67011143</div>
                 </div>
@@ -2932,7 +3085,7 @@
                 const { jsPDF } = window.jspdf;
                 if (document.fonts?.ready) await document.fonts.ready;
                 await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-                const canvas = await html2canvas(printWrapper, { scale: 1.5, useCORS: true });
+                const canvas = await html2canvas(printWrapper, { scale: 1.5, useCORS: true, backgroundColor:'#ffffff', onclone:(clonedDoc)=>{ clonedDoc.querySelectorAll('table tbody tr').forEach((tr,i)=>{ tr.style.backgroundColor = i % 2 === 0 ? '#eaf6fb' : '#ffffff'; }); } });
                 const imgData = canvas.toDataURL('image/jpeg', 0.9);
 
                 const pdf = new jsPDF('p', 'pt', 'a4');
