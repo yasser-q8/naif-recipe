@@ -198,6 +198,13 @@
         .recipe-card-box button[onclick^="requestCancelMeal"]:hover { background:#982626 !important; }
         .recipe-card-box button[onclick^="exportSingleRecipePDF"]:hover { background:#294354 !important; }
         #cloudSyncStatus { background:#e5f4fa !important; color:#24566d !important; border-color:#c6e5f0 !important; }
+        #paginationControls { flex-wrap:wrap; gap:10px; }
+        .duplicate-review-card details summary { overflow-wrap:anywhere; }
+        #view-duplicates select, #view-duplicates input { min-height:40px; }
+        @media (max-width: 520px) {
+            #paginationControls { align-items:stretch; }
+            #paginationControls > div:last-child { justify-content:flex-start; }
+        }
         #mainSidebar, .tab-view > div, #paginationControls { border-color:#d7e9f1 !important; box-shadow:0 4px 16px rgba(62,111,137,.07) !important; }
         #mainSidebar { background:#ffffff !important; }
         .sticky-search-holder { background:rgba(242,248,252,.96) !important; border-color:#c9e5f0 !important; }
@@ -378,6 +385,10 @@
                     <i class="fa-solid fa-clock-rotate-left text-naifRed-900 text-base w-5"></i>
                     <span>سجل الحركات الكامل</span>
                 </button>
+                <button onclick="switchTab('duplicates')" id="nav-duplicates" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-xs text-slate-700 hover:bg-red-50 transition" style="display:none">
+                    <i class="fa-solid fa-copy text-indigo-700 text-base w-5"></i>
+                    <span>مراجعة وحذف الوجبات المكررة</span>
+                </button>
             </nav>
         </aside>
 
@@ -550,6 +561,36 @@
                             <tbody id="auditLogTableBody" class="divide-y divide-slate-100"></tbody>
                         </table>
                     </div>
+                </div>
+            </section>
+
+            <!-- شاشة مراجعة وحذف الوجبات المتطابقة: مخصصة حصرياً لحساب Yasser -->
+            <section id="view-duplicates" class="tab-view hidden space-y-4">
+                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-indigo-100 shadow-sm space-y-3">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                            <h2 class="text-base sm:text-lg font-black text-indigo-900">مراجعة وحذف الوجبات المكررة</h2>
+                            <p class="text-xs text-slate-500 mt-1 leading-6">هذه الشاشة مخصصة لحساب Yasser فقط. الفحص لا يحذف أي بيانات؛ يعرض الوجبات المتطابقة بالكامل للمراجعة أولاً.</p>
+                        </div>
+                        <button id="btnScanDuplicateMeals" onclick="scanDuplicateMeals()" class="bg-indigo-700 hover:bg-indigo-800 text-white px-4 py-2.5 rounded-xl text-xs font-black shadow flex items-center justify-center gap-2 shrink-0">
+                            <i class="fa-solid fa-magnifying-glass"></i> فحص الوجبات الآن
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <div class="rounded-xl bg-sky-50 border border-sky-100 p-3"><div class="text-[11px] text-sky-800 font-bold">إجمالي الوجبات المفحوصة</div><div id="duplicateMealsScanned" class="text-xl font-black text-sky-950 mt-1">—</div></div>
+                        <div class="rounded-xl bg-amber-50 border border-amber-100 p-3"><div class="text-[11px] text-amber-800 font-bold">مجموعات التكرار</div><div id="duplicateGroupsCount" class="text-xl font-black text-amber-950 mt-1">—</div></div>
+                        <div class="rounded-xl bg-rose-50 border border-rose-100 p-3"><div class="text-[11px] text-rose-800 font-bold">النسخ الزائدة المحتملة</div><div id="duplicateExtraMealsCount" class="text-xl font-black text-rose-950 mt-1">—</div></div>
+                    </div>
+                </div>
+                <div class="bg-blue-50 border border-blue-100 rounded-xl p-3 text-xs text-blue-950 leading-6">
+                    <strong>طريقة المطابقة:</strong> لا تُعتبر الوجبتان مكررتين إلا إذا تطابق اسم الوجبة وسعر البيع وجميع المكونات ومواقعها ووحداتها وكمياتها وأسعارها. ترتيب المكونات لا يؤثر في المطابقة. الوجبات المتشابهة مع اختلاف أي قيمة ستبقى دون حذف.
+                </div>
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <input id="duplicateMealSearch" type="search" oninput="renderDuplicateReview()" placeholder="تصفية مجموعات التكرار باسم الوجبة..." class="flex-1 min-w-0 bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold outline-none focus:ring-2 focus:ring-indigo-200">
+                    <button onclick="downloadDuplicateReviewExcel()" class="bg-slate-700 hover:bg-slate-800 text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-file-excel"></i> تصدير تقرير التكرار</button>
+                </div>
+                <div id="duplicateReviewResults" class="space-y-3">
+                    <div class="bg-white rounded-2xl border border-slate-200 p-8 text-center text-sm font-bold text-slate-500">اضغط «فحص الوجبات الآن» لعرض مجموعات التكرار المحتملة.</div>
                 </div>
             </section>
 
@@ -935,7 +976,7 @@
             } else {
                 window.lastSyncedDbRevision = revision;
                 persistCloudBaseline(remote, false);
-                showCloudStatus(remoteHasData ? 'تم التحقق من أحدث البيانات من خادم ' : 'لا توجد بيانات سحابية بعد؛ لم يتم إرسال قاعدة فارغة', remoteHasData ? 'ok' : 'error');
+                showCloudStatus(remoteHasData ? 'تم التحقق من أحدث البيانات من خادم Firebase' : 'لا توجد بيانات سحابية بعد؛ لم يتم إرسال قاعدة فارغة', remoteHasData ? 'ok' : 'error');
             }
         }
 
@@ -948,7 +989,7 @@
             } catch (authErr) {
                 console.error('Firebase Authentication failed:', authErr);
                 const detail = authErr?.code || authErr?.message || 'unknown-auth-error';
-                showCloudStatus(`فشل تسجيل الدخول إلى  (${detail})`, 'error');
+                showCloudStatus(`فشل تسجيل الدخول إلى Firebase (${detail})`, 'error');
             }
         }
 
@@ -956,7 +997,7 @@
             onSnapshot(docRef, { includeMetadataChanges: true }, (docSnap) => {
                 // لا نعامل نسخة الذاكرة المؤقتة على أنها نسخة الخادم؛ ننتظر تأكيد server.
                 if (docSnap.metadata?.fromCache) {
-                    showCloudStatus('يتم عرض البيانات المحفوظة مؤقتاً؛ جارٍ التحقق من خادم ', 'error');
+                    showCloudStatus('يتم عرض البيانات المحفوظة مؤقتاً؛ جارٍ التحقق من خادم Firebase', 'error');
                     return;
                 }
                 if (docSnap.metadata?.hasPendingWrites) return;
@@ -982,7 +1023,7 @@
                 }
             }, (error) => {
                 console.error('Firestore listener error:', error);
-                showCloudStatus(`تعذر قراءة بيانات  (${error.code || error.message})`, 'error');
+                showCloudStatus(`تعذر قراءة بيانات Firebase (${error.code || error.message})`, 'error');
             });
         }
 
@@ -1016,7 +1057,7 @@
                         } else Object.assign(remoteData, parent); // ترحيل تلقائي من شكل المستند القديم.
                         const remote = normalizeCloudData(remoteData);
                         if (!hasRecoverableDatabaseData(localSnapshot) && !hasRecoverableDatabaseData(remote)) {
-                            throw new Error('EMPTY_DATABASE_WRITE_BLOCKED: تم منع إرسال قاعدة فارغة إلى  حفاظاً على البيانات.');
+                            throw new Error('EMPTY_DATABASE_WRITE_BLOCKED: تم منع إرسال قاعدة فارغة إلى Firebase حفاظاً على البيانات.');
                         }
                         const merged = mergeDatabase(baseSnapshot, localSnapshot, remote);
                         const removedFields = [];
@@ -1060,7 +1101,7 @@
                         name: err?.name, stack: err?.stack
                     });
                     const errorCode = err?.code || 'unknown-error';
-                    const errorMessage = String(err?.message || 'لم يرسل  وصفاً إضافياً للخطأ').replace(/\s+/g, ' ').slice(0, 180);
+                    const errorMessage = String(err?.message || 'لم يرسل Firebase وصفاً إضافياً للخطأ').replace(/\s+/g, ' ').slice(0, 180);
                     const detail = `${errorCode}: ${errorMessage}`;
                     showCloudStatus(`فشل الحفظ السحابي (${detail})`, 'error');
                     throw err;
@@ -1105,7 +1146,7 @@
                         window.lastSyncedDbRevision = revision;
                         persistCloudBaseline(remote, false);
                     }
-                    showCloudStatus('تم تحديث البيانات من السيرفر ');
+                    showCloudStatus('تم تحديث البيانات من خادم Firebase');
                 }
             } catch (err) {
                 // فشل الجلب المباشر لا يلغي البيانات المعروضة ولا يعني بالضرورة فشل تسجيل الدخول.
@@ -1231,6 +1272,10 @@
             currentUser = null;
             window.currentUser = null;
             sessionStorage.removeItem(SESSION_USER_KEY);
+            const duplicateNav = document.getElementById('nav-duplicates');
+            if (duplicateNav) duplicateNav.style.display = 'none';
+            const duplicateView = document.getElementById('view-duplicates');
+            if (duplicateView) duplicateView.classList.add('hidden');
 
             const loginScreen = document.getElementById('loginScreen');
             if (loginScreen) loginScreen.classList.remove('hidden');
@@ -1398,6 +1443,7 @@
             const navPricelist = document.getElementById('nav-pricelist');
             const navReports = document.getElementById('nav-reports');
             const navAudit = document.getElementById('nav-auditlog');
+            const navDuplicates = document.getElementById('nav-duplicates');
             const navPendingItems = document.getElementById('nav-pendingItems');
 
             const bottomReports = document.getElementById('bottomNavReports');
@@ -1406,6 +1452,7 @@
                 if (navPricelist) navPricelist.style.display = 'flex';
                 if (navReports) navReports.style.display = 'flex';
                 if (navAudit) navAudit.style.display = 'flex';
+                if (navDuplicates) navDuplicates.style.display = 'flex';
                 if (navPendingItems) navPendingItems.classList.remove('hidden');
                 btnImport.classList.remove('hidden');
                 btnRestore.classList.remove('hidden'); 
@@ -1413,6 +1460,7 @@
                 if (navPricelist) navPricelist.style.display = 'none';
                 if (navReports) navReports.style.display = 'flex';
                 if (navAudit) navAudit.style.display = 'none';
+                if (navDuplicates) navDuplicates.style.display = 'none';
                 if (navPendingItems) navPendingItems.classList.add('hidden');
                 btnImport.classList.add('hidden');
                 btnRestore.classList.add('hidden');
@@ -1420,6 +1468,7 @@
                 if (navPricelist) navPricelist.style.display = 'none';
                 if (navReports) navReports.style.display = 'none';
                 if (navAudit) navAudit.style.display = 'none';
+                if (navDuplicates) navDuplicates.style.display = 'none';
                 if (navPendingItems) navPendingItems.classList.add('hidden');
                 btnImport.classList.add('hidden');
                 btnRestore.classList.add('hidden');
@@ -1513,6 +1562,10 @@
                 alert('سجل الحركات متاح لحساب Yasser فقط.');
                 return;
             }
+            if (tabId === 'duplicates' && currentUser !== 'Yasser') {
+                alert('مراجعة وحذف الوجبات المكررة متاحان لحساب Yasser فقط.');
+                return;
+            }
             if ((currentUser === 'ادمن' || currentUser === 'مستخدم') && tabId === 'pricelist') {
                 alert('عذراً! لا تمتلك صلاحية الدخول لشاشة دليل الأسعار والأصناف');
                 return;
@@ -1541,6 +1594,7 @@
             if (tabId === 'pending') renderPendingMeals();
             if (tabId === 'pendingItems') renderPendingItems();
             if (tabId === 'cancelled') renderCancelledMeals();
+            if (tabId === 'duplicates' && currentUser === 'Yasser') scanDuplicateMeals();
 
             const sidebar = document.getElementById('mainSidebar');
             const overlay = document.getElementById('mobileSidebarOverlay');
@@ -1811,13 +1865,223 @@
             }).join('');
 
             paginationContainer.innerHTML = `
-                <div>عرض الوجبات من <strong>${startIndex + 1}</strong> إلى <strong>${Math.min(startIndex + pageSize, filtered.length)}</strong> (إجمالي ${filtered.length})</div>
-                <div class="flex items-center gap-1">
+                <div class="w-full sm:w-auto">عرض الوجبات من <strong>${startIndex + 1}</strong> إلى <strong>${Math.min(startIndex + pageSize, filtered.length)}</strong> (إجمالي ${filtered.length})</div>
+                <div class="flex items-center flex-wrap gap-2 justify-end">
                     <button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed">السابق</button>
-                    <span class="px-3 py-1 bg-naifRed-900 text-white rounded-lg">${currentPage} / ${totalPages}</span>
+                    <span class="px-3 py-1.5 bg-naifRed-900 text-white rounded-lg">${currentPage} / ${totalPages}</span>
                     <button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed">التالي</button>
+                    <label for="recipePageJumpInput" class="text-slate-600 whitespace-nowrap">اذهب إلى</label>
+                    <input id="recipePageJumpInput" type="number" inputmode="numeric" min="1" max="${totalPages}" value="${currentPage}" onkeydown="if(event.key==='Enter') jumpToRecipePage(this.value)" class="w-16 text-center border border-slate-300 rounded-lg px-2 py-1.5 font-black text-slate-800" aria-label="رقم الصفحة المطلوبة">
+                    <button onclick="jumpToRecipePage(document.getElementById('recipePageJumpInput').value)" class="px-3 py-1.5 bg-sky-700 hover:bg-sky-800 text-white rounded-lg">انتقال</button>
                 </div>
             `;
+        }
+
+        function jumpToRecipePage(value) {
+            const input = document.getElementById('recipePageJumpInput');
+            const q = (document.getElementById('recipeSearchInput')?.value || '').trim().toLowerCase();
+            let filtered = sortMealsNewestFirst(db.meals || []);
+            if (q) filtered = filtered.filter(m => m.name && m.name.toLowerCase().includes(q));
+            const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+            const requested = Number.parseInt(value, 10);
+            if (!Number.isInteger(requested) || requested < 1 || requested > totalPages) {
+                alert(`رقم الصفحة يجب أن يكون بين 1 و ${totalPages}.`);
+                if (input) { input.value = currentPage; input.focus(); }
+                return;
+            }
+            changePage(requested);
+        }
+
+        // مطابقة محافظة: اسم الوجبة وسعر البيع وكل تفاصيل المكونات، مع تجاهل المعرّف والتواريخ وترتيب صفوف المكونات.
+        let duplicateMealGroups = [];
+        function normalizeDuplicateText(value) {
+            return String(value ?? '')
+                .normalize('NFKC')
+                .replace(/[\u064B-\u065F\u0670]/g, '')
+                .replace(/\u0640/g, '')
+                .replace(/[أإآ]/g, 'ا')
+                .replace(/\s+/g, ' ')
+                .trim()
+                .toLocaleLowerCase();
+        }
+        function duplicateComparableNumber(value) {
+            const n = Number(value ?? 0);
+            return Number.isFinite(n) ? Number(n.toPrecision(12)) : 0;
+        }
+        function getDuplicateMealSignature(meal) {
+            const ingredients = (Array.isArray(meal?.ingredients) ? meal.ingredients : []).map(ing => ({
+                item: normalizeDuplicateText(ing?.item),
+                location: normalizeDuplicateText(ing?.location || 'ALL'),
+                unit: normalizeDuplicateText(ing?.unit),
+                qty: duplicateComparableNumber(ing?.qty),
+                price: duplicateComparableNumber(ing?.price)
+            }));
+            ingredients.sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b), 'en'));
+            return JSON.stringify({
+                name: normalizeDuplicateText(meal?.name),
+                sellingPrice: duplicateComparableNumber(meal?.sellingPrice),
+                ingredients
+            });
+        }
+        function getDuplicateKeeperIndex(members) {
+            return [...members].sort((a, b) => {
+                const aTime = getMealSortTimestamp(a.meal);
+                const bTime = getMealSortTimestamp(b.meal);
+                if (aTime !== null && bTime !== null) return aTime - bTime || a.index - b.index;
+                if (aTime !== null) return -1;
+                if (bTime !== null) return 1;
+                return a.index - b.index;
+            })[0]?.index ?? members[0]?.index;
+        }
+        function scanDuplicateMeals() {
+            if (currentUser !== 'Yasser') {
+                alert('هذه الصفحة متاحة لحساب Yasser فقط.');
+                return;
+            }
+            const meals = Array.isArray(db.meals) ? db.meals : [];
+            const bySignature = new Map();
+            meals.forEach((meal, index) => {
+                const signature = getDuplicateMealSignature(meal);
+                if (!bySignature.has(signature)) bySignature.set(signature, []);
+                bySignature.get(signature).push({ index, meal });
+            });
+            duplicateMealGroups = [...bySignature.entries()]
+                .filter(([, members]) => members.length > 1)
+                .map(([signature, members]) => ({ signature, name: members[0]?.meal?.name || 'وجبة بلا اسم', members }))
+                .sort((a, b) => b.members.length - a.members.length || String(a.name).localeCompare(String(b.name), 'ar'));
+
+            const scanned = document.getElementById('duplicateMealsScanned');
+            const groups = document.getElementById('duplicateGroupsCount');
+            const extras = document.getElementById('duplicateExtraMealsCount');
+            if (scanned) scanned.textContent = meals.length.toLocaleString('en-US');
+            if (groups) groups.textContent = duplicateMealGroups.length.toLocaleString('en-US');
+            if (extras) extras.textContent = duplicateMealGroups.reduce((sum, group) => sum + group.members.length - 1, 0).toLocaleString('en-US');
+            renderDuplicateReview();
+        }
+
+        function renderDuplicateReview() {
+            const container = document.getElementById('duplicateReviewResults');
+            if (!container) return;
+            if (currentUser !== 'Yasser') {
+                container.innerHTML = '<div class="bg-white rounded-xl p-6 text-center text-rose-700 font-bold">غير مصرح بعرض هذه الصفحة.</div>';
+                return;
+            }
+            const query = normalizeDuplicateText(document.getElementById('duplicateMealSearch')?.value || '');
+            const visibleGroups = duplicateMealGroups.map((group, groupIndex) => ({ ...group, groupIndex }))
+                .filter(group => !query || normalizeDuplicateText(group.name).includes(query));
+            if (!duplicateMealGroups.length) {
+                container.innerHTML = '<div class="bg-white rounded-2xl border border-emerald-100 p-7 text-center"><i class="fa-solid fa-circle-check text-3xl text-emerald-600"></i><div class="mt-2 font-black text-emerald-800">لم يتم العثور على وجبات متطابقة بالكامل</div><div class="mt-1 text-xs text-slate-500">لم يتم حذف أو تعديل أي بيانات.</div></div>';
+                return;
+            }
+            if (!visibleGroups.length) {
+                container.innerHTML = '<div class="bg-white rounded-xl border p-6 text-center text-slate-500 font-bold">لا توجد مجموعات تطابق عبارة البحث.</div>';
+                return;
+            }
+            container.innerHTML = visibleGroups.map(group => {
+                const defaultKeeper = getDuplicateKeeperIndex(group.members);
+                const options = group.members.map(member => {
+                    const meal = member.meal || {};
+                    const created = meal.createdAt || meal.updatedAt || meal.approvedAt || 'غير مسجل';
+                    const createdBy = meal.createdBy || 'غير معروف';
+                    return `<option value="${member.index}" ${member.index === defaultKeeper ? 'selected' : ''}>نسخة ${member.index + 1} — ${escapeAuditHtml(createdBy)} — ${escapeAuditHtml(created)}</option>`;
+                }).join('');
+                const versions = group.members.map((member, versionIndex) => {
+                    const meal = member.meal || {};
+                    const ingredients = Array.isArray(meal.ingredients) ? meal.ingredients : [];
+                    const ingredientRows = ingredients.map(ing => `<li class="text-xs text-slate-600 py-1 border-b border-slate-100">${escapeAuditHtml(ing.item || '')} — ${formatQty(ing.qty)} ${escapeAuditHtml(ing.unit || '')} — الموقع: ${escapeAuditHtml(ing.location || 'ALL')} — السعر: ${formatPrice(ing.price, 5)}</li>`).join('');
+                    return `<details class="bg-white border border-slate-200 rounded-lg p-3"><summary class="cursor-pointer text-xs font-black text-slate-700">النسخة ${versionIndex + 1} | المعرّف: <span class="font-mono">${escapeAuditHtml(meal.id || 'غير موجود')}</span> | ${ingredients.length} مكون | سعر البيع ${formatPrice(meal.sellingPrice, 3)}</summary><div class="mt-2 text-[11px] text-slate-500">أنشأها: ${escapeAuditHtml(meal.createdBy || 'غير معروف')} — تاريخ الإنشاء: ${escapeAuditHtml(meal.createdAt || 'غير مسجل')} — آخر تعديل: ${escapeAuditHtml(meal.updatedAt || 'غير مسجل')}</div><ul class="mt-2">${ingredientRows || '<li class="text-xs text-slate-400">لا توجد مكونات مسجلة</li>'}</ul></details>`;
+                }).join('');
+                return `<article class="duplicate-review-card bg-white rounded-2xl border border-amber-200 shadow-sm p-3 sm:p-4 space-y-3" data-group-index="${group.groupIndex}">
+                    <div class="flex flex-wrap items-start justify-between gap-2"><div><h3 class="font-black text-slate-900">${escapeAuditHtml(group.name)}</h3><p class="text-[11px] text-slate-500 mt-1">عدد النسخ المتطابقة: ${group.members.length} — النسخ الزائدة: ${group.members.length - 1}</p></div><span class="bg-amber-100 text-amber-900 rounded-full px-3 py-1 text-xs font-black">${group.members.length} نسخ</span></div>
+                    <div class="space-y-2">${versions}</div>
+                    <div class="rounded-xl bg-sky-50 border border-sky-100 p-3 space-y-2"><label for="duplicateKeeper_${group.groupIndex}" class="block text-xs font-black text-sky-950">اختر النسخة التي تريد الاحتفاظ بها</label><select id="duplicateKeeper_${group.groupIndex}" class="w-full bg-white border border-sky-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-800">${options}</select><p class="text-[10px] text-sky-900 leading-5">الاختيار الافتراضي هو أقدم نسخة حسب تاريخ الإنشاء إن كان متوفراً؛ يمكنك تغييره بعد مراجعة التفاصيل أعلاه.</p></div>
+                    <button onclick="deleteDuplicateMealGroup(${group.groupIndex})" class="w-full sm:w-auto bg-rose-700 hover:bg-rose-800 text-white px-4 py-2.5 rounded-xl text-xs font-black flex items-center justify-center gap-2"><i class="fa-solid fa-trash-can"></i> تنزيل نسخة احتياطية وحذف النسخ الأخرى</button>
+                </article>`;
+            }).join('');
+        }
+
+        function downloadBackupBeforeDuplicateCleanup() {
+            const payload = JSON.stringify(db, null, 2);
+            const blob = new Blob([payload], { type: 'application/json;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `naif_foods_before_duplicate_cleanup_${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 1500);
+        }
+
+        function deleteDuplicateMealGroup(groupIndex) {
+            if (currentUser !== 'Yasser') {
+                alert('حذف الوجبات المكررة متاح لحساب Yasser فقط.');
+                return;
+            }
+            // الحذف يتطلب أن يكون الجهاز قد قرأ نسخة أساس من Firebase وأن تكون آخر تعديلاته قد تزامنت.
+            // هذا يمنع تنفيذ تنظيف محلي ثم ضياع النتيجة بسبب جهاز غير متصل أو قاعدة غير محمّلة.
+            const cloudBaseline = window.dbLastSyncedSnapshot;
+            const hasCloudBaseline = cloudBaseline && Array.isArray(cloudBaseline.meals);
+            const hasPendingCloudChanges = window.dbHadUnsyncedChanges === true || localStorage.getItem('NAIF_FOODS_RECIPES_DB_V2026_MOBILE_CLOUD_DIRTY') === '1';
+            const cloudStatusText = document.getElementById('cloudSyncStatus')?.innerText || '';
+            const cloudWasVerified = /تم التحقق من أحدث البيانات من خادم Firebase|تم تحديث البيانات من خادم Firebase|تم حفظ التعديلات ومزامنتها مع جميع الأجهزة/.test(cloudStatusText);
+            if (!hasCloudBaseline || hasPendingCloudChanges || !cloudWasVerified) {
+                alert('لم يتم الحذف. يجب أولاً التأكد من تحميل بيانات Firebase واكتمال المزامنة. انتظر ظهور رسالة نجاح الحفظ السحابي ثم أعد المحاولة.');
+                return;
+            }
+            const group = duplicateMealGroups[Number(groupIndex)];
+            if (!group || !Array.isArray(group.members) || group.members.length < 2) {
+                alert('هذه المجموعة لم تعد متاحة. أعد فحص الوجبات.');
+                scanDuplicateMeals();
+                return;
+            }
+            const keeperSelect = document.getElementById(`duplicateKeeper_${groupIndex}`);
+            const keeperIndex = Number.parseInt(keeperSelect?.value, 10);
+            const currentIndexes = [];
+            (db.meals || []).forEach((meal, index) => {
+                if (getDuplicateMealSignature(meal) === group.signature) currentIndexes.push(index);
+            });
+            const stale = currentIndexes.length !== group.members.length || !currentIndexes.includes(keeperIndex) || currentIndexes.some(index => getDuplicateMealSignature(db.meals[index]) !== group.signature);
+            if (stale) {
+                alert('تغيرت قائمة الوجبات منذ آخر فحص. لم يتم حذف شيء؛ أعد الفحص ثم راجع النتائج مجدداً.');
+                scanDuplicateMeals();
+                return;
+            }
+            const removeIndexes = new Set(currentIndexes.filter(index => index !== keeperIndex));
+            const keeperMeal = db.meals[keeperIndex];
+            const duplicateCount = removeIndexes.size;
+            const confirmed = confirm(`سيتم الاحتفاظ بنسخة واحدة من «${keeperMeal.name || group.name}» وحذف ${duplicateCount} نسخة مطابقة بالكامل. سيتم تنزيل نسخة احتياطية كاملة قبل الحذف. هل تريد المتابعة؟`);
+            if (!confirmed) return;
+
+            // تنزيل نسخة احتياطية من قاعدة البيانات كما هي قبل إجراء أي حذف.
+            downloadBackupBeforeDuplicateCleanup();
+            db.meals = db.meals.filter((meal, index) => !removeIndexes.has(index));
+            addAuditLog('حذف وجبات مكررة', `قام Yasser بتنظيف مجموعة الوجبة [${keeperMeal.name || group.name}]؛ تم الاحتفاظ بالمعرّف [${keeperMeal.id || 'بدون معرّف'}] وحذف ${duplicateCount} نسخة مطابقة بالكامل.`);
+            refreshAllUI();
+            scanDuplicateMeals();
+            alert('تم حذف النسخ المكررة من هذه المجموعة محلياً، وبدأت مزامنة التغييرات مع Firebase. راجع حالة السحابة أعلى البرنامج حتى تظهر رسالة نجاح المزامنة.');
+        }
+
+        function downloadDuplicateReviewExcel() {
+            if (currentUser !== 'Yasser') return;
+            if (!duplicateMealGroups.length) {
+                alert('نفّذ فحص الوجبات أولاً.');
+                return;
+            }
+            if (typeof XLSX === 'undefined') {
+                alert('مكتبة Excel غير متاحة حالياً. حدّث الصفحة ثم حاول مرة أخرى.');
+                return;
+            }
+            const rows = [['اسم الوجبة','عدد النسخ','رقم النسخة في القائمة','المعرّف','تاريخ الإنشاء','أنشأها','سعر البيع','عدد المكونات']];
+            duplicateMealGroups.forEach(group => group.members.forEach((member, versionIndex) => {
+                const meal = member.meal || {};
+                rows.push([group.name, group.members.length, versionIndex + 1, meal.id || '', meal.createdAt || '', meal.createdBy || '', meal.sellingPrice ?? '', (meal.ingredients || []).length]);
+            }));
+            const worksheet = XLSX.utils.aoa_to_sheet(rows);
+            worksheet['!cols'] = [{wch:28},{wch:12},{wch:18},{wch:34},{wch:24},{wch:18},{wch:14},{wch:14}];
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'الوجبات المكررة');
+            XLSX.writeFile(workbook, `naif_foods_duplicate_review_${new Date().toISOString().slice(0,10)}.xlsx`);
         }
 
         function editMealNameDirect(currentName, index) {
