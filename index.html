@@ -97,14 +97,22 @@
             cursor: pointer;
             border: 2px solid #FF4500;
             text-decoration: none;
-            display: inline-block;
+            display: inline-flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: nowrap;
+            white-space: nowrap;
+            width: max-content;
+            max-width: calc(100vw - 16px);
+            gap: 8px;
             text-align: center;
         }
 
         .signature-card:hover { transform: scale(1.05); }
 
-        .signature-card .name { font-size: 0.65rem; font-weight: 800; color: #1e3a8a; }
-        .signature-card .title { font-size: 0.5rem; color: #05668D; font-weight: 600; }
+        .signature-card .name { display:inline-block; white-space:nowrap; font-size: 0.65rem; font-weight: 800; color: #1e3a8a; }
+        .signature-card .title { display:inline-block; white-space:nowrap; font-size: 0.5rem; color: #05668D; font-weight: 600; }
 
         @media print {
             .no-print { display: none !important; }
@@ -216,6 +224,30 @@
         #recipeEditModal .recipe-modal-dialog { border:1px solid #d5e8f0; }
         #recipeEditModal .recipe-modal-dialog > div:first-child { background:#d9edf6 !important; color:#17445a !important; }
         #recipeEditModal .recipe-modal-dialog > div:first-child h3 { color:#17445a !important; }
+        /* عرض جدول مكونات الوجبة كاملاً على الهاتف: عمود الصنف أقل بنحو 30% مع التفاف الاسم لسطرين */
+        @media (max-width: 767px) {
+            .recipe-ingredients-table { width:100% !important; min-width:0 !important; table-layout:fixed !important; }
+            .recipe-ingredients-table th, .recipe-ingredients-table td { min-width:0 !important; overflow:hidden; }
+            .recipe-ingredients-table col:nth-child(1) { width:22.4%; }
+            .recipe-ingredients-table col:nth-child(2) { width:14%; }
+            .recipe-ingredients-table col:nth-child(3) { width:10%; }
+            .recipe-ingredients-table col:nth-child(4) { width:14%; }
+            .recipe-ingredients-table col:nth-child(5) { width:19%; }
+            .recipe-ingredients-table col:nth-child(6) { width:20.6%; }
+            .recipe-ingredients-table .recipe-item-cell { width:22.4%; white-space:normal !important; overflow-wrap:anywhere; word-break:normal; }
+            .recipe-ingredients-table .recipe-location-cell,
+            .recipe-ingredients-table .recipe-unit-cell,
+            .recipe-ingredients-table .recipe-qty-cell,
+            .recipe-ingredients-table .recipe-price-cell,
+            .recipe-ingredients-table .recipe-value-cell { white-space:nowrap; }
+            .recipe-card-box > div:nth-child(2) { padding:6px 5px !important; overflow-x:hidden !important; }
+            .recipe-ingredients-table th { padding:5px 2px !important; font-size:9px !important; line-height:1.2 !important; }
+            .recipe-ingredients-table td { padding-left:2px !important; padding-right:2px !important; font-size:10px !important; line-height:1.25 !important; }
+            .recipe-ingredients-table .recipe-item-cell { font-size:11px !important; line-height:1.25 !important; white-space:normal !important; overflow-wrap:anywhere; }
+            .recipe-ingredients-table .recipe-number-cell { font-size:11px !important; }
+            .recipe-ingredients-table .recipe-value-cell { font-size:11px !important; }
+            .signature-card { max-width:calc(100vw - 16px); gap:6px; padding:6px 10px; }
+        }
         @media print {
             .recipe-ingredient-row:nth-child(odd) { background:#eaf6fb !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
             .recipe-ingredient-row:nth-child(even) { background:#fff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
@@ -1625,12 +1657,12 @@
 
                 const rowsHtml = meal.ingredients && Array.isArray(meal.ingredients) ? meal.ingredients.map((ing) => `
                     <tr class="recipe-ingredient-row">
-                        <td class="py-1 px-1 font-bold text-slate-800 text-right text-[13px] sm:text-[13.5px]">${ing.item || ''}</td>
-                        <td class="py-1 px-1 text-center font-bold text-naifRed-900">${ing.location || 'ALL'}</td>
-                        <td class="py-1 px-1 text-center text-slate-600">${ing.unit || ''}</td>
-                        <td class="recipe-number-cell py-1 px-1 text-center font-bold font-mono text-slate-900">${formatQty(ing.qty)}</td>
-                        <td class="recipe-number-cell py-1 px-1 text-center font-mono">${hidePrices ? '***' : formatPrice(ing.price, 5)}</td>
-                        <td class="recipe-number-cell py-1 px-1 text-center font-mono font-black text-naifRed-900 text-sm">${hidePrices ? '***' : formatPrice(ing.qty * ing.price, 3)}</td>
+                        <td class="recipe-item-cell py-1 px-1 font-bold text-slate-800 text-right text-[13px] sm:text-[13.5px]">${ing.item || ''}</td>
+                        <td class="recipe-location-cell py-1 px-1 text-center font-bold text-naifRed-900">${ing.location || 'ALL'}</td>
+                        <td class="recipe-unit-cell py-1 px-1 text-center text-slate-600">${ing.unit || ''}</td>
+                        <td class="recipe-number-cell recipe-qty-cell py-1 px-1 text-center font-bold font-mono text-slate-900">${formatQty(ing.qty)}</td>
+                        <td class="recipe-number-cell recipe-price-cell py-1 px-1 text-center font-mono">${hidePrices ? '***' : formatPrice(ing.price, 5)}</td>
+                        <td class="recipe-number-cell recipe-value-cell py-1 px-1 text-center font-mono font-black text-naifRed-900 text-sm">${hidePrices ? '***' : formatPrice(ing.qty * ing.price, 3)}</td>
                     </tr>
                 `).join('') : '';
 
@@ -1667,7 +1699,15 @@
                     </div>
 
                     <div class="p-3 sm:p-4 bg-red-50/20 overflow-x-auto">
-                        <table class="recipe-ingredients-table w-full text-right border-collapse min-w-[500px]">
+                        <table class="recipe-ingredients-table w-full text-right border-collapse">
+                            <colgroup>
+                                <col class="recipe-col-item">
+                                <col>
+                                <col>
+                                <col>
+                                <col>
+                                <col>
+                            </colgroup>
                             <thead>
                                 <tr class="bg-naifRed-900 text-white text-xs">
                                     <th class="py-2 px-1">الصنف</th>
