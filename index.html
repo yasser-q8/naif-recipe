@@ -762,6 +762,10 @@
             return out;
         }
         function stableKey(item) { return String(item?.id ?? item?.name ?? item?.item ?? ''); }
+        // لا نسمح لجهاز فارغ بإنشاء قاعدة سحابية فارغة أو استبدال بيانات موجودة.
+        function hasRecoverableDatabaseData(data) {
+            return DB_ARRAY_KEYS.some(key => Array.isArray(data?.[key]) && data[key].length > 0);
+        }
         function creationTime(item) {
             const value = item?.createdAt || item?.submittedAt || item?.requestedAt || item?.approvedAt || item?.updatedAt || null;
             if (!value) return null;
@@ -800,7 +804,15 @@
         function mergeDatabase(base, local, remote) {
             const merged = {};
             DB_ARRAY_KEYS.forEach(key => {
-                merged[key] = mergeArrayChanges(base?.[key] || [], local?.[key] || [], remote?.[key] || [], key === 'meals' || key === 'pendingMeals');
+                const localRows = Array.isArray(local?.[key]) ? local[key] : [];
+                const remoteRows = Array.isArray(remote?.[key]) ? remote[key] : [];
+                // الحماية الأساسية: عدم اعتبار المصفوفة المحلية الفارغة دليلاً على حذف
+                // كل سجلات السحابة؛ فقد يكون الجهاز جديداً أو لم يحمّل بياناته بعد.
+                if (localRows.length === 0 && remoteRows.length > 0) {
+                    merged[key] = remoteRows;
+                } else {
+                    merged[key] = mergeArrayChanges(base?.[key] || [], localRows, remoteRows, key === 'meals' || key === 'pendingMeals');
+                }
             });
             return merged;
         }
@@ -852,8 +864,14 @@
             const persistedDirty = hasPersistedUnsyncedChanges();
             const hasLocalChanges = revision > lastSyncedRevision || persistedDirty;
             let nextData = remote;
+            const localHasData = hasRecoverableDatabaseData(local);
+            const remoteHasData = hasRecoverableDatabaseData(remote);
 
-            if (isFirstSnapshot && hasLocalChanges) {
+            if (!remoteHasData && localHasData) {
+                // إذا كانت السحابة فارغة والجهاز يحمل بيانات، نحافظ على البيانات المحلية
+                // ونرفعها؛ لا نستبدلها أبداً بلقطة سحابية فارغة.
+                nextData = local;
+            } else if (isFirstSnapshot && hasLocalChanges) {
                 // عند إغلاق المتصفح قبل اكتمال الرفع، نقارن بالنسخة التي تم تأكيد حفظها سابقاً.
                 // إذا لم توجد نسخة أساس محفوظة، نحتفظ بالبيانات المحلية بدلاً من حذفها.
                 const startupBaseRaw = window.dbLastSyncedSnapshot || (persistedDirty ? {} : (window.dbLoadedSnapshot || {}));
@@ -876,16 +894,16 @@
             if (typeof window.refreshAllUI === 'function') window.refreshAllUI();
 
             const needsUpload = JSON.stringify(nextData) !== JSON.stringify(remote);
-            if (needsUpload) {
+            if (needsUpload && hasRecoverableDatabaseData(nextData)) {
                 // نحتفظ بعلامة التعديلات غير المرفوعة إذا أُغلق المتصفح قبل اكتمال العملية.
                 localStorage.setItem(CLOUD_DIRTY_STORAGE_KEY, '1');
                 window.dbHadUnsyncedChanges = true;
                 window.syncToFirebase();
-                showCloudStatus('تم دمج البيانات؛ جارٍ رفع التعديلات إلى السحابة');
+                showCloudStatus('تم الحفاظ على البيانات المحلية؛ جارٍ رفعها إلى السحابة');
             } else {
                 window.lastSyncedDbRevision = revision;
                 persistCloudBaseline(remote, false);
-                showCloudStatus('تم التحقق من أحدث البيانات من خادم Firebase');
+                showCloudStatus(remoteHasData ? 'تم التحقق من أحدث البيانات من خادم Firebase' : 'لا توجد بيانات سحابية بعد؛ لم يتم إرسال قاعدة فارغة', remoteHasData ? 'ok' : 'error');
             }
         }
 
@@ -918,11 +936,17 @@
                         showCloudStatus(`تعذر تجميع أجزاء البيانات السحابية (${error.code || error.message})`, 'error');
                     });
                 } else {
-                    // المستند غير موجود على الخادم: ننشئه من البيانات المحلية الحالية بدلاً من مسحها.
+                    // مستند السحابة غير موجود. لا ننشئ قاعدة فارغة من جهاز جديد أو غير محمّل.
                     lastRemoteState = normalizeCloudData({});
                     firebaseReady = true;
                     firstServerSnapshotHandled = true;
-                    window.syncToFirebase();
+                    const localData = normalizeCloudData(window.db || {});
+                    if (hasRecoverableDatabaseData(localData)) {
+                        showCloudStatus('لا توجد نسخة سحابية؛ تم العثور على بيانات محلية وسيتم حفظها', 'error');
+                        window.syncToFirebase();
+                    } else {
+                        showCloudStatus('لا توجد بيانات محلية أو سحابية؛ أوقفنا الحفظ التلقائي منعاً لمسح البيانات', 'error');
+                    }
                 }
             }, (error) => {
                 console.error('Firestore listener error:', error);
@@ -959,6 +983,9 @@
                             for (const key of DB_ARRAY_KEYS) remoteData[key] = existingChunks[key].flat();
                         } else Object.assign(remoteData, parent); // ترحيل تلقائي من شكل المستند القديم.
                         const remote = normalizeCloudData(remoteData);
+                        if (!hasRecoverableDatabaseData(localSnapshot) && !hasRecoverableDatabaseData(remote)) {
+                            throw new Error('EMPTY_DATABASE_WRITE_BLOCKED: تم منع إرسال قاعدة فارغة إلى Firebase حفاظاً على البيانات.');
+                        }
                         const merged = mergeDatabase(baseSnapshot, localSnapshot, remote);
                         const removedFields = [];
                         const cleanMerged = sanitizeForFirestore(merged, 'database', removedFields);
@@ -1026,7 +1053,9 @@
                     const revision = Number(window.dbRevision || 0);
                     const lastSyncedRevision = Number(window.lastSyncedDbRevision || 0);
                     let nextData = remote;
-                    if ((revision > lastSyncedRevision || hasPersistedUnsyncedChanges()) && lastRemoteState) {
+                    if (!hasRecoverableDatabaseData(remote) && hasRecoverableDatabaseData(local)) {
+                        nextData = local;
+                    } else if ((revision > lastSyncedRevision || hasPersistedUnsyncedChanges()) && lastRemoteState) {
                         nextData = mergeDatabase(lastRemoteState, local, remote);
                     }
                     lastRemoteState = cloneData(remote);
@@ -1036,7 +1065,7 @@
                         window.setRecipePageToFirst();
                     }
                     if (typeof window.refreshAllUI === 'function') window.refreshAllUI();
-                    if (JSON.stringify(nextData) !== JSON.stringify(remote)) {
+                    if (JSON.stringify(nextData) !== JSON.stringify(remote) && hasRecoverableDatabaseData(nextData)) {
                         localStorage.setItem(CLOUD_DIRTY_STORAGE_KEY, '1');
                         window.dbHadUnsyncedChanges = true;
                         window.syncToFirebase();
@@ -1232,23 +1261,26 @@
         async function loadDatabase() {
             const localData = localStorage.getItem(STORAGE_KEY);
             if (localData) {
-                try { 
+                try {
                     const parsed = JSON.parse(localData);
                     applyParsedData(parsed);
-                    return;
+                    const localHasRows = Object.values(window.db || {}).some(value => Array.isArray(value) && value.length > 0);
+                    if (localHasRows) return;
+                    console.warn('الذاكرة المحلية موجودة لكنها فارغة؛ سيتم فحص النسخة الاحتياطية قبل اعتماد قاعدة فارغة.');
                 } catch (e) { console.warn("خطأ في قراءة الذاكرة المحلية"); }
             }
 
-            // إذا لم توجد بيانات محلياً، يتم الجلب من GitHub مباشرة باستخدام الرابط المباشر
+            // عند غياب البيانات المحلية أو كونها فارغة، نفحص نسخة GitHub الاحتياطية.
             if (GITHUB_DATA_URL && GITHUB_DATA_URL.startsWith('http')) {
                 try {
                     const res = await fetch(GITHUB_DATA_URL);
                     if (res.ok) {
                         const githubJson = await res.json();
                         applyParsedData(githubJson);
-                        saveDatabase();
+                        // لا نرفع نسخة GitHub تلقائياً قبل مقارنة محتواها مع Firestore.
+                        // المستمع السحابي سيعتمد السحابة إن كانت تحوي بيانات، أو يحفظ النسخة المحلية إذا كانت السحابة فارغة.
                         refreshAllUI();
-                        console.log("تم جلب البيانات بنجاح من GitHub");
+                        console.log("تم تحميل نسخة البيانات الاحتياطية من GitHub بانتظار التحقق السحابي");
                         return;
                     }
                 } catch (err) {
@@ -1324,7 +1356,8 @@
                 auditLogs: []
             };
             window.dbLoadedSnapshot = JSON.parse(JSON.stringify(window.db));
-            saveDatabase();
+            // لا تحفظ هذه الحالة ولا ترفعها: قد يكون الجهاز جديداً أو تعذر تحميل المصدر.
+            // الحفظ الصامت لقاعدة فارغة كان قادراً على إنشاء مستند فارغ في السحابة.
         }
 
         function applyPermissions() {
