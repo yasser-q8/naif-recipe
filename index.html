@@ -935,7 +935,7 @@
             } else {
                 window.lastSyncedDbRevision = revision;
                 persistCloudBaseline(remote, false);
-                showCloudStatus(remoteHasData ? 'تم التحقق من أحدث البيانات من خادم Firebase' : 'لا توجد بيانات سحابية بعد؛ لم يتم إرسال قاعدة فارغة', remoteHasData ? 'ok' : 'error');
+                showCloudStatus(remoteHasData ? 'تم التحقق من أحدث البيانات من خادم ' : 'لا توجد بيانات سحابية بعد؛ لم يتم إرسال قاعدة فارغة', remoteHasData ? 'ok' : 'error');
             }
         }
 
@@ -948,7 +948,7 @@
             } catch (authErr) {
                 console.error('Firebase Authentication failed:', authErr);
                 const detail = authErr?.code || authErr?.message || 'unknown-auth-error';
-                showCloudStatus(`فشل تسجيل الدخول إلى Firebase (${detail})`, 'error');
+                showCloudStatus(`فشل تسجيل الدخول إلى  (${detail})`, 'error');
             }
         }
 
@@ -956,7 +956,7 @@
             onSnapshot(docRef, { includeMetadataChanges: true }, (docSnap) => {
                 // لا نعامل نسخة الذاكرة المؤقتة على أنها نسخة الخادم؛ ننتظر تأكيد server.
                 if (docSnap.metadata?.fromCache) {
-                    showCloudStatus('يتم عرض البيانات المحفوظة مؤقتاً؛ جارٍ التحقق من خادم Firebase', 'error');
+                    showCloudStatus('يتم عرض البيانات المحفوظة مؤقتاً؛ جارٍ التحقق من خادم ', 'error');
                     return;
                 }
                 if (docSnap.metadata?.hasPendingWrites) return;
@@ -982,7 +982,7 @@
                 }
             }, (error) => {
                 console.error('Firestore listener error:', error);
-                showCloudStatus(`تعذر قراءة بيانات Firebase (${error.code || error.message})`, 'error');
+                showCloudStatus(`تعذر قراءة بيانات  (${error.code || error.message})`, 'error');
             });
         }
 
@@ -1016,7 +1016,7 @@
                         } else Object.assign(remoteData, parent); // ترحيل تلقائي من شكل المستند القديم.
                         const remote = normalizeCloudData(remoteData);
                         if (!hasRecoverableDatabaseData(localSnapshot) && !hasRecoverableDatabaseData(remote)) {
-                            throw new Error('EMPTY_DATABASE_WRITE_BLOCKED: تم منع إرسال قاعدة فارغة إلى Firebase حفاظاً على البيانات.');
+                            throw new Error('EMPTY_DATABASE_WRITE_BLOCKED: تم منع إرسال قاعدة فارغة إلى  حفاظاً على البيانات.');
                         }
                         const merged = mergeDatabase(baseSnapshot, localSnapshot, remote);
                         const removedFields = [];
@@ -1060,7 +1060,7 @@
                         name: err?.name, stack: err?.stack
                     });
                     const errorCode = err?.code || 'unknown-error';
-                    const errorMessage = String(err?.message || 'لم يرسل Firebase وصفاً إضافياً للخطأ').replace(/\s+/g, ' ').slice(0, 180);
+                    const errorMessage = String(err?.message || 'لم يرسل  وصفاً إضافياً للخطأ').replace(/\s+/g, ' ').slice(0, 180);
                     const detail = `${errorCode}: ${errorMessage}`;
                     showCloudStatus(`فشل الحفظ السحابي (${detail})`, 'error');
                     throw err;
@@ -1105,7 +1105,7 @@
                         window.lastSyncedDbRevision = revision;
                         persistCloudBaseline(remote, false);
                     }
-                    showCloudStatus('تم تحديث البيانات من خادم Firebase');
+                    showCloudStatus('تم تحديث البيانات من السيرفر ');
                 }
             } catch (err) {
                 // فشل الجلب المباشر لا يلغي البيانات المعروضة ولا يعني بالضرورة فشل تسجيل الدخول.
